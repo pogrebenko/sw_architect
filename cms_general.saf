@@ -1,0 +1,1235 @@
+{
+    "m_ArrowType": 0,
+    "m_BkgColor": 3,
+    "m_BrushColor": 8,
+    "m_BrushStyle": 0,
+    "m_BrushTitleColor": "#D0F0C0",
+    "m_BrushTitleStyle": 1,
+    "m_ClassList": {
+        "FigureItems": [
+            {
+                "m_FieldList": {
+                    "FieldList": [
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "UserId",
+                            "m_PhysicalName": "UserId",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": true,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 1,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 45
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 72
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "country_id",
+                            "m_PhysicalName": "country_id",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 2,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 72
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 99
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "general_file_id",
+                            "m_PhysicalName": "general_file_id",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 2,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 99
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 126
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "UserName",
+                            "m_PhysicalName": "UserName",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 126
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 153
+                            },
+                            "m_nPrecission": 256,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "Email",
+                            "m_PhysicalName": "Email",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 153
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 180
+                            },
+                            "m_nPrecission": 256,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "status",
+                            "m_PhysicalName": "status",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 180
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 207
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "inactive",
+                            "m_PhysicalName": "inactive",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 207
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 234
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "firsta_name",
+                            "m_PhysicalName": "firsta_name",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 234
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 261
+                            },
+                            "m_nPrecission": 64,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "last_name",
+                            "m_PhysicalName": "last_name",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 261
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 288
+                            },
+                            "m_nPrecission": 64,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "CURRENT_TIMESTAMP",
+                            "m_LogicalName": "created",
+                            "m_PhysicalName": "created",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 3,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 288
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 315
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "login",
+                            "m_PhysicalName": "login",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 3,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 315
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 342
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "0",
+                            "m_LogicalName": "AccessFailedCount",
+                            "m_PhysicalName": "AccessFailedCount",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 342
+                            },
+                            "m_nLastPos": {
+                                "x": 185,
+                                "y": 369
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        }
+                    ]
+                },
+                "m_LogicalName": "cms_general_users",
+                "m_PhysicalName": "cms_general_users",
+                "m_nAngle": 0,
+                "m_nAnglePos": {
+                    "x": 11,
+                    "y": 7
+                },
+                "m_nAnglesCount": 4,
+                "m_nFigureType": 3,
+                "m_nFirstPos": {
+                    "x": 16,
+                    "y": 18
+                },
+                "m_nLastPos": {
+                    "x": 185,
+                    "y": 395
+                },
+                "m_nResizePos": {
+                    "x": 190,
+                    "y": 405
+                },
+                "m_nTitlePos": {
+                    "x": 185,
+                    "y": 45
+                }
+            },
+            {
+                "m_FieldList": {
+                    "FieldList": [
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "country_id",
+                            "m_PhysicalName": "country_id",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": true,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 1,
+                            "m_nFirstPos": {
+                                "x": 275,
+                                "y": 45
+                            },
+                            "m_nLastPos": {
+                                "x": 464,
+                                "y": 72
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "country_name",
+                            "m_PhysicalName": "country_name",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 275,
+                                "y": 72
+                            },
+                            "m_nLastPos": {
+                                "x": 464,
+                                "y": 99
+                            },
+                            "m_nPrecission": 64,
+                            "m_nScale": 0
+                        }
+                    ]
+                },
+                "m_LogicalName": "cms_general_country",
+                "m_PhysicalName": "cms_general_country",
+                "m_nAngle": 0,
+                "m_nAnglePos": {
+                    "x": 265,
+                    "y": 12
+                },
+                "m_nAnglesCount": 4,
+                "m_nFigureType": 3,
+                "m_nFirstPos": {
+                    "x": 275,
+                    "y": 18
+                },
+                "m_nLastPos": {
+                    "x": 464,
+                    "y": 136
+                },
+                "m_nResizePos": {
+                    "x": 473,
+                    "y": 142
+                },
+                "m_nTitlePos": {
+                    "x": 464,
+                    "y": 45
+                }
+            },
+            {
+                "m_FieldList": {
+                    "FieldList": [
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "general_file_id",
+                            "m_PhysicalName": "general_file_id",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": true,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 1,
+                            "m_nFirstPos": {
+                                "x": 305,
+                                "y": 278
+                            },
+                            "m_nLastPos": {
+                                "x": 464,
+                                "y": 305
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "UserId",
+                            "m_PhysicalName": "UserId",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 2,
+                            "m_nFirstPos": {
+                                "x": 305,
+                                "y": 305
+                            },
+                            "m_nLastPos": {
+                                "x": 464,
+                                "y": 332
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "file_name",
+                            "m_PhysicalName": "file_name",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 305,
+                                "y": 332
+                            },
+                            "m_nLastPos": {
+                                "x": 464,
+                                "y": 359
+                            },
+                            "m_nPrecission": 1024,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "file_uri",
+                            "m_PhysicalName": "file_uri",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 305,
+                                "y": 359
+                            },
+                            "m_nLastPos": {
+                                "x": 464,
+                                "y": 386
+                            },
+                            "m_nPrecission": 1024,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "file_mime",
+                            "m_PhysicalName": "file_mime",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 305,
+                                "y": 386
+                            },
+                            "m_nLastPos": {
+                                "x": 464,
+                                "y": 413
+                            },
+                            "m_nPrecission": 1024,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "file_blob",
+                            "m_PhysicalName": "file_blob",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 6,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 305,
+                                "y": 413
+                            },
+                            "m_nLastPos": {
+                                "x": 464,
+                                "y": 440
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        }
+                    ]
+                },
+                "m_LogicalName": "cms_general_file",
+                "m_PhysicalName": "cms_general_file",
+                "m_nAngle": 0,
+                "m_nAnglePos": {
+                    "x": 298,
+                    "y": 242
+                },
+                "m_nAnglesCount": 4,
+                "m_nFigureType": 3,
+                "m_nFirstPos": {
+                    "x": 305,
+                    "y": 251
+                },
+                "m_nLastPos": {
+                    "x": 464,
+                    "y": 466
+                },
+                "m_nResizePos": {
+                    "x": 470,
+                    "y": 475
+                },
+                "m_nTitlePos": {
+                    "x": 464,
+                    "y": 278
+                }
+            },
+            {
+                "m_FieldList": {
+                    "FieldList": [
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "UserId",
+                            "m_PhysicalName": "UserId",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 2,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 476
+                            },
+                            "m_nLastPos": {
+                                "x": 213,
+                                "y": 503
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "RoleId",
+                            "m_PhysicalName": "RoleId",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 2,
+                            "m_nFirstPos": {
+                                "x": 16,
+                                "y": 503
+                            },
+                            "m_nLastPos": {
+                                "x": 213,
+                                "y": 530
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        }
+                    ]
+                },
+                "m_LogicalName": "cms_general_user_role",
+                "m_PhysicalName": "cms_general_user_role",
+                "m_nAngle": 0,
+                "m_nAnglePos": {
+                    "x": 6,
+                    "y": 443
+                },
+                "m_nAnglesCount": 4,
+                "m_nFigureType": 3,
+                "m_nFirstPos": {
+                    "x": 16,
+                    "y": 449
+                },
+                "m_nLastPos": {
+                    "x": 213,
+                    "y": 570
+                },
+                "m_nResizePos": {
+                    "x": 222,
+                    "y": 576
+                },
+                "m_nTitlePos": {
+                    "x": 213,
+                    "y": 476
+                }
+            },
+            {
+                "m_FieldList": {
+                    "FieldList": [
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "RoleId",
+                            "m_PhysicalName": "RoleId",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": true,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 1,
+                            "m_nFirstPos": {
+                                "x": 581,
+                                "y": 473
+                            },
+                            "m_nLastPos": {
+                                "x": 743,
+                                "y": 500
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "name",
+                            "m_PhysicalName": "name",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 581,
+                                "y": 500
+                            },
+                            "m_nLastPos": {
+                                "x": 743,
+                                "y": 527
+                            },
+                            "m_nPrecission": 64,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "is_sysadmin",
+                            "m_PhysicalName": "is_sysadmin",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 581,
+                                "y": 527
+                            },
+                            "m_nLastPos": {
+                                "x": 743,
+                                "y": 554
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "description",
+                            "m_PhysicalName": "description",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 581,
+                                "y": 554
+                            },
+                            "m_nLastPos": {
+                                "x": 743,
+                                "y": 581
+                            },
+                            "m_nPrecission": 64,
+                            "m_nScale": 0
+                        }
+                    ]
+                },
+                "m_LogicalName": "cms_general_role",
+                "m_PhysicalName": "cms_general_role",
+                "m_nAngle": 0,
+                "m_nAnglePos": {
+                    "x": 572,
+                    "y": 438
+                },
+                "m_nAnglesCount": 4,
+                "m_nFigureType": 3,
+                "m_nFirstPos": {
+                    "x": 581,
+                    "y": 446
+                },
+                "m_nLastPos": {
+                    "x": 743,
+                    "y": 606
+                },
+                "m_nResizePos": {
+                    "x": 751,
+                    "y": 614
+                },
+                "m_nTitlePos": {
+                    "x": 743,
+                    "y": 473
+                }
+            },
+            {
+                "m_FieldList": {
+                    "FieldList": [
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "pid",
+                            "m_PhysicalName": "pid",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": true,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 1,
+                            "m_nFirstPos": {
+                                "x": 581,
+                                "y": 45
+                            },
+                            "m_nLastPos": {
+                                "x": 795,
+                                "y": 72
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "mid",
+                            "m_PhysicalName": "mid",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 2,
+                            "m_nFirstPos": {
+                                "x": 581,
+                                "y": 72
+                            },
+                            "m_nLastPos": {
+                                "x": 795,
+                                "y": 99
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "permissions",
+                            "m_PhysicalName": "permissions",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 581,
+                                "y": 99
+                            },
+                            "m_nLastPos": {
+                                "x": 795,
+                                "y": 126
+                            },
+                            "m_nPrecission": 256,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "description",
+                            "m_PhysicalName": "description",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 7,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 581,
+                                "y": 126
+                            },
+                            "m_nLastPos": {
+                                "x": 795,
+                                "y": 153
+                            },
+                            "m_nPrecission": 256,
+                            "m_nScale": 0
+                        }
+                    ]
+                },
+                "m_LogicalName": "cms_general_permissions",
+                "m_PhysicalName": "cms_general_permissions",
+                "m_nAngle": 0,
+                "m_nAnglePos": {
+                    "x": 572,
+                    "y": 11
+                },
+                "m_nAnglesCount": 4,
+                "m_nFigureType": 3,
+                "m_nFirstPos": {
+                    "x": 581,
+                    "y": 18
+                },
+                "m_nLastPos": {
+                    "x": 795,
+                    "y": 179
+                },
+                "m_nResizePos": {
+                    "x": 804,
+                    "y": 185
+                },
+                "m_nTitlePos": {
+                    "x": 795,
+                    "y": 45
+                }
+            },
+            {
+                "m_FieldList": {
+                    "FieldList": [
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "pid",
+                            "m_PhysicalName": "pid",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 2,
+                            "m_nFirstPos": {
+                                "x": 581,
+                                "y": 276
+                            },
+                            "m_nLastPos": {
+                                "x": 832,
+                                "y": 303
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "RoleId",
+                            "m_PhysicalName": "RoleId",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": true,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 2,
+                            "m_nFirstPos": {
+                                "x": 581,
+                                "y": 303
+                            },
+                            "m_nLastPos": {
+                                "x": 832,
+                                "y": 330
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        }
+                    ]
+                },
+                "m_LogicalName": "cms_general_role_permissions",
+                "m_PhysicalName": "cms_general_role_permissions",
+                "m_nAngle": 0,
+                "m_nAnglePos": {
+                    "x": 571,
+                    "y": 244
+                },
+                "m_nAnglesCount": 4,
+                "m_nFigureType": 3,
+                "m_nFirstPos": {
+                    "x": 581,
+                    "y": 249
+                },
+                "m_nLastPos": {
+                    "x": 832,
+                    "y": 371
+                },
+                "m_nResizePos": {
+                    "x": 841,
+                    "y": 376
+                },
+                "m_nTitlePos": {
+                    "x": 832,
+                    "y": 276
+                }
+            },
+            {
+                "m_FieldList": {
+                    "FieldList": [
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "mid",
+                            "m_PhysicalName": "mid",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": true,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 1,
+                            "m_nFieldRelationType": 1,
+                            "m_nFirstPos": {
+                                "x": 916,
+                                "y": 45
+                            },
+                            "m_nLastPos": {
+                                "x": 1102,
+                                "y": 72
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "module",
+                            "m_PhysicalName": "module",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 0,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 916,
+                                "y": 72
+                            },
+                            "m_nLastPos": {
+                                "x": 1102,
+                                "y": 99
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "description",
+                            "m_PhysicalName": "description",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 0,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 916,
+                                "y": 99
+                            },
+                            "m_nLastPos": {
+                                "x": 1102,
+                                "y": 126
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        },
+                        {
+                            "m_DefaultValue": "",
+                            "m_LogicalName": "active_module",
+                            "m_PhysicalName": "active_module",
+                            "m_Remarks": "",
+                            "m_bAllowsNulls": false,
+                            "m_bAutoIncrement": false,
+                            "m_nAngle": 0,
+                            "m_nFieldDataType": 0,
+                            "m_nFieldRelationType": 0,
+                            "m_nFirstPos": {
+                                "x": 916,
+                                "y": 126
+                            },
+                            "m_nLastPos": {
+                                "x": 1102,
+                                "y": 153
+                            },
+                            "m_nPrecission": 0,
+                            "m_nScale": 0
+                        }
+                    ]
+                },
+                "m_LogicalName": "cms_general_module",
+                "m_PhysicalName": "cms_general_module",
+                "m_nAngle": 0,
+                "m_nAnglePos": {
+                    "x": 907,
+                    "y": 11
+                },
+                "m_nAnglesCount": 4,
+                "m_nFigureType": 3,
+                "m_nFirstPos": {
+                    "x": 916,
+                    "y": 18
+                },
+                "m_nLastPos": {
+                    "x": 1102,
+                    "y": 179
+                },
+                "m_nResizePos": {
+                    "x": 1110,
+                    "y": 186
+                },
+                "m_nTitlePos": {
+                    "x": 1102,
+                    "y": 45
+                }
+            }
+        ],
+        "FigureTypes": [
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3
+        ]
+    },
+    "m_ClassPrefix": "",
+    "m_DatabaseName": "cms_general",
+    "m_PenColor": "#000000",
+    "m_PenColorResize": 15,
+    "m_PenColorRotate": 14,
+    "m_PenColorSelect": "#A72920",
+    "m_PenFKStyle": 2,
+    "m_PenStyle": 1,
+    "m_ProjectName": "cms general",
+    "m_RelationList": {
+        "RelationItems": [
+            {
+                "m_FKTableLabel": "",
+                "m_Name": "",
+                "m_PKTableLabel": "",
+                "m_nCardinalityFKTable": 0,
+                "m_nCardinalityPKTable": 3,
+                "m_nDeferrability": 0,
+                "m_nDeleteRule": 2,
+                "m_nFirstPos": {
+                    "x": 369,
+                    "y": 77
+                },
+                "m_nFrom": 1,
+                "m_nLastPos": {
+                    "x": 100,
+                    "y": 206
+                },
+                "m_nRelationType": 1,
+                "m_nTo": 0,
+                "m_nType": 0,
+                "m_nUpdateRule": 2
+            },
+            {
+                "m_FKTableLabel": "",
+                "m_Name": "",
+                "m_PKTableLabel": "",
+                "m_nCardinalityFKTable": 0,
+                "m_nCardinalityPKTable": 3,
+                "m_nDeferrability": 0,
+                "m_nDeleteRule": 2,
+                "m_nFirstPos": {
+                    "x": 384,
+                    "y": 358
+                },
+                "m_nFrom": 2,
+                "m_nLastPos": {
+                    "x": 100,
+                    "y": 206
+                },
+                "m_nRelationType": 1,
+                "m_nTo": 0,
+                "m_nType": 0,
+                "m_nUpdateRule": 2
+            },
+            {
+                "m_FKTableLabel": "",
+                "m_Name": "",
+                "m_PKTableLabel": "",
+                "m_nCardinalityFKTable": 0,
+                "m_nCardinalityPKTable": 3,
+                "m_nDeferrability": 0,
+                "m_nDeleteRule": 2,
+                "m_nFirstPos": {
+                    "x": 100,
+                    "y": 206
+                },
+                "m_nFrom": 0,
+                "m_nLastPos": {
+                    "x": 384,
+                    "y": 358
+                },
+                "m_nRelationType": 1,
+                "m_nTo": 2,
+                "m_nType": 0,
+                "m_nUpdateRule": 2
+            },
+            {
+                "m_FKTableLabel": "",
+                "m_Name": "",
+                "m_PKTableLabel": "",
+                "m_nCardinalityFKTable": 0,
+                "m_nCardinalityPKTable": 0,
+                "m_nDeferrability": 0,
+                "m_nDeleteRule": 0,
+                "m_nFirstPos": {
+                    "x": 100,
+                    "y": 206
+                },
+                "m_nFrom": 0,
+                "m_nLastPos": {
+                    "x": 114,
+                    "y": 509
+                },
+                "m_nRelationType": 1,
+                "m_nTo": 3,
+                "m_nType": 0,
+                "m_nUpdateRule": 0
+            },
+            {
+                "m_FKTableLabel": "",
+                "m_Name": "",
+                "m_PKTableLabel": "",
+                "m_nCardinalityFKTable": 0,
+                "m_nCardinalityPKTable": 3,
+                "m_nDeferrability": 0,
+                "m_nDeleteRule": 2,
+                "m_nFirstPos": {
+                    "x": 662,
+                    "y": 526
+                },
+                "m_nFrom": 4,
+                "m_nLastPos": {
+                    "x": 114,
+                    "y": 509
+                },
+                "m_nRelationType": 1,
+                "m_nTo": 3,
+                "m_nType": 0,
+                "m_nUpdateRule": 2
+            },
+            {
+                "m_FKTableLabel": "",
+                "m_Name": "",
+                "m_PKTableLabel": "",
+                "m_nCardinalityFKTable": 0,
+                "m_nCardinalityPKTable": 3,
+                "m_nDeferrability": 0,
+                "m_nDeleteRule": 2,
+                "m_nFirstPos": {
+                    "x": 688,
+                    "y": 98
+                },
+                "m_nFrom": 5,
+                "m_nLastPos": {
+                    "x": 706,
+                    "y": 310
+                },
+                "m_nRelationType": 1,
+                "m_nTo": 6,
+                "m_nType": 0,
+                "m_nUpdateRule": 2
+            },
+            {
+                "m_FKTableLabel": "",
+                "m_Name": "",
+                "m_PKTableLabel": "",
+                "m_nCardinalityFKTable": 0,
+                "m_nCardinalityPKTable": 3,
+                "m_nDeferrability": 0,
+                "m_nDeleteRule": 2,
+                "m_nFirstPos": {
+                    "x": 662,
+                    "y": 526
+                },
+                "m_nFrom": 4,
+                "m_nLastPos": {
+                    "x": 706,
+                    "y": 310
+                },
+                "m_nRelationType": 1,
+                "m_nTo": 6,
+                "m_nType": 0,
+                "m_nUpdateRule": 2
+            },
+            {
+                "m_FKTableLabel": "",
+                "m_Name": "",
+                "m_PKTableLabel": "",
+                "m_nCardinalityFKTable": 0,
+                "m_nCardinalityPKTable": 3,
+                "m_nDeferrability": 0,
+                "m_nDeleteRule": 2,
+                "m_nFirstPos": {
+                    "x": 1009,
+                    "y": 98
+                },
+                "m_nFrom": 7,
+                "m_nLastPos": {
+                    "x": 688,
+                    "y": 98
+                },
+                "m_nRelationType": 1,
+                "m_nTo": 5,
+                "m_nType": 0,
+                "m_nUpdateRule": 2
+            }
+        ],
+        "RelationTypes": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+        ]
+    },
+    "m_TablePrefix": "",
+    "m_nActionType": 3,
+    "m_nAppVariant": 2,
+    "m_nCPRadius": 2,
+    "m_nDatabaseType": 1,
+    "m_nFigureType": 3,
+    "m_nRelationNotation": 0,
+    "m_nRelationType": 1,
+    "m_nWidth": 1,
+    "m_nWidthHover": 3
+}

@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Software Architect</string>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionClass"/>
+   <addaction name="actionMove"/>
+   <addaction name="actionDelete"/>
+   <addaction name="separator"/>
+   <addaction name="actionScalePlus"/>
+   <addaction name="actionScaleMinus"/>
+   <addaction name="actionScaleReset"/>
+   <addaction name="separator"/>
+   <addaction name="actionSaveFile"/>
+   <addaction name="actionClear"/>
+   <addaction name="actionResetRotate"/>
+   <addaction name="separator"/>
+   <addaction name="actionEditOptions"/>
+  </widget>
+  <action name="actionDelete">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="sw_architect.qrc">
+     <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete Class/Relation</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::TextHeuristicRole</enum>
+   </property>
+  </action>
+  <action name="actionClass">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="sw_architect.qrc">
+     <normaloff>:/images/squaresplus.svg</normaloff>:/images/squaresplus.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Class</string>
+   </property>
+   <property name="toolTip">
+    <string>add Class</string>
+   </property>
+  </action>
+  <action name="actionMove">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="sw_architect.qrc">
+     <normaloff>:/images/arrows-pointing-out.svg</normaloff>:/images/arrows-pointing-out.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Move</string>
+   </property>
+   <property name="toolTip">
+    <string>Move Class</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::TextHeuristicRole</enum>
+   </property>
+  </action>
+  <action name="actionScalePlus">
+   <property name="icon">
+    <iconset resource="sw_architect.qrc">
+     <normaloff>:/images/magnifying-glass-plus.svg</normaloff>:/images/magnifying-glass-plus.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom out</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom out</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionScaleMinus">
+   <property name="icon">
+    <iconset resource="sw_architect.qrc">
+     <normaloff>:/images/magnifying-glass-minus.svg</normaloff>:/images/magnifying-glass-minus.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom in</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom in</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionScaleReset">
+   <property name="icon">
+    <iconset resource="sw_architect.qrc">
+     <normaloff>:/images/magnifying-glass.svg</normaloff>:/images/magnifying-glass.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Actual size</string>
+   </property>
+   <property name="toolTip">
+    <string>Actual size</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionResetRotate">
+   <property name="icon">
+    <iconset resource="sw_architect.qrc">
+     <normaloff>:/images/arrow-path.svg</normaloff>:/images/arrow-path.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Reset rotate</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset rotate</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionEditOptions">
+   <property name="icon">
+    <iconset resource="sw_architect.qrc">
+     <normaloff>:/images/cog-6-tooth.svg</normaloff>:/images/cog-6-tooth.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Options</string>
+   </property>
+   <property name="toolTip">
+    <string>Options</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionClear">
+   <property name="icon">
+    <iconset resource="sw_architect.qrc">
+     <normaloff>:/images/document.svg</normaloff>:/images/document.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Clear</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSaveFile">
+   <property name="icon">
+    <iconset resource="sw_architect.qrc">
+     <normaloff>:/images/arrow-down-tray-24x24.svg</normaloff>:/images/arrow-down-tray-24x24.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="toolTip">
+    <string>Save</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionSelectGroup">
+   <property name="icon">
+    <iconset resource="sw_architect.qrc">
+     <normaloff>:/images/rectangle-group.svg</normaloff>:/images/rectangle-group.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Select group</string>
+   </property>
+   <property name="toolTip">
+    <string>Select group</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="sw_architect.qrc"/>
+ </resources>
+ <connections/>
+</ui>

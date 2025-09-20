@@ -60,6 +60,7 @@ public:
     void figure_rebuild( long n );
     void figure_area( QPoint &first_pos, QPoint &last_pos );
     QSize &figure_size( QSize &area_size, const QSize &widget_size );
+    bool figure_intersect( const QRect &rc );
 
     __Field* field_add( long n, const char* );
 

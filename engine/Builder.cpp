@@ -390,6 +390,18 @@ CBuilder::figure_select( const QRect &rc )
 }
 
 bool
+CBuilder::figure_intersect( const QRect &rc )
+{
+    auto f     = m_pAppOptions->getClassList();
+    auto found = std::find_if( __EXECUTION_POLICY_BUILDER__, f->begin(), f->end(),
+        [rc]( auto pItem ){
+            return QRect( pItem->m_nFirstPos, pItem->m_nLastPos ).QRect::intersects( rc ) ;
+        }
+    );
+    return found != f->end();
+}
+
+bool
 CBuilder::figure_select( long n )
 {
     if( n >= 0 )

@@ -370,7 +370,8 @@ MainWindow::on_About()
         "Icons from: https://heroicons.com\n" \
         "\n" \
         "Copyright (C) 2025, pogrebenko";
-#elif Q_OS_LINUX
+#endif
+#ifdef Q_OS_LINUX
     QString Content =
         "Product: "  + QString( APP_NAME  ) + " " + QString( APP_VERSION ) + "\n" \
         "Built on: " + QString( BUILDDATE ).replace( QChar('_'), QChar(' ') ) + "\n" \
@@ -462,7 +463,8 @@ MainWindow::printCanvas( QPrinter *pPrinter )
     painter.translate( x + w/2, y + h/2 );
     painter.scale( scale, scale );
     painter.translate( -width()/2, -height()/2 );
-#elif Q_OS_LINUX
+#endif
+#ifdef Q_OS_LINUX
     double xscale = pPrinter->pageRect().width ()/double(m_pCanvas->width ());
     double yscale = pPrinter->pageRect().height()/double(m_pCanvas->height());
     double scale = qMin(xscale, yscale);

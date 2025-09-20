@@ -650,7 +650,7 @@ CCanvas::mouseReleaseEvent( QMouseEvent *pEvent )
                                                               || figure_move( pt )
                                                         ); } break;
 
-                            case ActionTypeAddFigure   : { CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &pt, -1, figure_hover(pt,false)<0&&figure_release_add() ); } break;
+                            case ActionTypeAddFigure   : { CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &pt, -1, figure_hover(pt,false)<0&&figure_hover(__AppOptions.getFirstPos(),false)<0&&figure_release_add() ); } break;
                             case ActionTypeAddRelation : { CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &pt, -1, relation_release_add( pt, nullptr ) ); } break;
 
                             case ActionTypeDelete      :
@@ -717,7 +717,7 @@ CCanvas::mouseMoveEvent( QMouseEvent *pEvent )
                                                         || figure_move( pt ) || relation_move( pt )
                                                 ); } break;
 
-                    case ActionTypeAddFigure   : { CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &pt, -1, figure_hover(pt,false)<0&&figure_set_last_pos(pt), true, false, true , false ); } break;
+                    case ActionTypeAddFigure   : { CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &pt, -1, figure_hover(pt,false)<0&&figure_hover(__AppOptions.getFirstPos(),false)<0&&figure_set_last_pos(pt), true, false, true , false ); } break;
                     case ActionTypeAddRelation : { CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &pt, -1, relation_set_last_pos( pt ), true, false, false, true  ); } break;
 
                     case ActionTypeDelete      :

@@ -363,13 +363,22 @@ void
 MainWindow::on_About()
 {
     QString Title   = "About " + QString( APP_NAME );
+#ifdef Q_OS_WIN
     QString Content =
-    "Product: "  + QString( APP_NAME  ) + " " + QString( APP_VERSION ) + "\n" \
-    "Built on: " + QString( BUILDDATE ).replace( QChar('_'), QChar(' ') ) + "\n" \
-    "Source: https://github.com/pogrebenko/sw_architect\n" \
-    "Icons from: https://heroicons.com\n" \
-    "\n" \
-    "Copyright (C) 2025, pogrebenko";
+        "Product: "  + QString( APP_NAME  ) + " " + QString( APP_VERSION ) + "\n" \
+        "Source: https://github.com/pogrebenko/sw_architect\n" \
+        "Icons from: https://heroicons.com\n" \
+        "\n" \
+        "Copyright (C) 2025, pogrebenko";
+#elif Q_OS_LINUX
+    QString Content =
+        "Product: "  + QString( APP_NAME  ) + " " + QString( APP_VERSION ) + "\n" \
+        "Built on: " + QString( BUILDDATE ).replace( QChar('_'), QChar(' ') ) + "\n" \
+        "Source: https://github.com/pogrebenko/sw_architect\n" \
+        "Icons from: https://heroicons.com\n" \
+        "\n" \
+        "Copyright (C) 2025, pogrebenko";
+#endif
 
     QMessageBox::about( this, Title, Content );
 }
@@ -442,18 +451,18 @@ MainWindow::printCanvas( QPrinter *pPrinter )
                            QPainter::SmoothPixmapTransform, true);
 
     // begin center the widget on the page and scale it so that it fits the page >>>>>
-
-    // qreal w = pPrinter->pageLayout().paintRectPixels( DEFAULT_PRINTER_DPI ).width ();
-    // qreal h = pPrinter->pageLayout().paintRectPixels( DEFAULT_PRINTER_DPI ).height();
-    // double xscale = w/double(m_pCanvas->width ());
-    // double yscale = h/double(m_pCanvas->height());
-    // double scale  = qMin(xscale, yscale);
-    // int x = pPrinter->pageLayout().fullRectPixels( DEFAULT_PRINTER_DPI ).x();
-    // int y = pPrinter->pageLayout().fullRectPixels( DEFAULT_PRINTER_DPI ).y();
-    // painter.translate( x + w/2, y + h/2 );
-    // painter.scale( scale, scale );
-    // painter.translate( -width()/2, -height()/2 );
-
+#ifdef Q_OS_WIN
+    qreal w = pPrinter->pageLayout().paintRectPixels( DEFAULT_PRINTER_DPI ).width ();
+    qreal h = pPrinter->pageLayout().paintRectPixels( DEFAULT_PRINTER_DPI ).height();
+    double xscale = w/double(m_pCanvas->width ());
+    double yscale = h/double(m_pCanvas->height());
+    double scale  = qMin(xscale, yscale);
+    int x = pPrinter->pageLayout().fullRectPixels( DEFAULT_PRINTER_DPI ).x();
+    int y = pPrinter->pageLayout().fullRectPixels( DEFAULT_PRINTER_DPI ).y();
+    painter.translate( x + w/2, y + h/2 );
+    painter.scale( scale, scale );
+    painter.translate( -width()/2, -height()/2 );
+#elif Q_OS_LINUX
     double xscale = pPrinter->pageRect().width ()/double(m_pCanvas->width ());
     double yscale = pPrinter->pageRect().height()/double(m_pCanvas->height());
     double scale = qMin(xscale, yscale);
@@ -461,7 +470,7 @@ MainWindow::printCanvas( QPrinter *pPrinter )
                       pPrinter->paperRect().y() + pPrinter->pageRect().height()/2);
     painter.scale(scale, scale);
     painter.translate(-width()/2, -height()/2);
-
+#endif
     // end >>>>>
 
     m_pCanvas->draw_figure  ( painter, __AppOptions.getClassList   () );

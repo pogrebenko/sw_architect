@@ -843,16 +843,33 @@ MainWindow::LoadFile( QString &filePath )
 }
 
 void
+MainWindow::closeEvent( QCloseEvent *event )
+{
+    FUNC_TRACE( &__Logger, __PRETTY_FUNCTION__ );
+
+    exit_or_ignore() ? QCoreApplication::quit() : event->ignore();
+}
+
+void
 MainWindow::on_Exit()
 {
     FUNC_TRACE( &__Logger, __PRETTY_FUNCTION__ );
+    if( exit_or_ignore() )
+    {
+        QCoreApplication::quit();
+    }
+}
+
+bool
+MainWindow::exit_or_ignore()
+{
     if( __History.size() > 1 )
     {
         QMessageBox::StandardButton reply =
             QMessageBox::question( this,
-                    "Unsaved changes",
-                    "Your project has unsaved changes",
-                    QMessageBox::Save | QMessageBox::Cancel | QMessageBox::Discard );
+                                  "Unsaved changes",
+                                  "Your project has unsaved changes",
+                                  QMessageBox::Save | QMessageBox::Cancel | QMessageBox::Discard );
         if( reply == QMessageBox::Save )
         {
             on_Save();
@@ -860,10 +877,10 @@ MainWindow::on_Exit()
         else
         if( reply == QMessageBox::Cancel )
         {
-            return;
+            return false;
         }
     }
-    QCoreApplication::quit();
+    return true;
 }
 
 void MainWindow::on_Rectangle()

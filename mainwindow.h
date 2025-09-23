@@ -31,7 +31,9 @@ public :
 
     void refresh( const char *sMsg = nullptr );
 
-protected :
+    void closeEvent( QCloseEvent *event );
+
+    protected :
     void setup_ui();
     void init_ui( CAppOptions *pAppOptions );
     void delete_ui();
@@ -87,6 +89,8 @@ private slots :
      void on_AboutQt();
 
      void printCanvas( QPrinter *pPrinter );
+
+     bool exit_or_ignore();
 
 private :
     Ui::MainWindow *ui;

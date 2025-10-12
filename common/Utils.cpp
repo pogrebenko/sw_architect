@@ -28,6 +28,18 @@ extern CLogStream                   __Logger;
 extern std::unique_ptr<CAppOptions> __AppOptions__;
 #define                             __AppOptions (*__AppOptions__.get())
 
+QPoint
+pointf2point( const QPointF &pt )
+{
+    return QPoint( pt.x(), pt.y() );
+}
+
+QPointF
+point2pointf( const QPoint  &pt )
+{
+    return QPointF( pt.x(), pt.y() );
+}
+
 QPointF
 correct_point( const QPointF &pt, const QRectF &item )
 {

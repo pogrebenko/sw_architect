@@ -116,6 +116,69 @@ CPainter::draw_relation( QPainter &painter, RelationList_t *RelationList )
 }
 
 void
+CPainter::draw_relation_item( QPainter &painter, Relation_t &pRelation )
+{
+    FUNC_TRACE( &__Logger, __PRETTY_FUNCTION__ );
+
+    painter.save();
+
+    float nRatio = m_pAppOptions->getRatio();
+    painter.scale( nRatio, nRatio );
+
+    ClassList_t *figures = m_pAppOptions->getClassList();
+    auto         pFrom   = figures->at( pRelation.m_nFrom );
+    auto         pTo     = figures->at( pRelation.m_nTo   );
+    QRectF       rc_from{ pFrom->m_nFirstPos, pFrom->m_nLastPos };
+    QRectF       rc_to  { pTo  ->m_nFirstPos, pTo  ->m_nLastPos };
+    QLineF       line( correct_point(pRelation.offset_first(),rc_from), correct_point(pRelation.offset_last(),rc_to) );
+
+    float r         = 2.2 * m_pAppOptions->getCPRadius();
+    int   d         = m_pAppOptions->getArrowAngle();
+    qreal arrowSize = m_pAppOptions->getArrowSize();
+    float nWidth    = pRelation.m_bHover ? m_pAppOptions->getWidthHover() : m_pAppOptions->getWidth();
+
+    QPen     pen;
+    pen.setWidthF( nWidth );
+    pen.setColor ( m_pAppOptions->getPenColor() );
+    pen.setStyle ( m_pAppOptions->getPenStyle() );
+    pen.setCosmetic( true );
+    painter.setPen( pen );
+
+    QBrush   brush;
+    brush.setColor( m_pAppOptions->getBrushColor() );
+    brush.setStyle( m_pAppOptions->getBrushStyle() );
+    painter.setBrush( brush );
+
+    std::vector <__PointType> intersectionFrom; draw_relation_intersection( intersectionFrom, pFrom.get(), line );
+    std::vector <__PointType> intersectionTo  ; draw_relation_intersection( intersectionTo  , pTo  .get(), line );
+
+    for_each( intersectionFrom.begin(), intersectionFrom.end(),
+     [this,&painter,&intersectionTo,&pen,r,d,arrowSize,pFrom,pTo,&pRelation]( auto &pLineFrom )
+     {
+         if( pLineFrom.m_nIntersectionType == QLineF::BoundedIntersection )
+         {
+             for_each( intersectionTo.begin(), intersectionTo.end(),
+              [this,&painter,&pen,r,d,arrowSize,&pLineFrom,pFrom,pTo,&pRelation]( auto &pLineTo )
+              {
+                  if( pLineTo.m_nIntersectionType == QLineF::BoundedIntersection )
+                  {
+                      QPointF startPoint = pLineFrom.m_nPoint, endPoint = pLineTo.m_nPoint;
+
+                      draw_relation_line( painter, pen, pRelation.m_nType, startPoint, endPoint );
+
+                      draw_relation_cardinality( painter, pen, pRelation.m_nCardinalityPKTable, startPoint, endPoint, pLineFrom, r, d, arrowSize );
+                      draw_relation_cardinality( painter, pen, pRelation.m_nCardinalityFKTable, startPoint, endPoint, pLineTo  , r, d, arrowSize );
+                  }
+              }
+            );
+         }
+     }
+    );
+
+    painter.restore();
+}
+
+void
 CPainter::draw_relation_line( QPainter &painter, QPen &pen, RelationPropertyType_t LineType, QPointF &startPoint, QPointF &endPoint )
 {
     switch( LineType )
@@ -124,7 +187,36 @@ CPainter::draw_relation_line( QPainter &painter, QPen &pen, RelationPropertyType
         case RelationPropertyType_t::Identifying    : pen.setStyle( m_pAppOptions->getPenStyle  () ); break;
     }
     painter.setPen( pen );
-    painter.drawLine( QLineF( startPoint, endPoint ) );
+
+    int dy = (endPoint.y() - startPoint.y())/2;
+    int dx = (endPoint.x() - startPoint.x())/2;
+
+    QPolygonF relation;
+    if( true || abs(dx) < MINIMUM_RELATION_WIDTH || abs(dy) < MINIMUM_RELATION_WIDTH )
+    {
+        relation << startPoint << endPoint;
+    }
+    else
+    {
+        //if( dx > 0 )
+        {
+            int x = startPoint.x() + dx;
+            QPointF p1( x, startPoint.y() );
+            QPointF p2( x, endPoint  .y() );
+            relation << startPoint << p1 << p2 << endPoint;
+        }
+        //if( dy > 0 )
+        {
+            //int y = startPoint.y() + dy;
+            //QPointF p1( startPoint.x(), y );
+            //QPointF p2( endPoint  .x(), y );
+            //relation << startPoint << p1 << p2 << endPoint;
+        }
+    }
+    QPainterPath rectPath;
+                 rectPath.addPolygon( relation );
+
+    painter.drawPath( rectPath );
 }
 
 void
@@ -132,12 +224,28 @@ CPainter::draw_relation_cardinality( QPainter &painter, QPen &pen, RelationPrope
 {
     //if( m_pAppOptions->getRelationNotation() == RelationNotation_t::Bachman ){}
 
+    int dy = (endPoint.y() - startPoint.y())/2;
+    int dx = (endPoint.x() - startPoint.x())/2;
+
     // Bachman Notation
     pen.setStyle( m_pAppOptions->getPenStyle() );
     painter.setPen( pen );
 
     QLineF  line(startPoint, endPoint);
-    double  angle = std::atan2(line.dy(), -line.dx()) + M_PI / 2;
+    double  angle = 0;
+    if( true || abs(dx) < MINIMUM_RELATION_WIDTH || abs(dy) < MINIMUM_RELATION_WIDTH )
+    {
+        angle = std::atan2(line.dy(), -line.dx()) + M_PI / 2;
+    }
+    else
+    {
+        if( dx > 0 ) {
+            angle = -M_PI / 2;
+        }
+        else {
+            angle =  M_PI / 2;
+        }
+    }
 
     QPointF arrowP1_end = endPoint + QPointF(std::sin(angle + M_PI / d) * arrowSize,
                                              std::cos(angle + M_PI / d) * arrowSize);
@@ -194,70 +302,6 @@ CPainter::draw_relation_cardinality( QPainter &painter, QPen &pen, RelationPrope
         // painter.drawPath( ellipsePath.subtracted( rectPath ) );
         // //painter.drawPath( transform.map( ellipsePath.intersected( rectPath ) ) );
         // //painter.drawEllipse( pLineFrom.m_nPoint, 14, 6 );
-}
-
-void
-CPainter::draw_relation_item( QPainter &painter, Relation_t &pRelation )
-{
-    FUNC_TRACE( &__Logger, __PRETTY_FUNCTION__ );
-
-    painter.save();
-
-    float nRatio = m_pAppOptions->getRatio();
-    painter.scale( nRatio, nRatio );
-
-    ClassList_t *figures = m_pAppOptions->getClassList();
-    auto         pFrom   = figures->at( pRelation.m_nFrom );
-    auto         pTo     = figures->at( pRelation.m_nTo   );
-    QRectF       rc1{ pFrom->m_nFirstPos, pFrom->m_nLastPos };
-    QRectF       rc2{ pTo  ->m_nFirstPos, pTo  ->m_nLastPos };
-    QPointF      pt1 = pRelation.m_nFirstPos + QPointF(  pRelation.m_dX, -pRelation.m_dY );
-    QPointF      pt2 = pRelation.m_nLastPos  + QPointF( -pRelation.m_dY,  pRelation.m_dX );
-    QLineF       line( correct_point(pt1,rc1), correct_point(pt2,rc2) );
-
-    float r         = 2.2 * m_pAppOptions->getCPRadius();
-    int   d         = m_pAppOptions->getArrowAngle();
-    qreal arrowSize = m_pAppOptions->getArrowSize();
-    float nWidth    = pRelation.m_bHover ? m_pAppOptions->getWidthHover() : m_pAppOptions->getWidth();
-
-    QPen     pen;
-             pen.setWidthF( nWidth );
-             pen.setColor ( m_pAppOptions->getPenColor() );
-             pen.setStyle ( m_pAppOptions->getPenStyle() );
-             pen.setCosmetic( true );
-    painter.setPen( pen );
-
-    QBrush   brush;
-             brush.setColor( m_pAppOptions->getBrushColor() );
-             brush.setStyle( m_pAppOptions->getBrushStyle() );
-    painter.setBrush( brush );
-
-    std::vector <__PointType> intersectionFrom; draw_relation_intersection( intersectionFrom, pFrom.get(), line );
-    std::vector <__PointType> intersectionTo  ; draw_relation_intersection( intersectionTo  , pTo  .get(), line );
-
-    //QPolygonF linePath;
-    for_each( intersectionFrom.begin(), intersectionFrom.end(),
-        [this,&painter,&intersectionTo,&pen,r,d,arrowSize,pFrom,pTo,&pRelation]( auto &pLineFrom )
-        {
-            if( pLineFrom.m_nIntersectionType == QLineF::BoundedIntersection )
-            {
-                for_each( intersectionTo.begin(), intersectionTo.end(),
-                    [this,&painter,&pen,r,d,arrowSize,&pLineFrom,pFrom,pTo,&pRelation]( auto &pLineTo )
-                    {
-                         if( pLineTo.m_nIntersectionType == QLineF::BoundedIntersection )
-                         {
-                             QPointF startPoint = pLineFrom.m_nPoint, endPoint = pLineTo.m_nPoint;
-                             draw_relation_line( painter, pen, pRelation.m_nType, startPoint, endPoint );
-                             draw_relation_cardinality( painter, pen, pRelation.m_nCardinalityPKTable, startPoint, endPoint, pLineFrom, r, d, arrowSize );
-                             draw_relation_cardinality( painter, pen, pRelation.m_nCardinalityFKTable, startPoint, endPoint, pLineTo  , r, d, arrowSize );
-                         }
-                    }
-                );
-            }
-        }
-    );
-
-    painter.restore();
 }
 
 void

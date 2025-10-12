@@ -29,6 +29,9 @@ typedef struct __Relation : public __Relation__
     void  move( const QPoint &from, const QPoint &to );
     void  oscillation( int dx, int dy );
 
+    QPoint offset_first();
+    QPoint offset_last();
+
 } Relation_t;
 
 class CRelationHolder : public std::shared_ptr<Relation_t>

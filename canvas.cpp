@@ -714,7 +714,8 @@ CCanvas::mouseMoveEvent( QMouseEvent *pEvent )
                     case ActionTypeMove        : { CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &__AppOptions.getFirstPos(), __AppOptions.getIndexFrom(),/*center_hover( pt, true ) >= 0 ||*/
                                                            rotate_hover( pt, true, true ) >= 0
                                                         || resize_hover( pt, true, true ) >= 0
-                                                        || figure_move( pt ) || relation_move( pt )
+                                                        || figure_move( pt )
+                                                        || relation_move( pt )
                                                 ); } break;
 
                     case ActionTypeAddFigure   : { CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &pt, -1, figure_hover(pt,false)<0&&figure_hover(__AppOptions.getFirstPos(),false)<0&&figure_set_last_pos(pt), true, false, true , false ); } break;
@@ -763,7 +764,8 @@ CCanvas::mouseMoveEvent( QMouseEvent *pEvent )
 
             rh = relation_hover( pt, true );
 
-            CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &pt, -1, -1, true, false );
+            //CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &pt, -1, -1, true, false );
+            refresh( true, false, false );
 
             if( false && check_action_type( ActionTypeDelete ) )
             {

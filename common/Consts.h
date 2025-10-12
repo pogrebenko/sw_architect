@@ -21,18 +21,21 @@ Copyright (C) 2025, pogrebenko
 #define MAX_NEAR_SIZE         10
 #define MIN_FIGURE_SIZE       10
 #define MAX_FIGURE_SIZE      500
-#define DEFAULT_TOLERANCE     10
+#define DEFAULT_TOLERANCE     10.
 #define DELTA_ANGLE           10.
 #define DELTA_RESIZE          10.
 #define HEIGHT_TO_PADDING      4
 #define DEFAULT_PADDING        7
 #define DEFAULT_SCROLL_SIZE   16
+#define DEFAULT_OFFSET_DX     30
+#define DEFAULT_OFFSET_DY     30
 
 #define DEFAULT_RATIO_STEP     0.1
 #define PRECISION_RATIO       10
 #define MAXIMUM_RATIO          1.6
 #define MINIMUM_RATIO          0.4
 #define DEFAULT_RATIO          1.
+#define MINIMUM_RELATION_WIDTH 8
 
 #define MAXRECENTFILE          5
 

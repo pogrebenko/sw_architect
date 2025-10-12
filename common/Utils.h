@@ -21,6 +21,9 @@ using PointType_t = struct __PointType
     QLineF::IntersectionType m_nIntersectionType;
 };
 
+extern QPoint  pointf2point( const QPointF &pt );
+extern QPointF point2pointf( const QPoint  &pt );
+
 extern QPointF correct_point( const QPointF &pt, const QRectF &item );
 
 extern bool hex2rgb( const QString &sHex, int &r, int &g, int &b );

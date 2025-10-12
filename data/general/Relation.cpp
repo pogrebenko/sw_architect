@@ -10,10 +10,13 @@ Copyright (C) 2025, pogrebenko
 #include <QPainterPath>
 #include <QtMath>
 
+#include "common/Logger.h"
+
 #include "common/Utils.h"
 
 #include "data/Options.h"
 
+extern CLogStream                   __Logger;
 extern std::unique_ptr<CAppOptions> __AppOptions__;
 #define                             __AppOptions     (*__AppOptions__.get())
 
@@ -55,8 +58,8 @@ __Relation::init()
     m_nDeferrability      = RelationPropertyDeferrability_t::NotDeferrability;
     m_nUpdateRule         = RelationPropertyRule_t::NoAction;
     m_nDeleteRule         = RelationPropertyRule_t::NoAction;
-    m_dX                  = 30;
-    m_dY                  = 30;
+    m_dX                  = DEFAULT_OFFSET_DX;
+    m_dY                  = DEFAULT_OFFSET_DY;
 }
 
 void
@@ -106,20 +109,104 @@ __Relation::move( const QPoint &from, const QPoint &to )
 {
     QPoint diff = to - from;
 
-    //m_nFirstPos += diff;
-    m_nLastPos  += diff;
+    // ClassList_t *figures = __AppOptions.getClassList();
+    // auto         pFrom   = figures->at( m_nFrom );
+    // auto         pTo     = figures->at( m_nTo   );
+    // QRectF       rc_from{ pFrom->m_nFirstPos, pFrom->m_nLastPos };
+    // QRectF       rc_to  { pTo  ->m_nFirstPos, pTo  ->m_nLastPos };
+
+    // qreal l_from = QLineF( to, rc_from.center() ).length();
+    // qreal l_to   = QLineF( to, rc_to  .center() ).length();
+
+    // if( l_from < l_to )
+    // {
+    //     // QPointF pt = m_nFirstPos - diff; // - QPointF( m_dX, -m_dY )
+    //     // m_nFirstPos = pointf2point( correct_point( pt, rc_from ) );m_nFirstPos
+
+    //     __Logger.debug( APP_LOG_LEVEL, "BeforeFirstPos:%d-%d",m_nFirstPos.x(),m_nFirstPos.y() );
+    //     m_nFirstPos += diff;
+    //     m_nFirstPos = pointf2point( correct_point( m_nFirstPos, rc_from ) );
+    //     __Logger.debug( APP_LOG_LEVEL, "AfterFirstPos:%d-%d",m_nFirstPos.x(),m_nFirstPos.y() );
+    // }
+    // else
+    // {
+    //     // QPointF pt = m_nLastPos - diff; // - QPointF( -m_dX, m_dY )
+    //     // m_nLastPos = pointf2point( correct_point( pt, rc_from ) );
+
+    //     __Logger.debug( APP_LOG_LEVEL, "BeforeLastPos:%d-%d",m_nLastPos.x(),m_nLastPos.y() );
+    //     m_nLastPos += diff;
+    //     m_nLastPos = pointf2point( correct_point( m_nLastPos, rc_from ) );
+    //     __Logger.debug( APP_LOG_LEVEL, "AfterLastPos:%d-%d",m_nLastPos.x(),m_nLastPos.y() );
+    // }
+
+
+
+
+    // QPoint point = to;
 
     // ClassList_t *figures = __AppOptions.getClassList();
     // auto         pFrom   = figures->at( m_nFrom );
     // auto         pTo     = figures->at( m_nTo   );
-    // QRectF       rc1{ pFrom->m_nFirstPos, pFrom->m_nLastPos };
-    // QRectF       rc2{ pTo  ->m_nFirstPos, pTo  ->m_nLastPos };
-    // QPointF      pt1 = m_nFirstPos + QPointF(  m_dX, -m_dY );
-    // QPointF      pt2 = m_nLastPos  + QPointF( -m_dY,  m_dX );
-    // pt1 = correct_point(pt1,rc1);
-    // pt2 = correct_point(pt2,rc2);
-    // m_nFirstPos = QPoint(pt1.x(),pt1.y());
-    // m_nLastPos  = QPoint(pt2.x(),pt2.y());
+    // QRectF       rc_from{ pFrom->m_nFirstPos, pFrom->m_nLastPos };
+    // QRectF       rc_to  { pTo  ->m_nFirstPos, pTo  ->m_nLastPos };
+    // QLineF       line( correct_point(offset_first(),rc_from), correct_point(offset_last(),rc_to) );
+
+    // std::vector <__PointType> intersectionFrom; draw_relation_intersection( intersectionFrom, pFrom.get(), line );
+    // std::vector <__PointType> intersectionTo  ; draw_relation_intersection( intersectionTo  , pTo  .get(), line );
+
+    // std::find_if( __EXECUTION_POLICY_BUILDER__, intersectionFrom.begin(), intersectionFrom.end(),
+    // [this,&intersectionTo,pFrom,pTo,point,diff,rc_from,rc_to]( auto &pLineFrom )
+    // {
+    //    if( pLineFrom.m_nIntersectionType == QLineF::BoundedIntersection )
+    //    {
+    //        auto found2 = std::find_if( __EXECUTION_POLICY_BUILDER__, intersectionTo.begin(), intersectionTo.end(),
+    //        [this,&pLineFrom,pFrom,pTo,point,diff,rc_from,rc_to]( auto &pLineTo )
+    //        {
+    //           if( pLineTo.m_nIntersectionType == QLineF::BoundedIntersection )
+    //           {
+    //               QPoint from = {int(pLineFrom.m_nPoint.x()),int(pLineFrom.m_nPoint.y())},
+    //                      to   = {int(pLineTo  .m_nPoint.x()),int(pLineTo  .m_nPoint.y())};
+    //               bool res = isPointNearLine( from, to, point );
+    //               if( res )
+    //               {
+    //                   qreal l_from = QLineF( point, from ).length();
+    //                   qreal l_to   = QLineF( point, to   ).length();
+    //                   if( l_from < l_to )
+    //                   {
+    //                       m_nFirstPos += diff;
+    //                       m_nFirstPos = pointf2point( correct_point( m_nFirstPos, rc_from ) );
+    //                   }
+    //                   else
+    //                   {
+    //                       m_nLastPos += diff;
+    //                       m_nLastPos = pointf2point( correct_point( m_nLastPos, rc_from ) );
+    //                   }
+    //               }
+    //               return res;
+    //           }
+    //           return false;
+    //        }
+    //        );
+    //        return found2 != intersectionTo.end();
+    //    }
+    //    return false;
+    // }
+    // );
+
+
+
+}
+
+QPoint
+__Relation::offset_first()
+{
+    return m_nFirstPos + QPoint(  m_dX, -m_dY );
+}
+
+QPoint
+__Relation::offset_last()
+{
+    return m_nLastPos + QPoint( -m_dX,  m_dY );
 }
 
 bool
@@ -131,11 +218,9 @@ __Relation::contain( const QPoint &point )
     ClassList_t *figures = __AppOptions.getClassList();
     auto         pFrom   = figures->at( m_nFrom );
     auto         pTo     = figures->at( m_nTo   );
-    QRectF       rc1{ pFrom->m_nFirstPos, pFrom->m_nLastPos };
-    QRectF       rc2{ pTo  ->m_nFirstPos, pTo  ->m_nLastPos };
-    QPointF      pt1 = m_nFirstPos + QPointF(  m_dX, -m_dY );
-    QPointF      pt2 = m_nLastPos  + QPointF( -m_dY,  m_dX );
-    QLineF       line( correct_point(pt1,rc1), correct_point(pt2,rc2) );
+    QRectF       rc_from{ pFrom->m_nFirstPos, pFrom->m_nLastPos };
+    QRectF       rc_to  { pTo  ->m_nFirstPos, pTo  ->m_nLastPos };
+    QLineF       line( correct_point(offset_first(),rc_from), correct_point(offset_last(),rc_to) );
 
     std::vector <__PointType> intersectionFrom; draw_relation_intersection( intersectionFrom, pFrom.get(), line );
     std::vector <__PointType> intersectionTo  ; draw_relation_intersection( intersectionTo  , pTo  .get(), line );

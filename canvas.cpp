@@ -274,13 +274,21 @@ void CCanvas::onFromFKColumn ( const QPoint &pt, bool checked )
         __AppOptions.setIndexFrom( rc["class_index"] );
         auto pItem = __AppOptions.getClassList()->At( rc["class_index"], rc["field_index"] );
              pItem->m_bFromFK = checked;
+        ((QMainWindow*)QApplication::activeWindow())->statusBar()->showMessage( "Primary key delegated", DEFAULT_MSG_TIMEOUT );
     }
 }
 
 void CCanvas::onToFKColumn ( const QPoint &pt, __Field *fromFK )
 {
-    CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &pt, __AppOptions.getIndexFrom(), relation_release_add( pt, fromFK ) );
-    ((QMainWindow*)QApplication::activeWindow())->statusBar()->showMessage( "New foreign key added", DEFAULT_MSG_TIMEOUT );
+    QString msg = "Delegated primary key not found";
+    auto rc = __AppOptions.getClassList()->find_fromFK();
+    if( rc["class_index"] >= 0 && rc["field_index"] >= 0 )
+    {
+        __AppOptions.setIndexFrom( rc["class_index"] );
+        CRefreshCanvas v( __PRETTY_FUNCTION__, this, &__History, &pt, __AppOptions.getIndexFrom(), relation_release_add( pt, fromFK ) );
+        msg = "New foreign key added";
+    }
+    ((QMainWindow*)QApplication::activeWindow())->statusBar()->showMessage( msg, DEFAULT_MSG_TIMEOUT );
 }
 
 void CCanvas::onPrimaryColumn( const QPoint &pt, bool checked )

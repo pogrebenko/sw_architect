@@ -69,10 +69,10 @@ typedef enum {
     ActionTypeDelete            = 4,
 } ActionType_t;
 
-typedef enum {
-    DatabaseTypeNone            = 0,
-    DatabaseTypeMySQL           = 1,
-} DatabaseType_t;
+// typedef enum {
+//     DatabaseTypeNone            = 0,
+//     DatabaseTypeMySQL           = 1,
+// } DatabaseType_t;
 
 typedef enum {
     FigureTypeNone              = 0,

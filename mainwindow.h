@@ -33,7 +33,7 @@ public :
 
     void closeEvent( QCloseEvent *event );
 
-    protected :
+protected :
     void setup_ui();
     void init_ui( CAppOptions *pAppOptions );
     void delete_ui();
@@ -83,7 +83,7 @@ private slots :
      void on_OpenRecentFile();
 
      void on_ExpotToSQL();
-     void on_ImportFromSQL();
+     void on_ImportFromDB();
 
      void on_About();
      void on_AboutQt();
@@ -112,7 +112,7 @@ private :
                  , *actionPaste
                  , *actionSettings
                  , *actionExpotToSQL
-                 , *actionImportFromSQL
+                 , *actionImportFromDB
                  , *actionAbout
                  , *actionAboutQt
                  , *actionZoomIn

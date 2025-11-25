@@ -24,7 +24,7 @@ void CAppOptions::init()
 {
     m_nAppVariant       = APP_VARIANT;
     m_ProjectName       = "";
-    m_DatabaseName      = "";
+    //m_DatabaseName      = "";
     m_TablePrefix       = "";
     m_ClassPrefix       = "";
     m_nWidth            = 1.0;
@@ -51,11 +51,20 @@ void CAppOptions::init()
     m_nRelationType     = RelationType_t::RelationTypeLineNondirect;
     m_nArrowAngle       = 10;
     m_nArrowSize        = 15;
-    m_nDatabaseType     = DatabaseType_t::DatabaseTypeMySQL;
     m_bChanged          = false;
     m_bSelectGroup      = false;
     m_nRatio            = DEFAULT_RATIO;
     m_nRelationNotation = RelationNotation_t::Bachman;
+
+    //m_nDatabaseType     = DatabaseType_t::DatabaseTypeMySQL;
+    m_nDB               = PDatabases::ID_PDATABASES_NONE;
+    m_ServerName        = "";
+    m_Port              = "";
+    m_BaseName          = "";
+    m_UserName          = "";
+    m_UserPass          = "";
+    m_SysAdmin          = "";
+    m_hProvider         = SQL_NULL_HANDLE;
 
     clearPos();
 
@@ -68,7 +77,7 @@ CAppOptions::operator = ( const CAppOptions &o )
 {
     m_nAppVariant       = o.m_nAppVariant      ;
     m_ProjectName       = o.m_ProjectName      ;
-    m_DatabaseName      = o.m_DatabaseName     ;
+    //m_DatabaseName      = o.m_DatabaseName     ;
     m_TablePrefix       = o.m_TablePrefix      ;
     m_ClassPrefix       = o.m_ClassPrefix      ;
     m_nWidth            = o.m_nWidth           ;
@@ -95,7 +104,6 @@ CAppOptions::operator = ( const CAppOptions &o )
     m_nRelationType     = o.m_nRelationType    ;
     m_nArrowAngle       = o.m_nArrowAngle      ;
     m_nArrowSize        = o.m_nArrowSize       ;
-    m_nDatabaseType     = o.m_nDatabaseType    ;
     m_bChanged          = o.m_bChanged         ;
     m_bSelectGroup      = o.m_bSelectGroup     ;
     m_nRatio            = o.m_nRatio           ;
@@ -104,6 +112,16 @@ CAppOptions::operator = ( const CAppOptions &o )
     m_nLastPos          = o.m_nLastPos         ;
     m_ClassList         = o.m_ClassList        ;
     m_RelationList      = o.m_RelationList     ;
+
+    //m_nDatabaseType     = o.m_nDatabaseType    ;
+    m_nDB               = o.m_nDB              ;
+    m_ServerName        = o.m_ServerName       ;
+    m_Port              = o.m_Port             ;
+    m_BaseName          = o.m_BaseName         ;
+    m_UserName          = o.m_UserName         ;
+    m_UserPass          = o.m_UserPass         ;
+    m_SysAdmin          = o.m_SysAdmin         ;
+    m_hProvider         = o.m_hProvider        ;
     return *this;
 }
 
@@ -252,15 +270,24 @@ QJsonObject& Write( QJsonObject &ios, CAppOptions &obj )
     //ios[ "m_nIndexFrom"      ] = (int)obj.m_nIndexFrom       ;
     //ios[ "m_nArrowAngle"     ] =      obj.m_nArrowAngle      ;
     //ios[ "m_nArrowSize"      ] =      obj.m_nArrowSize       ;
-    ios[ "m_nDatabaseType"    ] =      obj.m_nDatabaseType    ;
+    //ios[ "m_nDatabaseType"    ] =      obj.m_nDatabaseType    ;
     //ios[ "m_nRatio"          ] =      obj.m_nRatio           ;
     ios[ "m_ProjectName"      ] =      obj.m_ProjectName      ;
-    ios[ "m_DatabaseName"     ] =      obj.m_DatabaseName     ;
+    //ios[ "m_DatabaseName"     ] =      obj.m_DatabaseName     ;
     ios[ "m_TablePrefix"      ] =      obj.m_TablePrefix      ;
     ios[ "m_ClassPrefix"      ] =      obj.m_ClassPrefix      ;
     ios[ "m_nRelationNotation"] =      obj.m_nRelationNotation;
     //ios[ "m_nFirstPos"       ] =          m_nFirstPos        ;
     //ios[ "m_nLastPos"        ] =          m_nLastPos         ;
+
+    ios[ "m_nDB"              ] = obj.m_nDB                   ;
+    ios[ "m_ServerName"       ] = obj.m_ServerName            ;
+    ios[ "m_Port"             ] = obj.m_Port                  ;
+    ios[ "m_BaseName"         ] = obj.m_BaseName              ;
+    ios[ "m_UserName"         ] = obj.m_UserName              ;
+    ios[ "m_UserPass"         ] = obj.m_UserPass              ;
+    ios[ "m_SysAdmin"         ] = obj.m_SysAdmin              ;
+
     ios[ "m_ClassList"        ] =          m_ClassList        ;
     ios[ "m_RelationList"     ] =          m_RelationList     ;
 
@@ -291,20 +318,29 @@ CAppOptions& Read( QJsonObject &ios, CAppOptions &obj, long version )
     //obj.        m_nIndexFrom       =                     ios[ "m_nIndexFrom"       ].toInt();
     //obj.        m_nArrowAngle      =                     ios[ "m_nArrowAngle"      ].toInt();
     //obj.        m_nArrowSize       =                     ios[ "m_nArrowSize"       ].toInt();
-    obj.        m_nDatabaseType    = (DatabaseType_t )   ios[ "m_nDatabaseType"    ].toInt();
+    //obj.        m_nDatabaseType    = (DatabaseType_t )   ios[ "m_nDatabaseType"    ].toInt();
     //obj.        m_nRatio           =                     ios[ "m_nRatio"           ].toDouble();
     obj.        m_ProjectName      =                     ios[ "m_ProjectName"      ].toString();
-    obj.        m_DatabaseName     =                     ios[ "m_DatabaseName"     ].toString();
+    //obj.        m_DatabaseName     =                     ios[ "m_DatabaseName"     ].toString();
     obj.        m_TablePrefix      =                     ios[ "m_TablePrefix"      ].toString();
     obj.        m_ClassPrefix      =                     ios[ "m_ClassPrefix"      ].toString();
     obj.        m_nRelationNotation= (RelationNotation_t)ios[ "m_nRelationNotation"].toInt();
     //QJsonObject m_nFirstPos        =                     ios[ "m_nFirstPos"        ].toObject();
     //QJsonObject m_nLastPos         =                     ios[ "m_nLastPos"         ].toObject();
-    QJsonObject m_ClassList        =                     ios[ "m_ClassList"        ].toObject();
-    QJsonObject m_RelationList     =                     ios[ "m_RelationList"     ].toObject();
+
+    obj.        m_nDB              = (PDatabases)        ios[ "m_nDB"        ].toInt();
+    obj.        m_ServerName       =                     ios[ "m_ServerName" ].toString();
+    obj.        m_Port             =                     ios[ "m_Port"       ].toString();
+    obj.        m_BaseName         =                     ios[ "m_BaseName"   ].toString();
+    obj.        m_UserName         =                     ios[ "m_UserName"   ].toString();
+    obj.        m_UserPass         =                     ios[ "m_UserPass"   ].toString();
+    obj.        m_SysAdmin         =                     ios[ "m_SysAdmin"   ].toString();
 
     //::Read( m_nFirstPos   , obj.m_nFirstPos   , version );
     //::Read( m_nLastPos    , obj.m_nLastPos    , version );
+
+    QJsonObject m_ClassList        =                     ios[ "m_ClassList"        ].toObject();
+    QJsonObject m_RelationList     =                     ios[ "m_RelationList"     ].toObject();
     ::Read( m_ClassList   , obj.m_ClassList   , version );
     ::Read( m_RelationList, obj.m_RelationList, version );
     return obj;
@@ -336,13 +372,21 @@ void Write( CIOStreamer &ios, CAppOptions &obj )
     ::Write   ( ios, obj.m_nIndexFrom        );
     ::Write   ( ios, obj.m_nArrowAngle       );
     ::Write   ( ios, obj.m_nArrowSize        );
-    ::Write   ( ios, obj.m_nDatabaseType     );
+    //::Write   ( ios, obj.m_nDatabaseType     );
     ::Write   ( ios, obj.m_nRatio            );
     ::Write   ( ios, obj.m_ProjectName       );
-    ::Write   ( ios, obj.m_DatabaseName      );
+    //::Write   ( ios, obj.m_DatabaseName      );
     ::Write   ( ios, obj.m_TablePrefix       );
     ::Write   ( ios, obj.m_ClassPrefix       );
     ::Write   ( ios, obj.m_nRelationNotation );
+    ::WriteInt( ios, obj.m_nDB               );
+    ::Write   ( ios, obj.m_ServerName        );
+    ::Write   ( ios, obj.m_Port              );
+    ::Write   ( ios, obj.m_BaseName          );
+    ::Write   ( ios, obj.m_UserName          );
+    ::Write   ( ios, obj.m_UserPass          );
+    ::Write   ( ios, obj.m_SysAdmin          );
+
     ::Write   ( ios, obj.m_ClassList         );
     ::Write   ( ios, obj.m_RelationList      );
 }
@@ -374,13 +418,21 @@ CAppOptions& Read( CIOStreamer &ios, CAppOptions &obj, long version )
     ::Read   ( ios, obj.m_nIndexFrom              );
     ::Read   ( ios, obj.m_nArrowAngle             );
     ::Read   ( ios, obj.m_nArrowSize              );
-    ::Read   ( ios, obj.m_nDatabaseType           );
+    //::Read   ( ios, obj.m_nDatabaseType           );
     ::Read   ( ios, obj.m_nRatio                  );
     ::Read   ( ios, obj.m_ProjectName             );
-    ::Read   ( ios, obj.m_DatabaseName            );
+    //::Read   ( ios, obj.m_DatabaseName            );
     ::Read   ( ios, obj.m_TablePrefix             );
     ::Read   ( ios, obj.m_ClassPrefix             );
     ::Read   ( ios, obj.m_nRelationNotation       );
+    ::ReadInt( ios, obj.m_nDB                     );
+    ::Read   ( ios, obj.m_ServerName              );
+    ::Read   ( ios, obj.m_Port                    );
+    ::Read   ( ios, obj.m_BaseName                );
+    ::Read   ( ios, obj.m_UserName                );
+    ::Read   ( ios, obj.m_UserPass                );
+    ::Read   ( ios, obj.m_SysAdmin                );
+
     ::Read   ( ios, obj.m_ClassList     , version );
     ::Read   ( ios, obj.m_RelationList  , version );
     return obj;

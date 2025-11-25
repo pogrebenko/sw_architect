@@ -21,8 +21,10 @@ typedef struct __Field : public __Field__
 {
     inline __Field() { init(); }
     inline __Field( const __Field &o ) { *this = o; }
+    inline __Field( const __DBCol__ &o ) { init(); *this = o; }
 
     __Field& operator = ( const __Field &o );
+    __Field& operator = ( const __DBCol__ &o );
 
     void init();
 

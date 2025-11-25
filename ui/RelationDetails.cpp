@@ -111,12 +111,12 @@ CRelationDetails::setData()
     Edit_PKTableLabel ->setText( m_pItem->m_PKTableLabel.c_str() );
     Edit_FKTableLabel ->setText( m_pItem->m_FKTableLabel.c_str() );
 
-    ComboBox_nType              ->setCurrentIndex( m_pItem->m_nType               );
-    ComboBox_nCardinalityPKTable->setCurrentIndex( m_pItem->m_nCardinalityPKTable );
-    ComboBox_nCardinalityFKTable->setCurrentIndex( m_pItem->m_nCardinalityFKTable );
-    ComboBox_nDeferrability     ->setCurrentIndex( m_pItem->m_nDeferrability      );
-    ComboBox_nUpdateRule        ->setCurrentIndex( m_pItem->m_nUpdateRule         );
-    ComboBox_nDeleteRule        ->setCurrentIndex( m_pItem->m_nDeleteRule         );
+    ComboBox_nType              ->setCurrentIndex( ComboBox_nType              ->findData( m_pItem->m_nType               ) );
+    ComboBox_nCardinalityPKTable->setCurrentIndex( ComboBox_nCardinalityPKTable->findData( m_pItem->m_nCardinalityPKTable ) );
+    ComboBox_nCardinalityFKTable->setCurrentIndex( ComboBox_nCardinalityFKTable->findData( m_pItem->m_nCardinalityFKTable ) );
+    ComboBox_nDeferrability     ->setCurrentIndex( ComboBox_nDeferrability     ->findData( m_pItem->m_nDeferrability      ) );
+    ComboBox_nUpdateRule        ->setCurrentIndex( ComboBox_nUpdateRule        ->findData( m_pItem->m_nUpdateRule         ) );
+    ComboBox_nDeleteRule        ->setCurrentIndex( ComboBox_nDeleteRule        ->findData( m_pItem->m_nDeleteRule         ) );
 }
 
 void
@@ -126,10 +126,10 @@ CRelationDetails::getData()
     m_pItem->m_PKTableLabel = Edit_PKTableLabel->text().toStdString();
     m_pItem->m_FKTableLabel = Edit_FKTableLabel->text().toStdString();
 
-    m_pItem->m_nType               = (RelationPropertyType_t         )ComboBox_nType              ->currentIndex();
-    m_pItem->m_nCardinalityPKTable = (RelationPropertyCardinality_t  )ComboBox_nCardinalityPKTable->currentIndex();
-    m_pItem->m_nCardinalityFKTable = (RelationPropertyCardinality_t  )ComboBox_nCardinalityFKTable->currentIndex();
-    m_pItem->m_nDeferrability      = (RelationPropertyDeferrability_t)ComboBox_nDeferrability     ->currentIndex();
-    m_pItem->m_nUpdateRule         = (RelationPropertyRule_t         )ComboBox_nUpdateRule        ->currentIndex();
-    m_pItem->m_nDeleteRule         = (RelationPropertyRule_t         )ComboBox_nDeleteRule        ->currentIndex();
+    m_pItem->m_nType               = (RelationPropertyType_t         )ComboBox_nType              ->currentData().toInt();
+    m_pItem->m_nCardinalityPKTable = (RelationPropertyCardinality_t  )ComboBox_nCardinalityPKTable->currentData().toInt();
+    m_pItem->m_nCardinalityFKTable = (RelationPropertyCardinality_t  )ComboBox_nCardinalityFKTable->currentData().toInt();
+    m_pItem->m_nDeferrability      = (RelationPropertyDeferrability_t)ComboBox_nDeferrability     ->currentData().toInt();
+    m_pItem->m_nUpdateRule         = (RelationPropertyRule_t         )ComboBox_nUpdateRule        ->currentData().toInt();
+    m_pItem->m_nDeleteRule         = (RelationPropertyRule_t         )ComboBox_nDeleteRule        ->currentData().toInt();
 }

@@ -6,6 +6,9 @@ Copyright (C) 2025, pogrebenko
 */
 #include <QLocale>
 #include <QTranslator>
+#include <QMessageBox>
+
+#include "psql/sqlinfo.h"
 
 #include "data/Options.h"
 #include "data/History.h"
@@ -17,8 +20,12 @@ CLogStream                   __Logger;
 std::unique_ptr<CAppOptions> __AppOptions__( new CAppOptions() );
 CHistory                     __History;
 
-#define __AppOptions (*__AppOptions__.get())
+void AppShowSQLErrorNow( const char *sError )
+{
+    QMessageBox::critical( nullptr, "SQL Error", sError );
+}
 
+#define __AppOptions (*__AppOptions__.get())
 
 int main(int argc, char *argv[])
 {
@@ -26,6 +33,8 @@ int main(int argc, char *argv[])
     int done = -1;
     try
     {
+        ::g_ShowSQLErrorNow = AppShowSQLErrorNow;
+
         CApp app( argc, argv, &__Logger );
              app.setApplicationName( APP_NAME );
              app.setWindowIcon( QIcon(":/images/rocket-launch.svg") );

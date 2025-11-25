@@ -37,6 +37,47 @@ __Field::operator = ( const __Field &o )
     return *this;
 }
 
+__Field&
+__Field::operator = ( const __DBCol__ &o )
+{
+    m_LogicalName        = o.column_name         ;
+    m_PhysicalName       = o.column_name         ;
+    m_nPrecission        = o.precision           ;
+    m_nScale             = o.scale               ;
+    m_bAllowsNulls       = strcmp(o.is_null, "NO")==0;
+    m_Remarks            = o.column_comment      ;
+
+    m_nFieldRelationType = strcmp(o.key, "PRI")==0 ? FieldRelationType_t::FieldRelationTypePrimaryKey : FieldRelationType_t::FieldRelationTypeNone;
+
+    if( strcmp( o.datatype, "varchar"    ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeVarchar;
+    if( strcmp( o.datatype, "timestamp"  ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeTimestamp;
+    if( strcmp( o.datatype, "bigint"     ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeInteger;
+    if( strcmp( o.datatype, "longblob"   ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeBlob;
+    if( strcmp( o.datatype, "int"        ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeInteger;
+    if( strcmp( o.datatype, "tinyint"    ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeInteger;
+    if( strcmp( o.datatype, "longtext"   ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeBlob;
+    if( strcmp( o.datatype, "smallint"   ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeInteger;
+    if( strcmp( o.datatype, "blob"       ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeBlob;
+    if( strcmp( o.datatype, "double"     ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeDecimal;
+    if( strcmp( o.datatype, "mediumtext" ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeBlob;
+    if( strcmp( o.datatype, "text"       ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeBlob;
+    if( strcmp( o.datatype, "datetime"   ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeTimestamp;
+    if( strcmp( o.datatype, "decimal"    ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeDecimal;
+    if( strcmp( o.datatype, "enum"       ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeInteger;
+    if( strcmp( o.datatype, "time"       ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeTime;
+    if( strcmp( o.datatype, "float"      ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeDecimal;
+    if( strcmp( o.datatype, "date"       ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeDate;
+    if( strcmp( o.datatype, "char"       ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeChar;
+    if( strcmp( o.datatype, "json"       ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeVarchar;
+    if( strcmp( o.datatype, "set"        ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeInteger;
+    if( strcmp( o.datatype, "binary"     ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeBlob;
+    if( strcmp( o.datatype, "varbinary"  ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeBlob;
+    if( strcmp( o.datatype, "mediumint"  ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeInteger;
+    if( strcmp( o.datatype, "mediumblob" ) == 0 ) m_nFieldDataType = FieldDataType_t::FieldDataTypeBlob;
+
+    return *this;
+}
+
 void
 __Field::init()
 {

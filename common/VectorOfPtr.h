@@ -24,6 +24,10 @@ public:
    {
    }
 
+   CVectorOfPtr( bool bOwner ) : std::vector<T*>(), m_Owner( bOwner )
+   {
+   }
+
    virtual ~CVectorOfPtr()
    {
       Flush();

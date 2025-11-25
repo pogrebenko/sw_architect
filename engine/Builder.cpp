@@ -305,7 +305,7 @@ CBuilder::field_add( long n, const char *str )
 void
 CBuilder::figure_set_first_pos( long n, const QPoint &pt )
 {
-    getLogger()->info( APP_LOG_LEVEL, "info: Press left button for move figure %d:%d", pt.x(), pt.y() );
+    //getLogger()->info( APP_LOG_LEVEL, "info: Press left button for move figure %d:%d", pt.x(), pt.y() );
     m_pAppOptions->setIndexFrom( n );
     m_pAppOptions->setFirstPos( pt );
 }

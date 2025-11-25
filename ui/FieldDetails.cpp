@@ -85,7 +85,9 @@ void FieldDetails::setData()
 
     CheckBox_bPrimaryKey   ->setChecked     (                  m_pItem->m_nFieldRelationType == FieldRelationTypePrimaryKey );
     CheckBox_bForeignKey   ->setChecked     (                  m_pItem->m_nFieldRelationType == FieldRelationTypeForeignKey );
-    ComboBox_nFieldDataType->setCurrentIndex(                  m_pItem->m_nFieldDataType         );
+
+    ComboBox_nFieldDataType->setCurrentIndex( ComboBox_nFieldDataType->findData(m_pItem->m_nFieldDataType) );
+
     Edit_nPrecission       ->setText        ( QString::number( m_pItem->m_nPrecission          ) );
     Edit_nScale            ->setText        ( QString::number( m_pItem->m_nScale               ) );
     CheckBox_bAllowsNulls  ->setChecked     (                  m_pItem->m_bAllowsNulls           );
@@ -101,7 +103,9 @@ void FieldDetails::getData()
     m_pItem->m_nFieldRelationType = CheckBox_bPrimaryKey   ->isChecked  () ? FieldRelationTypePrimaryKey : FieldRelationTypeNone;
     if( !CheckBox_bPrimaryKey->isChecked() )
     m_pItem->m_nFieldRelationType = CheckBox_bForeignKey   ->isChecked  () ? FieldRelationTypeForeignKey : FieldRelationTypeNone;
-    m_pItem->m_nFieldDataType     = (FieldDataType_t)ComboBox_nFieldDataType->currentIndex();
+
+    m_pItem->m_nFieldDataType     = (FieldDataType_t)ComboBox_nFieldDataType->currentData().toInt();
+
     m_pItem->m_nPrecission        = Edit_nPrecission       ->text       ().toInt      ();
     m_pItem->m_nScale             = Edit_nScale            ->text       ().toInt      ();
     m_pItem->m_bAllowsNulls       = CheckBox_bAllowsNulls  ->isChecked  ()              ;

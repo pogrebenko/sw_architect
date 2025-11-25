@@ -8,6 +8,7 @@ Copyright (C) 2025, pogrebenko
 #define SQLFACTORY_H
 
 #include "common/Consts.h"
+#include "psql/sqltype.h"
 
 class CSQLDatabase
 {
@@ -21,11 +22,11 @@ public:
 class CSQLFactory
 {
 public:
-    CSQLFactory( DatabaseType_t DatabaseType );
+    CSQLFactory( PDatabases DatabaseType );
 
     CSQLDatabase* buildDatabase();
 
-    DatabaseType_t m_DatabaseType;
+    PDatabases m_DatabaseType;
 };
 
 #endif // SQLFACTORY_H

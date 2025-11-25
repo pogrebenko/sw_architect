@@ -1,5 +1,5 @@
-QT       += core gui
-
+QT += core gui
+QT += sql
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
@@ -7,6 +7,9 @@ CONFIG += c++17
 qtHaveModule(printsupport): QT += printsupport
 
 DEFINES += BUILDDATE=\\\"$$system( date "+%d.%m.%Y_%H:%M:%S" )\\\"
+
+INCLUDEPATH += /usr/include
+LIBS += -lodbc -lsqlite3 -lmysqlclient
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -28,6 +31,11 @@ SOURCES += \
     data/shapes/Rectangle.cpp \
     data/shapes/Triangle.cpp \
     engine/Builder.cpp \
+    psql/sptr.cpp \
+    psql/sqlbribge.cpp \
+    psql/sqlinfo.cpp \
+    psql/sqlmanager.cpp \
+    psql/sqlpipe.cpp \
     ui/ClassDetails.cpp \
     ui/FieldDetails.cpp \
     ui/OptionDetails.cpp \
@@ -59,6 +67,12 @@ HEADERS += \
     data/shapes/FigureFactory.h \
     data/shapes/Rectangle.h \
     data/shapes/Triangle.h \
+    psql/sptr.h \
+    psql/sqlbridge.h \
+    psql/sqlinfo.h \
+    psql/sqlmanager.h \
+    psql/sqlpipe.h \
+    psql/sqltype.h \
     templates.h \
     ui/ClassDetails.h \
     ui/FieldDetails.h \

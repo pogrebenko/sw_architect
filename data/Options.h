@@ -52,8 +52,8 @@ public:
     inline void            setProjectName( QString ProjectName ) { m_ProjectName = ProjectName; }
     inline QString         getProjectName() { return m_ProjectName; }
 
-    inline void            setDatabaseName( QString DatabaseName ) { m_DatabaseName = DatabaseName; }
-    inline QString         getDatabaseName() { return m_DatabaseName; }
+    // inline void            setDatabaseName( QString DatabaseName ) { m_DatabaseName = DatabaseName; }
+    // inline QString         getDatabaseName() { return m_DatabaseName; }
 
     inline void            setTablePrefix( QString TablePrefix ) { m_TablePrefix = TablePrefix; }
     inline QString         getTablePrefix() { return m_TablePrefix; }
@@ -104,8 +104,8 @@ public:
     inline float           getArrowSize() { return m_nArrowSize; }
     inline void            setArrowSize( float nArrowSize ) { m_nArrowSize = nArrowSize; }
 
-    inline DatabaseType_t  getDatabaseType() { return m_nDatabaseType; }
-    inline void            setDatabaseType( DatabaseType_t nDatabaseType ) { m_nDatabaseType = nDatabaseType; }
+    // inline DatabaseType_t  getDatabaseType() { return m_nDatabaseType; }
+    // inline void            setDatabaseType( DatabaseType_t nDatabaseType ) { m_nDatabaseType = nDatabaseType; }
 
     inline float           getRatio() { if( m_nRatio < MINIMUM_RATIO || m_nRatio > MAXIMUM_RATIO ) m_nRatio = DEFAULT_RATIO;
                                         return m_nRatio; }
@@ -117,6 +117,8 @@ public:
 
     inline RelationNotation_t getRelationNotation() { return m_nRelationNotation; }
 
+    inline HDBPROVIDER     getProvider() { return m_hProvider; }
+    inline void            setProvider( HDBPROVIDER hProvider ) { m_hProvider = hProvider; }
 
 private:
     ClassList_t     m_ClassList      ;

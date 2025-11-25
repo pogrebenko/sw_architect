@@ -15,6 +15,7 @@ Copyright (C) 2025, pogrebenko
 #include <QString>
 
 #include "common/Consts.h"
+#include "psql/sqltype.h"
 
 using __Field_t = struct __Field__
 {
@@ -98,7 +99,7 @@ using __Option_t = struct __Options__
 {
     int                 m_nAppVariant      ;
     QString             m_ProjectName      ;
-    QString             m_DatabaseName     ;
+    //QString             m_DatabaseName     ;
     QString             m_TablePrefix      ;
     QString             m_ClassPrefix      ;
     float               m_nWidth           ;
@@ -127,14 +128,33 @@ using __Option_t = struct __Options__
     float               m_nArrowSize       ;
     QPoint              m_nFirstPos        ;
     QPoint              m_nLastPos         ;
-    DatabaseType_t      m_nDatabaseType    ;
     bool                m_bChanged         ;
     bool                m_bSelectGroup     ;
     float               m_nRatio           ;
     RelationNotation_t  m_nRelationNotation;
 
+    //DatabaseType_t      m_nDatabaseType    ;
+    PDatabases          m_nDB              ;
+    QString             m_ServerName       ;
+    QString             m_Port             ;
+    QString             m_BaseName         ;
+    QString             m_UserName         ;
+    QString             m_UserPass         ;
+    QString             m_SysAdmin         ;
+    HDBPROVIDER         m_hProvider        ;
+
     inline virtual ~__Options__() {}
 
+};
+
+using __DBCol_t = struct __DBCol__ {
+    TCHAR table_name    [ 256 ],
+          column_name   [ 256 ],
+          datatype      [  64 ],
+          key           [  64 ],
+          is_null       [  36 ],
+          column_comment[ 256 ];
+    long  length, precision, scale, dt_precision;
 };
 
 #endif // STRUCTS_H

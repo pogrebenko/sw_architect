@@ -30,9 +30,14 @@ Copyright (C) 2025, pogrebenko
 
 #include "templates.h"
 
+#include "psql/sqlinfo.h"
+#include "psql/sqlbridge.h"
+#include "psql/sqlpipe.h"
+
 extern CLogStream                   __Logger;
 extern std::unique_ptr<CAppOptions> __AppOptions__;
 extern CHistory                     __History;
+extern CSQLBridge                   g_SQLBridge;
 
 #define __AppOptions (*__AppOptions__.get())
 
@@ -56,7 +61,7 @@ MainWindow::MainWindow( QWidget *parent )
 , actionPaste           ( nullptr )
 , actionSettings        ( nullptr )
 , actionExpotToSQL      ( nullptr )
-, actionImportFromSQL   ( nullptr )
+, actionImportFromDB    ( nullptr )
 , actionAbout           ( nullptr )
 , actionAboutQt         ( nullptr )
 , actionZoomIn          ( nullptr )
@@ -112,7 +117,7 @@ MainWindow::delete_ui()
     delete actionPaste;
     delete actionSettings;
     delete actionExpotToSQL;
-    delete actionImportFromSQL;
+    delete actionImportFromDB;
     delete actionAbout;
     delete actionAboutQt;
     delete actionZoomIn;
@@ -199,7 +204,8 @@ MainWindow::setup_ui()
     m_pZoomMenu->addSeparator();
     actionActual       = m_pZoomMenu->addAction( "Actual Size", this, &MainWindow::on_ScaleReset );
 
-    actionExpotToSQL   = ui->menuTools->addAction( "Export to SQL", this, &MainWindow::on_ExpotToSQL );
+    actionExpotToSQL   = ui->menuTools->addAction( "Export to SQL"       , this, &MainWindow::on_ExpotToSQL );
+    actionImportFromDB = ui->menuTools->addAction( "Import from Database", this, &MainWindow::on_ImportFromDB );
 
     actionAbout        = ui->menuHelp ->addAction( "About..."     , this, &MainWindow::on_About      );
     actionAboutQt      = ui->menuHelp ->addAction( "About Qt..."  , this, &MainWindow::on_AboutQt    );
@@ -323,7 +329,7 @@ MainWindow::on_ExpotToSQL()
             if( file.open( QFile::WriteOnly ) )
             {
                 QByteArray   Buffer;
-                CSQLStreamer ios( CSQLFactory( __AppOptions.getDatabaseType() ).buildDatabase(), &__AppOptions );
+                CSQLStreamer ios( CSQLFactory( __AppOptions.m_nDB ).buildDatabase(), &__AppOptions );
                 ::Write( ios, __AppOptions );
                 Buffer.append( ios.m_Buffer.c_str(), ios.m_Buffer.size() );
                 file.write( Buffer );
@@ -354,9 +360,131 @@ MainWindow::on_ExpotToSQL()
 }
 
 void
-MainWindow::on_ImportFromSQL()
+MainWindow::on_ImportFromDB()
 {
+    FUNC_TRACE( &__Logger, __PRETTY_FUNCTION__ );
 
+    CRefreshMainWnd w( this );
+
+    this->setCursor( Qt::ArrowCursor );
+
+    if( !__AppOptions.m_hProvider )
+    {
+        CSqlConnectInfo Info;
+        Info.m_nDB = __AppOptions.m_nDB;
+        _tcscpy( (TCHAR*)Info.m_ServerName, (const TCHAR*)__AppOptions.m_ServerName.toStdString().c_str() );
+        _tcscpy( (TCHAR*)Info.m_BaseName  , (const TCHAR*)__AppOptions.m_BaseName  .toStdString().c_str() );
+        _tcscpy( (TCHAR*)Info.m_UserName  , (const TCHAR*)__AppOptions.m_UserName  .toStdString().c_str() );
+        _tcscpy( (TCHAR*)Info.m_UserPass  , (const TCHAR*)__AppOptions.m_UserPass  .toStdString().c_str() );
+        _tcscpy( (TCHAR*)Info.m_SysAdmin  , (const TCHAR*)__AppOptions.m_SysAdmin  .toStdString().c_str() );
+        Info.m_Port = __AppOptions.m_Port.toInt();
+        ::g_SQLBridge.Connect( Info, &__AppOptions.m_hProvider );
+    }
+
+    if( __AppOptions.m_hProvider )
+    {
+        auto class_list = __AppOptions.getClassList();
+        class_list->Flush();
+
+        int nHeight = __AppOptions.getHeight() + 2 * __AppOptions.getPadding();
+
+        Class_t t(FigureType_t::FigureTypeRectangle);
+
+        std::vector<__DBCol__> dbcolumns;
+
+        PDatabases db = ::g_SQLBridge.GetDatabase( __AppOptions.m_hProvider );
+
+        TCHAR table_name[ 256 ];
+
+        std::string
+            table_prefix = __AppOptions.m_TablePrefix.toStdString(),
+            table_type   = "BASE TABLE",
+            table_schema = __AppOptions.m_BaseName.toStdString();
+
+        CSQLPipe sql( __AppOptions.m_hProvider );
+        switch( db )
+        {
+            case PDatabases::ID_PDATABASES_MYSQL :
+            {
+                sql = _T( "SELECT" )
+                    + Buff( _T( " table_name" ), table_name, sizeof( table_name ) )
+                    + _T( " FROM INFORMATION_SCHEMA.TABLES" )
+                    + _T( " WHERE " ) + Bind( "table_type"  , table_type   )
+                    + _T( " AND "   ) + Bind( "table_schema", table_schema );
+                break;
+            }
+            default : break;
+        }
+
+        if( sql.Execute() )
+            while( sql.Fetch() )
+            {
+                t.m_LogicalName = t.m_PhysicalName = table_name;
+                if( !t.m_PhysicalName.empty() && t.m_PhysicalName.find( table_prefix ) == std::string::npos )
+                {
+                    continue;
+                }
+                class_list->Add( new Class_t( t ) );
+            }
+        sql.Flush();
+
+        __DBCol__ c; memset( &c, 0, sizeof(c) );
+        switch( db )
+        {
+            case PDatabases::ID_PDATABASES_MYSQL :
+            {
+                sql = _T( "SELECT" )
+                    + Buff( _T( " COLUMN_NAME"             ),  c.column_name   , sizeof( c.column_name    ) )
+                    + Buff( _T( ",DATA_TYPE"               ),  c.datatype      , sizeof( c.datatype       ) )
+                    + Buff( _T( ",COLUMN_KEY"              ),  c.key           , sizeof( c.key            ) )
+                    + Buff( _T( ",IS_NULLABLE"             ),  c.is_null       , sizeof( c.is_null        ) )
+                    + Buff( _T( ",COLUMN_COMMENT"          ),  c.column_comment, sizeof( c.column_comment ) )
+                    + Buff( _T( ",CHARACTER_MAXIMUM_LENGTH"), &c.length                                     )
+                    + Buff( _T( ",NUMERIC_PRECISION"       ), &c.precision                                  )
+                    + Buff( _T( ",NUMERIC_SCALE"           ), &c.scale                                      )
+                    + Buff( _T( ",DATETIME_PRECISION"      ), &c.dt_precision                               )
+                    + _T( " FROM INFORMATION_SCHEMA.COLUMNS" )
+                    + _T( " WHERE " ) + Bind( "TABLE_NAME", table_name, sizeof( table_name ) )
+                    + _T( " ORDER BY ORDINAL_POSITION ASC");
+                break;
+            }
+            default : break;
+        }
+
+        std::for_each( class_list->begin(), class_list->end(),
+            [ table_prefix, &table_name, &sql, &c ]( auto &p )
+            {
+                strcpy(table_name,p->m_PhysicalName.c_str());
+                if( sql.Execute() ) while( sql.Fetch() ) p->m_FieldList.Add( new Field_t( c ) );
+            }
+        );
+
+        long row = -1, col = 0;
+        for( unsigned long n = 0; n < class_list->size(); ++ n )
+        {
+            auto &t = class_list->at( n );
+
+            if( n % 20 == 0 )
+            {
+                col = 0;
+                row ++;
+            }
+            else
+            {
+                col ++;
+            }
+            t->m_nFirstPos = QPoint( DEFAULT_OFFSET_DX + col * ( DEFAULT_OFFSET_DX + ADD_DEFAULT_WIDTH  ),
+                                     DEFAULT_OFFSET_DY + row * ( DEFAULT_OFFSET_DY + ADD_DEFAULT_HEIGHT ) );
+            t->m_nLastPos = t->m_nFirstPos + QPoint( ADD_DEFAULT_WIDTH, ADD_DEFAULT_HEIGHT );
+
+            t->calc_angle_resize_point( nHeight );
+            FieldList_t PK; t->enumFields( PK, FieldRelationTypePrimaryKey );
+            FieldList_t FK; t->enumFields( FK, FieldRelationTypeForeignKey );
+            FieldList_t NN; t->enumFields( NN, FieldRelationTypeNone       );
+            t->aggregateFields( PK, FK, NN );
+            t->field_recalc();
+        }
+    }
 }
 
 void

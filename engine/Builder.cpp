@@ -733,6 +733,39 @@ CBuilder::relation_release_add( const QPoint &pt, __Field *fromFK )
     return false;
 }
 
+
+bool
+CBuilder::relation_release_add( long nIndexFrom, long nIndexTo, long i )
+{
+    if( nIndexFrom >= 0 )
+    {
+        ClassList_t *figures = m_pAppOptions->getClassList();
+        if( nIndexTo >= 0 && nIndexFrom != nIndexTo )
+        {
+            if( m_pAppOptions->getRelationList()->validate( nIndexFrom, nIndexTo ) )
+            {
+                __Field *pItem = figures->at( nIndexTo )->m_FieldList[ i ].get();
+                pItem->m_nFieldRelationType = FieldRelationTypeForeignKey;
+
+                QPoint from, to;
+                m_pAppOptions->getRelationList()->Add(
+                    CFigureFactory::buildRelation(
+                        m_pAppOptions->getRelationType()
+                        , nIndexFrom
+                        , nIndexTo
+                        , figures->at( nIndexFrom )->center( &from )
+                        , figures->at( nIndexTo   )->center( &to   )
+                        )
+                    );
+
+                figure_rebuild( nIndexTo );
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 bool
 CBuilder::relation_delete( long n )
 {

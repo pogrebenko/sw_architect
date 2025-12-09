@@ -42,6 +42,7 @@ public:
     bool relation_rotate_type( long n );
     bool relation_begin_add( long n );
     bool relation_release_add( const QPoint &pos, __Field *fromFK );
+    bool relation_release_add( long nIndexFrom, long nIndexTo, long i );
     bool relation_set_last_pos( const QPoint &pos );
     void relation_rebuild();
     bool relation_move( const QPoint &pos );

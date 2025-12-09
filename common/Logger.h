@@ -26,7 +26,7 @@ typedef enum {
     #define APP_LOG_LEVEL LogLevel_t::LOG_LEVEL_ERROR
     #define NDEBUG
 #else
-    #define APP_LOG_LEVEL LogLevel_t::LOG_LEVEL_DEBUG
+    #define APP_LOG_LEVEL LogLevel_t::LOG_LEVEL_NONE//LOG_LEVEL_DEBUG
 #endif
 
 // определим реализацию логирования для данного проекта

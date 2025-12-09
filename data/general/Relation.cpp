@@ -11,8 +11,8 @@ Copyright (C) 2025, pogrebenko
 #include <QtMath>
 
 #include "common/Logger.h"
-
 #include "common/Utils.h"
+#include "common/Compare.h"
 
 #include "data/Options.h"
 
@@ -58,8 +58,8 @@ __Relation::init()
     m_nDeferrability      = RelationPropertyDeferrability_t::NotDeferrability;
     m_nUpdateRule         = RelationPropertyRule_t::NoAction;
     m_nDeleteRule         = RelationPropertyRule_t::NoAction;
-    m_dX                  = DEFAULT_OFFSET_DX;
-    m_dY                  = DEFAULT_OFFSET_DY;
+    m_dX                  = DEFAULT_DX;
+    m_dY                  = DEFAULT_DY;
 }
 
 void
@@ -154,12 +154,12 @@ __Relation::move( const QPoint &from, const QPoint &to )
     // std::vector <__PointType> intersectionFrom; draw_relation_intersection( intersectionFrom, pFrom.get(), line );
     // std::vector <__PointType> intersectionTo  ; draw_relation_intersection( intersectionTo  , pTo  .get(), line );
 
-    // std::find_if( __EXECUTION_POLICY_BUILDER__, intersectionFrom.begin(), intersectionFrom.end(),
+    // std::find_if( __EXECUTION_POLICY_LIST__, intersectionFrom.begin(), intersectionFrom.end(),
     // [this,&intersectionTo,pFrom,pTo,point,diff,rc_from,rc_to]( auto &pLineFrom )
     // {
     //    if( pLineFrom.m_nIntersectionType == QLineF::BoundedIntersection )
     //    {
-    //        auto found2 = std::find_if( __EXECUTION_POLICY_BUILDER__, intersectionTo.begin(), intersectionTo.end(),
+    //        auto found2 = std::find_if( __EXECUTION_POLICY_LIST__, intersectionTo.begin(), intersectionTo.end(),
     //        [this,&pLineFrom,pFrom,pTo,point,diff,rc_from,rc_to]( auto &pLineTo )
     //        {
     //           if( pLineTo.m_nIntersectionType == QLineF::BoundedIntersection )
@@ -209,6 +209,17 @@ __Relation::offset_last()
     return m_nLastPos + QPoint( -m_dX,  m_dY );
 }
 
+
+bool
+__Relation::compare( __Relation *o )
+{
+    int     rc = Cmp( this->m_nFirstPos.x(), o->m_nFirstPos.x() );
+    if(!rc) rc = Cmp( this->m_nLastPos .x(), o->m_nLastPos .x() );
+    if(!rc) rc = Cmp( this->m_nFirstPos.y(), o->m_nFirstPos.y() );
+    if(!rc) rc = Cmp( this->m_nLastPos .y(), o->m_nLastPos .y() );
+    return rc;
+}
+
 bool
 __Relation::contain( const QPoint &point )
 {
@@ -225,12 +236,12 @@ __Relation::contain( const QPoint &point )
     std::vector <__PointType> intersectionFrom; draw_relation_intersection( intersectionFrom, pFrom.get(), line );
     std::vector <__PointType> intersectionTo  ; draw_relation_intersection( intersectionTo  , pTo  .get(), line );
 
-    auto found1 = std::find_if( __EXECUTION_POLICY_BUILDER__, intersectionFrom.begin(), intersectionFrom.end(),
+    auto found1 = std::find_if( __EXECUTION_POLICY_LIST__, intersectionFrom.begin(), intersectionFrom.end(),
         [this,&intersectionTo,pFrom,pTo,point]( auto &pLineFrom )
         {
             if( pLineFrom.m_nIntersectionType == QLineF::BoundedIntersection )
             {
-                auto found2 = std::find_if( __EXECUTION_POLICY_BUILDER__, intersectionTo.begin(), intersectionTo.end(),
+                auto found2 = std::find_if( __EXECUTION_POLICY_LIST__, intersectionTo.begin(), intersectionTo.end(),
                     [this,&pLineFrom,pFrom,pTo,point]( auto &pLineTo )
                     {
                         if( pLineTo.m_nIntersectionType == QLineF::BoundedIntersection )
@@ -265,15 +276,20 @@ __Relation::oscillation( int dx, int dy )
 bool
 RelationList_t::validate( long nFrom, long nTo )
 {
-    auto found = std::find_if( __EXECUTION_POLICY_BUILDER__, rbegin(), rend(),
+    auto found = std::find_if( __EXECUTION_POLICY_LIST__, rbegin(), rend(),
         [ nFrom, nTo ]( auto &pItem ) { return pItem->m_nFrom == nFrom && pItem->m_nTo == nTo; } );
     return found == rend();
+}
+
+void RelationList_t::sort()
+{
+    std::sort( __EXECUTION_POLICY_LIST__, begin(), end(), []( auto &l, auto &r ) { return l->compare( r.get() ); } );
 }
 
 void
 RelationList_t::calculate( ClassList_t *pFigureList )
 {
-    std::for_each( __EXECUTION_POLICY_BUILDER__, begin(), end(),
+    std::for_each( __EXECUTION_POLICY_LIST__, begin(), end(),
         [ pFigureList ]( auto &pItem ) { pItem->calculate( *pFigureList->at( pItem->m_nFrom ), *pFigureList->at( pItem->m_nTo ) ); } );
 }
 
@@ -283,7 +299,7 @@ RelationList_t::hover_clear() { for( auto &p : *this ) { p->m_bHover = false; } 
 long
 RelationList_t::hover_index( const QPoint &pos )
 {
-    auto found = std::find_if( __EXECUTION_POLICY_BUILDER__, rbegin(), rend(),
+    auto found = std::find_if( __EXECUTION_POLICY_LIST__, rbegin(), rend(),
         [ pos ]( auto &pItem ) { return pItem->contain( pos ); } );
     return ( found != rend() ) ? std::distance( begin(), -- found.base() ) : -1;
 }

@@ -14,6 +14,7 @@ Copyright (C) 2025, pogrebenko
 
 #include "common/Utils.h"
 #include "common/Logger.h"
+#include "common/Compare.h"
 
 #include "data/Options.h"
 
@@ -141,6 +142,26 @@ __Class::contain_title( const QPoint &mousePos )
 
     return transform.map( rectanglePath ).contains( mousePos );
 //    return contain_rectangle( mousePos, m_nFirstPos, m_nTitlePos, m_nAngle );
+}
+
+bool
+__Class::compare( const QPoint &o )
+{
+    int     rc = Cmp( this->m_nFirstPos.x(), o.x()   );
+    if(!rc) rc = Cmp( this->m_nLastPos .x(), o.x()+1 );
+    if(!rc) rc = Cmp( this->m_nFirstPos.y(), o.y()   );
+    if(!rc) rc = Cmp( this->m_nLastPos .y(), o.y()+1 );
+    return rc;
+}
+
+bool
+__Class::compare( __Class *o )
+{
+    int     rc = Cmp( this->m_nFirstPos.x(), o->m_nFirstPos.x() );
+    if(!rc) rc = Cmp( this->m_nLastPos .x(), o->m_nLastPos .x() );
+    if(!rc) rc = Cmp( this->m_nFirstPos.y(), o->m_nFirstPos.y() );
+    if(!rc) rc = Cmp( this->m_nLastPos .y(), o->m_nLastPos .y() );
+    return rc;
 }
 
 bool
@@ -371,12 +392,12 @@ ClassList_t::hover_clear()
 void
 ClassList_t::edit_clear()
 {
-    std::for_each( __EXECUTION_POLICY_BUILDER__, begin(), end(),
+    std::for_each( __EXECUTION_POLICY_LIST__, begin(), end(),
         []( auto pItem )
         {
             pItem->m_bEditText    =
             pItem->m_bEditOptions = false;
-            std::for_each( __EXECUTION_POLICY_BUILDER__, pItem->m_FieldList.begin(), pItem->m_FieldList.end(),
+            std::for_each( __EXECUTION_POLICY_LIST__, pItem->m_FieldList.begin(), pItem->m_FieldList.end(),
                 []( auto &pField ){
                     pField->m_bEditText    =
                     pField->m_bEditOptions = false;
@@ -389,7 +410,7 @@ ClassList_t::edit_clear()
 void
 ClassList_t::edit_title( const std::string &text )
 {
-    std::find_if( __EXECUTION_POLICY_BUILDER__, begin(), end(),
+    std::find_if( __EXECUTION_POLICY_LIST__, begin(), end(),
         [text]( auto pItem ) {
             if( pItem->m_bEditText || pItem->m_bEditOptions )
             {
@@ -398,7 +419,7 @@ ClassList_t::edit_title( const std::string &text )
             }
             else
             {
-                auto found = std::find_if( __EXECUTION_POLICY_BUILDER__, pItem->m_FieldList.begin(), pItem->m_FieldList.end(),
+                auto found = std::find_if( __EXECUTION_POLICY_LIST__, pItem->m_FieldList.begin(), pItem->m_FieldList.end(),
                     [text]( auto &pField ){
                         if( pField->m_bEditText || pField->m_bEditOptions )
                             pField->m_LogicalName = pField->m_PhysicalName = text;
@@ -415,7 +436,7 @@ std::map<std::string,long>
 ClassList_t::find_edit()
 {
     std::map<std::string,long> rc = {{"class_index",-1},{"field_index",-1}};
-    auto found1 = std::find_if( __EXECUTION_POLICY_BUILDER__, begin(), end(),
+    auto found1 = std::find_if( __EXECUTION_POLICY_LIST__, begin(), end(),
         [&rc]( auto pItem ) {
             if( pItem->m_bEditText || pItem->m_bEditOptions )
             {
@@ -423,7 +444,7 @@ ClassList_t::find_edit()
             }
             else
             {
-                auto found2 = std::find_if( __EXECUTION_POLICY_BUILDER__, pItem->m_FieldList.begin(), pItem->m_FieldList.end(),
+                auto found2 = std::find_if( __EXECUTION_POLICY_LIST__, pItem->m_FieldList.begin(), pItem->m_FieldList.end(),
                     [&rc]( auto &pField ){
                         return pField->m_bEditText || pField->m_bEditOptions;
                     }
@@ -441,9 +462,9 @@ std::map<std::string,long>
 ClassList_t::find_fromFK()
 {
     std::map<std::string,long> rc = {{"class_index",-1},{"field_index",-1}};
-    auto found1 = std::find_if( __EXECUTION_POLICY_BUILDER__, begin(), end(),
+    auto found1 = std::find_if( __EXECUTION_POLICY_LIST__, begin(), end(),
         [&rc]( auto pItem ) {
-           auto found2 = std::find_if( __EXECUTION_POLICY_BUILDER__, pItem->m_FieldList.begin(), pItem->m_FieldList.end(),
+           auto found2 = std::find_if( __EXECUTION_POLICY_LIST__, pItem->m_FieldList.begin(), pItem->m_FieldList.end(),
               [&rc]( auto &pField ){ return pField->m_bFromFK; }
            );
            rc["field_index"] = ( found2 != pItem->m_FieldList.end() ) ? std::distance( pItem->m_FieldList.begin(), found2 ) : -1;
@@ -457,21 +478,28 @@ ClassList_t::find_fromFK()
 long
 ClassList_t::hover_title( const QPoint &pos )
 {
-    auto found_reverse = std::find_if( __EXECUTION_POLICY_BUILDER__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->contain_title( pos ); } );
+    auto found_reverse = std::find_if( __EXECUTION_POLICY_LIST__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->contain_title( pos ); } );
     return ( found_reverse != rend() ) ? std::distance( begin(), -- found_reverse.base() ) : -1;
 }
 
 long
 ClassList_t::hover_index( const QPoint &pos )
 {
-    auto found_reverse = std::find_if( __EXECUTION_POLICY_BUILDER__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->contain( pos ); } );
-    return ( found_reverse != rend() ) ? std::distance( begin(), -- found_reverse.base() ) : -1;
+    if( true )
+    {
+        return find( pos );
+    }
+    else
+    {
+        auto found_reverse = std::find_if( __EXECUTION_POLICY_LIST__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->contain( pos ); } );
+        return ( found_reverse != rend() ) ? std::distance( begin(), -- found_reverse.base() ) : -1;
+    }
 }
 
 long
 ClassList_t::hover_center_index( const QPoint &pos )
 {
-    auto found = std::find_if( __EXECUTION_POLICY_BUILDER__, rbegin(), rend(),
+    auto found = std::find_if( __EXECUTION_POLICY_LIST__, rbegin(), rend(),
         [pos]( auto pItem )
         {
             QRect rc;
@@ -486,27 +514,41 @@ ClassList_t::hover_center_index( const QPoint &pos )
 long
 ClassList_t::hover_resize_index( const QPoint &pos )
 {
-    auto found = std::find_if( __EXECUTION_POLICY_BUILDER__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->near_points( pItem->m_nResizePos, pos ); } );
+    auto found = std::find_if( __EXECUTION_POLICY_LIST__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->near_points( pItem->m_nResizePos, pos ); } );
     return ( found != rend() ) ? std::distance( begin(), -- found.base() ) : -1;
 }
 
 long
 ClassList_t::hover_angle_index( const QPoint &pos )
 {
-    auto found = std::find_if( __EXECUTION_POLICY_BUILDER__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->near_points( pItem->m_nAnglePos, pos ); } );
+    auto found = std::find_if( __EXECUTION_POLICY_LIST__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->near_points( pItem->m_nAnglePos, pos ); } );
     return ( found != rend() ) ? std::distance( begin(), -- found.base() ) : -1;
 }
 
 long
 ClassList_t::hover_first_index( const QPoint &pos )
 {
-    auto found = std::find_if( __EXECUTION_POLICY_BUILDER__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->near_points( pItem->m_nFirstPos, pos ); } );
+    auto found = std::find_if( __EXECUTION_POLICY_LIST__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->near_points( pItem->m_nFirstPos, pos ); } );
     return ( found != rend() ) ? std::distance( begin(), -- found.base() ) : -1;
 }
 
 long
 ClassList_t::hover_last_index( const QPoint &pos )
 {
-    auto found = std::find_if( __EXECUTION_POLICY_BUILDER__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->near_points( pItem->m_nLastPos, pos ); } );
+    auto found = std::find_if( __EXECUTION_POLICY_LIST__, rbegin(), rend(), [pos]( auto pItem ) { return pItem->near_points( pItem->m_nLastPos, pos ); } );
     return ( found != rend() ) ? std::distance( begin(), -- found.base() ) : -1;
+}
+
+
+long ClassList_t::find( const QPoint &pos )
+{
+    auto rc = std::lower_bound( this->begin(), this->end(), pos,
+                               []( auto pItem, const QPoint &pos ) { return pItem->compare( pos ); }
+                               );
+    return std::distance( this->begin(), rc );
+}
+
+void ClassList_t::sort()
+{
+    std::sort( __EXECUTION_POLICY_LIST__, begin(), end(), []( auto l, auto r ) { return l.get()->compare( r.get() ); } );
 }

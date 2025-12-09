@@ -20,6 +20,7 @@ Copyright (C) 2025, pogrebenko
 #endif
 
 #include "common/IOStreamer.h"
+#include "data/shapes/Rectangle.h"
 
 #include "data/Options.h"
 #include "data/History.h"
@@ -365,6 +366,7 @@ MainWindow::on_ImportFromDB()
     FUNC_TRACE( &__Logger, __PRETTY_FUNCTION__ );
 
     CRefreshMainWnd w( this );
+    CRefreshCanvas v( __PRETTY_FUNCTION__, m_pCanvas, &__History );
 
     this->setCursor( Qt::ArrowCursor );
 
@@ -388,7 +390,7 @@ MainWindow::on_ImportFromDB()
 
         int nHeight = __AppOptions.getHeight() + 2 * __AppOptions.getPadding();
 
-        Class_t t(FigureType_t::FigureTypeRectangle);
+        CRectangle t;
 
         std::vector<__DBCol__> dbcolumns;
 
@@ -410,7 +412,8 @@ MainWindow::on_ImportFromDB()
                     + Buff( _T( " table_name" ), table_name, sizeof( table_name ) )
                     + _T( " FROM INFORMATION_SCHEMA.TABLES" )
                     + _T( " WHERE " ) + Bind( "table_type"  , table_type   )
-                    + _T( " AND "   ) + Bind( "table_schema", table_schema );
+                    + _T( " AND "   ) + Bind( "table_schema", table_schema )
+                    + _T( " ORDER BY table_name ASC");
                 break;
             }
             default : break;
@@ -424,7 +427,7 @@ MainWindow::on_ImportFromDB()
                 {
                     continue;
                 }
-                class_list->Add( new Class_t( t ) );
+                class_list->Add( new CRectangle( t ) );
             }
         sql.Flush();
 
@@ -459,7 +462,9 @@ MainWindow::on_ImportFromDB()
             }
         );
 
-        long row = -1, col = 0;
+        auto fm = this->fontMetrics();
+
+        long row = -1, col = 0; int pos_x = 0, pos_y = 0;
         for( unsigned long n = 0; n < class_list->size(); ++ n )
         {
             auto &t = class_list->at( n );
@@ -473,9 +478,30 @@ MainWindow::on_ImportFromDB()
             {
                 col ++;
             }
-            t->m_nFirstPos = QPoint( DEFAULT_OFFSET_DX + col * ( DEFAULT_OFFSET_DX + ADD_DEFAULT_WIDTH  ),
-                                     DEFAULT_OFFSET_DY + row * ( DEFAULT_OFFSET_DY + ADD_DEFAULT_HEIGHT ) );
-            t->m_nLastPos = t->m_nFirstPos + QPoint( ADD_DEFAULT_WIDTH, ADD_DEFAULT_HEIGHT );
+
+            // вычисляем первичное смещение по горизонтали и вертикали
+            pos_x = DEFAULT_OFFSET_DX + col * ( DEFAULT_OFFSET_DX + ADD_DEFAULT_WIDTH  ),
+            pos_y = DEFAULT_OFFSET_DY + row * ( DEFAULT_OFFSET_DY + ADD_DEFAULT_HEIGHT );
+            if( row > 0 && col > 0 )
+            {   // если предыдущая таблица широкая, то сдвигаем ее правее
+                auto &prev = class_list->at( n - 1 );
+                pos_x = prev->m_nLastPos.x() + DEFAULT_OFFSET_DX;
+            }
+
+            // самый длинный текст используется для вычисления ширины таблицы
+            std::string max_text;
+            std::for_each( t->m_FieldList.begin(), t->m_FieldList.end(),
+              [ &max_text ]( auto pItem )
+              {
+                  if( max_text.size() < pItem->m_PhysicalName.size() ) max_text = pItem->m_PhysicalName;
+              }
+            );
+            if( max_text.size() < t->m_PhysicalName.size() ) max_text = t->m_PhysicalName;
+
+
+            // step 1 устанавливаем первичные размеры таблицы и ее полей
+            t->m_nFirstPos = QPoint( pos_x, pos_y );
+            t->m_nLastPos  = t->m_nFirstPos + QPoint( ADD_DEFAULT_WIDTH, ADD_DEFAULT_HEIGHT );
 
             t->calc_angle_resize_point( nHeight );
             FieldList_t PK; t->enumFields( PK, FieldRelationTypePrimaryKey );
@@ -483,7 +509,69 @@ MainWindow::on_ImportFromDB()
             FieldList_t NN; t->enumFields( NN, FieldRelationTypeNone       );
             t->aggregateFields( PK, FK, NN );
             t->field_recalc();
+
+
+            // step 2 оптимизируем размеры таблицы и полей по ширине и высоте
+            int h1 = t->m_nFirstPos.y() + nHeight * (t->m_FieldList.size() + 2);
+            int h0 = t->m_nLastPos.y();
+
+            int w1 = fm.horizontalAdvance( max_text.c_str() ) + 6*HEIGHT_TO_PADDING;
+            int w0 = abs( t->m_nLastPos.x() - t->m_nFirstPos.x() );
+
+            QPoint pt = t->m_nResizePos + QPoint( w1 - w0, h1 - h0 );
+            t->calc_first_last_point( pt );
+
+
+            // step 3 смещаем таблицу с полями правее если она пересекается с предыдущими таблицами
+            for( unsigned long ri = 0; ri < n; ri ++ )
+            {
+                auto &prev = class_list->at( ri );
+                if( QRect( prev->m_nFirstPos, prev->m_nLastPos ).intersects( QRect( t->m_nFirstPos, t->m_nLastPos ) ) )
+                {
+                    t->move( t->m_nFirstPos, QPoint( prev->m_nLastPos.x() + DEFAULT_OFFSET_DX, t->m_nFirstPos.y() ) );
+                }
+            }
         }
+
+        // add relations
+        auto relations_list = __AppOptions.getRelationList();
+        relations_list->Flush();
+        for( unsigned long i = 0; i < class_list->size(); ++ i )
+        {
+            auto &ti = class_list->at( i );
+
+            FieldList_t PK; ti->enumFields( PK, FieldRelationTypePrimaryKey );
+
+            if( PK.size() > 1 ) continue;
+            if( PK.end() != std::find_if( PK.begin(), PK.end(), [](auto pItem){
+                return std::string::npos == pItem->m_PhysicalName.find( "_id" )
+                    && std::string::npos == pItem->m_PhysicalName.find( "uid" )
+                    && std::string::npos == pItem->m_PhysicalName.find( "dbno" )
+                    && std::string::npos == pItem->m_PhysicalName.find( "nox" )
+                    && std::string::npos == pItem->m_PhysicalName.find( "sox" );
+                } ) )
+                continue;
+
+            for( unsigned long j = 0; j < class_list->size(); ++ j )
+            {
+                if( i != j )
+                {
+                    auto &tj = class_list->at( j );
+                    for( unsigned long k = 0; k < tj->m_FieldList.size(); ++ k )
+                    {
+                        auto f = tj->m_FieldList[ k ];
+                        auto it = std::find_if( PK.begin(), PK.end(), [f](auto pItem){ return 0 == pItem->m_PhysicalName.compare( f->m_PhysicalName ); } );
+                        if( it != PK.end() )
+                        {
+                            m_pCanvas->relation_release_add( i, j, k );
+                        }
+                    }
+                }
+            }
+        }
+
+        // class_list->sort();
+        // relations_list->sort();
     }
 }
 

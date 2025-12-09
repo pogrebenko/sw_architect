@@ -25,6 +25,9 @@ typedef struct __Class : public __Class__
 
     virtual bool  contain( const QPoint& );
 
+    bool          compare( __Class* );
+    bool          compare( const QPoint& );
+
     void          init();
     bool          contain_title( const QPoint& );
     void          move( const QPoint &from, const QPoint &to );
@@ -60,6 +63,9 @@ public:
         std::for_each( o.begin(), o.end(), [this]( auto &pItem ){ Add( new __Class( *pItem.get() ) ); } );
         return *this;
     }
+
+    void sort();
+    long find( const QPoint &pos );
 
     void hover_clear();
     long hover_title( const QPoint &pos );

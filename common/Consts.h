@@ -27,8 +27,10 @@ Copyright (C) 2025, pogrebenko
 #define HEIGHT_TO_PADDING      4
 #define DEFAULT_PADDING        7
 #define DEFAULT_SCROLL_SIZE   16
-#define DEFAULT_OFFSET_DX     30
-#define DEFAULT_OFFSET_DY     30
+#define DEFAULT_OFFSET_DX     100
+#define DEFAULT_OFFSET_DY     100
+#define DEFAULT_DX            0//10
+#define DEFAULT_DY            0//10
 
 #define DEFAULT_RATIO_STEP     0.1
 #define PRECISION_RATIO       10
@@ -37,10 +39,10 @@ Copyright (C) 2025, pogrebenko
 #define DEFAULT_RATIO          1.
 #define MINIMUM_RELATION_WIDTH 8
 
-#define MAXRECENTFILE          5
+#define MAXRECENTFILE          512
 
-#define ADD_DEFAULT_WIDTH    100
-#define ADD_DEFAULT_HEIGHT   120
+#define ADD_DEFAULT_WIDTH    200
+#define ADD_DEFAULT_HEIGHT   240
 
 #define DEFAULT_PRINTER_DPI  300
 
@@ -50,7 +52,8 @@ Copyright (C) 2025, pogrebenko
 
 #include <execution>
 
-#define __EXECUTION_POLICY_BUILDER__ std::execution::par
+#define __EXECUTION_POLICY_LIST__    std::execution::seq //par
+#define __EXECUTION_POLICY_BUILDER__ std::execution::seq //par
 #define __EXECUTION_POLICY_PAINTER__ std::execution::seq
 
 typedef enum {

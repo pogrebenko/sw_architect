@@ -23,7 +23,7 @@ typedef struct __Relation : public __Relation__
 
     void  calculate( Class_t &pFrom, Class_t &pTo );
 
-    bool  compare( __Relation *o );
+    int   compare( const __Relation &o );
 
     float distancePointToLine( const QPoint &p1, const QPoint &p2, const QPoint &p );
     bool  isPointNearLine(const QPoint &p1, const QPoint &p2, const QPoint &p, qreal tolerance = DEFAULT_TOLERANCE );

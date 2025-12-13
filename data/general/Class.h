@@ -25,8 +25,8 @@ typedef struct __Class : public __Class__
 
     virtual bool  contain( const QPoint& );
 
-    bool          compare( __Class* );
-    bool          compare( const QPoint& );
+    int           compare( const __Class& );
+    int           compare( const QPoint& );
 
     void          init();
     bool          contain_title( const QPoint& );

@@ -570,8 +570,8 @@ MainWindow::on_ImportFromDB()
             }
         }
 
-        // class_list->sort();
-        // relations_list->sort();
+        class_list->sort();
+        relations_list->sort();
     }
 }
 

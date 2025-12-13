@@ -144,23 +144,23 @@ __Class::contain_title( const QPoint &mousePos )
 //    return contain_rectangle( mousePos, m_nFirstPos, m_nTitlePos, m_nAngle );
 }
 
-bool
+int
 __Class::compare( const QPoint &o )
 {
     int     rc = Cmp( this->m_nFirstPos.x(), o.x()   );
-    if(!rc) rc = Cmp( this->m_nLastPos .x(), o.x()+1 );
+    //if(!rc) rc = Cmp( this->m_nLastPos .x(), o.x()+1 );
     if(!rc) rc = Cmp( this->m_nFirstPos.y(), o.y()   );
-    if(!rc) rc = Cmp( this->m_nLastPos .y(), o.y()+1 );
+    //if(!rc) rc = Cmp( this->m_nLastPos .y(), o.y()+1 );
     return rc;
 }
 
-bool
-__Class::compare( __Class *o )
+int
+__Class::compare( const __Class &o )
 {
-    int     rc = Cmp( this->m_nFirstPos.x(), o->m_nFirstPos.x() );
-    if(!rc) rc = Cmp( this->m_nLastPos .x(), o->m_nLastPos .x() );
-    if(!rc) rc = Cmp( this->m_nFirstPos.y(), o->m_nFirstPos.y() );
-    if(!rc) rc = Cmp( this->m_nLastPos .y(), o->m_nLastPos .y() );
+    int     rc = Cmp( this->m_nFirstPos.x(), o.m_nFirstPos.x() );
+    //if(!rc) rc = Cmp( this->m_nLastPos .x(), o.m_nLastPos .x() );
+    if(!rc) rc = Cmp( this->m_nFirstPos.y(), o.m_nFirstPos.y() );
+    //if(!rc) rc = Cmp( this->m_nLastPos .y(), o.m_nLastPos .y() );
     return rc;
 }
 
@@ -485,7 +485,7 @@ ClassList_t::hover_title( const QPoint &pos )
 long
 ClassList_t::hover_index( const QPoint &pos )
 {
-    if( true )
+    if( false )
     {
         return find( pos );
     }
@@ -540,15 +540,23 @@ ClassList_t::hover_last_index( const QPoint &pos )
 }
 
 
+bool SortClass(const std::shared_ptr<__Class>& l, const std::shared_ptr<__Class>& r)
+{
+    return l.get()->compare( *r.get() ) < 0;
+}
+
 long ClassList_t::find( const QPoint &pos )
 {
-    auto rc = std::lower_bound( this->begin(), this->end(), pos,
-                               []( auto pItem, const QPoint &pos ) { return pItem->compare( pos ); }
-                               );
-    return std::distance( this->begin(), rc );
+    auto rc = std::lower_bound( begin(),this->end(), pos,
+        []( const std::shared_ptr<__Class>& pItem, const QPoint &pos )
+        {
+        return pItem->compare( pos ) < 0;
+        }
+    );
+    return std::distance( begin(), rc );
 }
 
 void ClassList_t::sort()
 {
-    std::sort( __EXECUTION_POLICY_LIST__, begin(), end(), []( auto l, auto r ) { return l.get()->compare( r.get() ); } );
+    std::sort( __EXECUTION_POLICY_LIST__, begin(), end(), SortClass );
 }

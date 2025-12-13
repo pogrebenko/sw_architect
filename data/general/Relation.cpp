@@ -210,13 +210,13 @@ __Relation::offset_last()
 }
 
 
-bool
-__Relation::compare( __Relation *o )
+int
+__Relation::compare( const __Relation &o )
 {
-    int     rc = Cmp( this->m_nFirstPos.x(), o->m_nFirstPos.x() );
-    if(!rc) rc = Cmp( this->m_nLastPos .x(), o->m_nLastPos .x() );
-    if(!rc) rc = Cmp( this->m_nFirstPos.y(), o->m_nFirstPos.y() );
-    if(!rc) rc = Cmp( this->m_nLastPos .y(), o->m_nLastPos .y() );
+    int     rc = Cmp( this->m_nFirstPos.x(), o.m_nFirstPos.x() );
+    if(!rc) rc = Cmp( this->m_nLastPos .x(), o.m_nLastPos .x() );
+    if(!rc) rc = Cmp( this->m_nFirstPos.y(), o.m_nFirstPos.y() );
+    if(!rc) rc = Cmp( this->m_nLastPos .y(), o.m_nLastPos .y() );
     return rc;
 }
 
@@ -281,11 +281,6 @@ RelationList_t::validate( long nFrom, long nTo )
     return found == rend();
 }
 
-void RelationList_t::sort()
-{
-    std::sort( __EXECUTION_POLICY_LIST__, begin(), end(), []( auto &l, auto &r ) { return l->compare( r.get() ); } );
-}
-
 void
 RelationList_t::calculate( ClassList_t *pFigureList )
 {
@@ -302,4 +297,14 @@ RelationList_t::hover_index( const QPoint &pos )
     auto found = std::find_if( __EXECUTION_POLICY_LIST__, rbegin(), rend(),
         [ pos ]( auto &pItem ) { return pItem->contain( pos ); } );
     return ( found != rend() ) ? std::distance( begin(), -- found.base() ) : -1;
+}
+
+bool SortRelation(const std::shared_ptr<__Relation>& l, const std::shared_ptr<__Relation>& r)
+{
+    return l.get()->compare( *r.get() ) < 0;
+}
+
+void RelationList_t::sort()
+{
+    std::sort( __EXECUTION_POLICY_LIST__, begin(), end(), SortRelation );
 }

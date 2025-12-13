@@ -35,17 +35,18 @@ enum PDatabases
 // odbcinst -j
 
 #ifdef DEFINE_SQLITE
-#include <sqlite3.h>
+#include "extern/linux/sql/sqlite/sqlite3.h"
 #endif
 
 #ifdef DEFINE_MYSQL
-#include <mysql/mysql.h> 
+#include "extern/linux/sql/mysql/mysql.h"
 #endif
 
 #ifdef DEFINE_ODBC
-#include <sql.h> 
-#include <sqlext.h> 
-#include <sql.h> 
+#undef SQL_MAX_MESSAGE_LENGTH
+//#include "extern/linux/sql/odbc/sql.h"
+#include "extern/linux/sql/odbc/sqlext.h"
+#include "extern/linux/sql/odbc/sql.h"
 #endif
 
 typedef void* HDBPROVIDER;

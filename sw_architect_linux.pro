@@ -67,6 +67,28 @@ HEADERS += \
     data/shapes/FigureFactory.h \
     data/shapes/Rectangle.h \
     data/shapes/Triangle.h \
+    extern/linux/sql/mysql/client_plugin.h \
+    extern/linux/sql/mysql/errmsg.h \
+    extern/linux/sql/mysql/field_types.h \
+    extern/linux/sql/mysql/my_command.h \
+    extern/linux/sql/mysql/my_compress.h \
+    extern/linux/sql/mysql/my_list.h \
+    extern/linux/sql/mysql/mysql.h \
+    extern/linux/sql/mysql/mysql_com.h \
+    extern/linux/sql/mysql/mysql_time.h \
+    extern/linux/sql/mysql/mysql_version.h \
+    extern/linux/sql/mysql/mysqld_error.h \
+    extern/linux/sql/mysql/mysqlx_ername.h \
+    extern/linux/sql/mysql/mysqlx_error.h \
+    extern/linux/sql/mysql/mysqlx_version.h \
+    extern/linux/sql/mysql/plugin_auth_common.h \
+    extern/linux/sql/mysql/udf_registration_types.h \
+    extern/linux/sql/odbc/sql.h \
+    extern/linux/sql/odbc/sqlext.h \
+    extern/linux/sql/odbc/sqltypes.h \
+    extern/linux/sql/odbc/sqlucode.h \
+    extern/linux/sql/odbc/unixodbc.h \
+    extern/linux/sql/sqlite/sqlite3.h \
     psql/sptr.h \
     psql/sqlbridge.h \
     psql/sqlinfo.h \

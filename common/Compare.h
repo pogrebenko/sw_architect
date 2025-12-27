@@ -8,10 +8,7 @@ Copyright (C) 2025, pogrebenko
 #ifndef COMPARE_H
 #define COMPARE_H
 
-#include <strings.h>
-#include <string>
-
-//#include "ExtTypes.h"
+#include "export.h"
 
 inline int Cmp( const int &o1, const int &o2 )
 {
@@ -40,12 +37,12 @@ inline int Cmp( const double &o1, const double &o2 )
 
 inline int Cmp( const char *o1, const char *o2 )
 {
-	return strcasecmp( o1, o2 );
+    return _tcsicmp( o1, o2 );
 }
 
 inline int Cmp( std::string &o1, std::string &o2 )
 {
-	return strcasecmp( o1.c_str(), o2.c_str() );
+    return _tcsicmp( o1.c_str(), o2.c_str() );
 }
 
 // inline int Cmp( const tm64 &o1, const tm64 &o2 )

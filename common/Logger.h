@@ -12,6 +12,10 @@ Copyright (C) 2025, pogrebenko
 #include <assert.h>
 #include <string>
 
+#if defined(_MSC_VER)
+#define __PRETTY_FUNCTION__ __FUNCSIG__
+#endif
+
 typedef enum {
     LOG_LEVEL_NONE  = 0,
     LOG_LEVEL_ERROR = 1,

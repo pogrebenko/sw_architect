@@ -65,9 +65,9 @@ CSqlConnectInfo::Open()
             
             /* Finetune sqlite (quite slow without these) */
             rc = sqlite3_extended_result_codes( connect, true );
-            rc = sqlite3_exec( connect, "PRAGMA cache_size = 8000;"    , 0, 0, 0 );
-            rc = sqlite3_exec( connect, "PRAGMA synchronous = OFF;"    , 0, 0, 0 );
-            rc = sqlite3_exec( connect, "PRAGMA journal_mode = MEMORY;", 0, 0, 0 );
+            rc = sqlite3_exec( connect, _T("PRAGMA cache_size = 8000;")    , 0, 0, 0 );
+            rc = sqlite3_exec( connect, _T("PRAGMA synchronous = OFF;")    , 0, 0, 0 );
+            rc = sqlite3_exec( connect, _T("PRAGMA journal_mode = MEMORY;"), 0, 0, 0 );
             rc = sqlite3_enable_shared_cache( true );
         
             iHdbc = (SQLHDBC) connect;
@@ -81,20 +81,19 @@ CSqlConnectInfo::Open()
             iHenv = ( SQLHENV ) initialize;
             if( iHenv )
             {
-                SQLRETURN rc = 0;
-                //rc = mysql_options( initialize, MYSQL_SET_CHARSET_NAME, "ascii" );
-                rc = mysql_options( initialize, MYSQL_SET_CHARSET_NAME, "utf8" );
+                //rc = mysql_options( initialize, MYSQL_SET_CHARSET_NAME, _T("ascii") );
+                SQLRETURN rc = mysql_options( initialize, MYSQL_SET_CHARSET_NAME, _T("utf8") );
                 //SET SESSION SQL_MODE='ALLOW_INVALID_DATES'
                 //SET time_zone = "+00:00"
                 
                 //unsigned int timeout = 20;        
-                //rc = mysql_options( initialize, MYSQL_OPT_CONNECT_TIMEOUT, (char*)&timeout );                
+                //rc = mysql_options( initialize, MYSQL_OPT_CONNECT_TIMEOUT, (char*)&timeout );
                 
-                if( strcmp( (const char*)m_ServerName, "." ) == 0 ) // socket use option (Unix/Linux)
+                if( strcmp( (const char*)m_ServerName, _T(".") ) == 0 ) // socket use option (Unix/Linux)
                 {
                     unsigned int opt = MYSQL_PROTOCOL_SOCKET;
                     rc = mysql_options(initialize, MYSQL_OPT_PROTOCOL, (char const*)&opt);
-                    _tcscpy( (TCHAR*)m_ServerName, "localhost" );
+                    tcscpy( m_ServerName, _T("localhost") );
                     m_Port = 0;
                 }
                 else                                                    // generic case
@@ -206,7 +205,7 @@ CSqlConnectInfo::Close()
 bool
 CSqlConnectInfo::GetErrorInfo( SQLHSTMT aHstmt )
 {
-    long nErrMsg = 0;
+    unsigned long nErrMsg = 0;
     
     delete m_Error;
            m_Error = new TSqlErrorInfo;
@@ -239,21 +238,21 @@ CSqlConnectInfo::GetErrorInfo( SQLHSTMT aHstmt )
             nErrMsg = strlen( sErrMsg );
             if( nErrMsg > 0 )
             {
-                strncpy( (char*)m_Error->SqlState, sErrMsg, nErrMsg < sizeof(m_Error->SqlState) ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
+                _tcsncpy( (char*)m_Error->SqlState, sErrMsg, nErrMsg < sizeof(m_Error->SqlState) ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
             }
             
             sErrMsg = mysql_stmt_error( (MYSQL_STMT*) aHstmt );
             nErrMsg = strlen( sErrMsg );
             if( nErrMsg > 0 )
             {
-                strncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < SQL_MAX_MESSAGE_LENGTH ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
+                _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < SQL_MAX_MESSAGE_LENGTH ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
             }
         }
         else
         {
             if( this->iHenv == NULL )
             {
-                strcpy( (char*)m_Error->SqlError, "Could not initialize Mysql connection" );
+                _tcscpy( (char*)m_Error->SqlError, _T("Could not initialize Mysql connection") );
             }
             else
             if( this->iHdbc == NULL )
@@ -264,7 +263,7 @@ CSqlConnectInfo::GetErrorInfo( SQLHSTMT aHstmt )
                 nErrMsg = strlen( sErrMsg );
                 if( nErrMsg > 0 )
                 {
-                    strncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < SQL_MAX_MESSAGE_LENGTH ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
+                    _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < SQL_MAX_MESSAGE_LENGTH ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
                 }
             }
             else
@@ -275,7 +274,7 @@ CSqlConnectInfo::GetErrorInfo( SQLHSTMT aHstmt )
                 nErrMsg = strlen( sErrMsg );
                 if( nErrMsg > 0 )
                 {
-                    strncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < SQL_MAX_MESSAGE_LENGTH ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
+                    _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < SQL_MAX_MESSAGE_LENGTH ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
                 }
             }
         }

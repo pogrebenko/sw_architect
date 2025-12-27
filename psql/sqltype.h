@@ -35,18 +35,15 @@ enum PDatabases
 // odbcinst -j
 
 #ifdef DEFINE_SQLITE
-#include "extern/linux/sql/sqlite/sqlite3.h"
+#include <sqlite3.h>
 #endif
 
 #ifdef DEFINE_MYSQL
-#include "extern/linux/sql/mysql/mysql.h"
+#include <mysql/mysql.h>
 #endif
 
 #ifdef DEFINE_ODBC
-#undef SQL_MAX_MESSAGE_LENGTH
-//#include "extern/linux/sql/odbc/sql.h"
-#include "extern/linux/sql/odbc/sqlext.h"
-#include "extern/linux/sql/odbc/sql.h"
+#include <sqlext.h>
 #endif
 
 typedef void* HDBPROVIDER;
@@ -124,5 +121,9 @@ typedef struct tagPSQL_DATETIME
 // enum enum_mysql_timestamp_type time_type;
 // int time_zone_displacement;
 // } MYSQL_TIME;
+
+#define tcsncpy(to,from,lenght,max_lenght) if(lenght>0) _tcsncpy((TCHAR*)to,(const TCHAR*)from,lenght<max_lenght?lenght:max_lenght-1)
+
+#define tcscpy(to,from) tcsncpy(to,from,_tcslen((const TCHAR*)from),sizeof(to))
 
 #endif

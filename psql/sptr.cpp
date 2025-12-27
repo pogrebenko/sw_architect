@@ -22,24 +22,32 @@ CDataPt::CDataPt( const void *pt, int typ, int sz, int st )
 
 CDataPt::CDataPt( CDataPt &c )
 {
-  DataPointer = c.DataPointer;
-  DataType    = c.DataType   ;
-  DataSize    = c.DataSize   ;
-  DataState   = c.DataState  ;
-  DataLength  = c.DataLength ;
-  DataConvert = c.DataConvert;
+  *this = c;
 }
 
 CDataPt::~CDataPt()
 {
 }
 
+CDataPt&
+CDataPt::operator = ( const CDataPt &c )
+{
+  DataPointer = c.DataPointer;
+  DataType    = c.DataType   ;
+  DataSize    = c.DataSize   ;
+  DataState   = c.DataState  ;
+  DataLength  = c.DataLength ;
+  DataConvert = c.DataConvert;
+
+  return *this;
+}
+
 void CDataPt::CopyData( const CDataPt &c )
 {
   if( DataType == datBytes )
-     for( long i = 0; i < c.DataSize; i ++ ) ((unsigned char*)DataPointer)[ i ] = ((unsigned char*)c.DataPointer)[ i ];
+    for( long i = 0; i < c.DataSize; i ++ ) ((unsigned char*)DataPointer)[ i ] = ((unsigned char*)c.DataPointer)[ i ];
   else
-     memcpy( DataPointer, c.DataPointer, c.DataSize );
+    memcpy( DataPointer, c.DataPointer, c.DataSize );
 }
 
 CSmPt::CSmPt(){}
@@ -68,7 +76,11 @@ EXPORT_C CSmPt::~CSmPt() {}
 CSmPt::CSmPt( int typ, void* pt, int sz, int st ) : DataPt( pt, typ, sz, st ) {}
 
 CSmPt& 
-CSmPt::operator = ( const CSmPt &c ) { DataPt = c.DataPt; return *this; }
+CSmPt::operator = ( const CSmPt &c )
+{
+    DataPt = c.DataPt;
+    return *this;
+}
 
 void CSmPt::CopyData( const CSmPt &c )
 {

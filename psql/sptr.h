@@ -60,6 +60,8 @@ public:
 
   void CopyData( const CDataPt &c );
 
+  CDataPt& operator = ( const CDataPt &c );
+
 protected:
 
   void *DataPointer;

@@ -81,7 +81,7 @@ CSQLBind::Clear()
 }
 
 SQLRETURN
-CSQLBind::Before( SQLHSTMT query )
+CSQLBind::Before( SQLHSTMT /*query*/ )
 {
     return SQL_SUCCESS;
 }
@@ -273,7 +273,7 @@ CSQLBuff::Clear()
 }
 
 SQLRETURN
-CSQLBuff::Before( SQLHSTMT query )
+CSQLBuff::Before( SQLHSTMT /*query*/ )
 {
     return SQL_SUCCESS;
 }
@@ -566,7 +566,7 @@ CSQLManager::~CSQLManager()
         {
             if( session->m_nDB == ID_PDATABASES_SQLITE )
             {
-                SQLRETURN rc = sqlite3_finalize( (sqlite3_stmt*)iHstmt );
+                /*SQLRETURN rc =*/ sqlite3_finalize( (sqlite3_stmt*)iHstmt );
                 // if( SQL_SUCCESS != rc )
                 // {
                 //     if( m_bShowAlert )
@@ -581,7 +581,7 @@ CSQLManager::~CSQLManager()
             else
             if( session->m_nDB == ID_PDATABASES_MYSQL )
             {
-                bool rc = mysql_stmt_close( (MYSQL_STMT*)iHstmt );
+                /*bool rc =*/ mysql_stmt_close( (MYSQL_STMT*)iHstmt );
                 // if( !rc )
                 // {
                 //     if( m_bShowAlert )
@@ -596,7 +596,7 @@ CSQLManager::~CSQLManager()
             else
             if( session->m_nDB == ID_PDATABASES_ODBC )
             {
-                SQLRETURN rc = SQLFreeStmt( iHstmt, SQL_DROP );
+                /*SQLRETURN rc =*/ SQLFreeStmt( iHstmt, SQL_DROP );
                 //SQLRETURN rc = SQLFreeHandle( SQL_HANDLE_STMT, iHstmt );
                 // if( SQL_SUCCESS != rc )
                 // {
@@ -692,7 +692,6 @@ CSQLManager::Compile( CSQLPipe *pipe, CSqlConnectInfo *session )
             SQLTCHAR *query = (SQLTCHAR*)pipe->m_PipeString->c_str();
             long length = pipe->m_PipeString->length();
 
-            CSqlConnectInfo *session = GetSession( m_Connect );
             if( session != NULL )
             {
                 if( session->m_nDB == ID_PDATABASES_SQLITE )

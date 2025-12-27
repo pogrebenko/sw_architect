@@ -33,8 +33,8 @@ struct TSqlErrorInfo
    TSqlErrorInfo& operator = ( TSqlErrorInfo &c )
    {
        ErrorNum   = c.ErrorNum;
-       _tcscpy( (TCHAR*)SqlError, (const TCHAR*)c.SqlError );
-       _tcscpy( (TCHAR*)SqlState, (const TCHAR*)c.SqlState );
+       tcscpy( SqlError, c.SqlError );
+       tcscpy( SqlState, c.SqlState );
        return *this;
    }
 
@@ -74,12 +74,12 @@ struct TSqlConnectInfo
     {
         m_nDB   = c.m_nDB;
         
-        _tcscpy( (TCHAR*)m_ServerName, (const TCHAR*)c.m_ServerName );
-        _tcscpy( (TCHAR*)m_BaseName  , (const TCHAR*)c.m_BaseName   );
-        _tcscpy( (TCHAR*)m_UserName  , (const TCHAR*)c.m_UserName   );
-        _tcscpy( (TCHAR*)m_UserPass  , (const TCHAR*)c.m_UserPass   );
-        _tcscpy( (TCHAR*)m_SysAdmin  , (const TCHAR*)c.m_SysAdmin   );
-        _tcscpy( (TCHAR*)m_UnixSocket, (const TCHAR*)c.m_UnixSocket );
+        tcscpy( m_ServerName, c.m_ServerName );
+        tcscpy( m_BaseName  , c.m_BaseName   );
+        tcscpy( m_UserName  , c.m_UserName   );
+        tcscpy( m_UserPass  , c.m_UserPass   );
+        tcscpy( m_SysAdmin  , c.m_SysAdmin   );
+        tcscpy( m_UnixSocket, c.m_UnixSocket );
         
         m_Port         = c.m_Port        ;
         m_UserCode     = c.m_UserCode    ;

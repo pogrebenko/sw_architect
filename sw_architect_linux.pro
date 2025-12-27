@@ -55,6 +55,7 @@ HEADERS += \
     common/Structs.h \
     common/Utils.h \
     common/VectorOfPtr.h \
+    common/export.h \
     data/History.h \
     data/Options.h \
     data/databases/SQLFactory.h \

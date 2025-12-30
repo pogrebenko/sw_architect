@@ -14,10 +14,11 @@ Copyright (C) 2025, pogrebenko
 #include <QPoint>
 #include <QString>
 
+#include "common/export.h"
 #include "common/Consts.h"
 #include "psql/sqltype.h"
 
-using __Field_t = struct __Field__
+struct __Field__
 {
     std::string         m_LogicalName       ;
     std::string         m_PhysicalName      ;
@@ -42,7 +43,7 @@ using __Field_t = struct __Field__
     inline virtual ~__Field__() {}
 };
 
-using __Class_t = struct __Class__
+struct __Class__
 {
     FigureType_t        m_nFigureType ;
     QPoint              m_nFirstPos   ;
@@ -70,7 +71,7 @@ using __Class_t = struct __Class__
 
 };
 
-using __Relation_t = struct __Relation__
+struct __Relation__
 {
     RelationType_t                  m_nRelationType      ;
     long                            m_nFrom              ;
@@ -95,7 +96,7 @@ using __Relation_t = struct __Relation__
 
 };
 
-using __Option_t = struct __Options__
+struct __Options__
 {
     int                 m_nAppVariant      ;
     QString             m_ProjectName      ;
@@ -141,13 +142,13 @@ using __Option_t = struct __Options__
     QString             m_UserName         ;
     QString             m_UserPass         ;
     QString             m_SysAdmin         ;
-    HDBPROVIDER         m_hProvider        ;
+    PHDBPROVIDER        m_hProvider        ;
 
     inline virtual ~__Options__() {}
 
 };
 
-using __DBCol_t = struct __DBCol__ {
+struct __DBCol__ {
     TCHAR table_name    [ 256 ],
           column_name   [ 256 ],
           datatype      [  64 ],

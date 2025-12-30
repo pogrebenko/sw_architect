@@ -33,7 +33,7 @@ friend class CSQLManager;
 
 public:
 // ------- user constructors -------
-           IMPORT_C CSQLPipe( HDBPROVIDER hHandle = NULL, bool bAutoCommit = true ); 
+           IMPORT_C CSQLPipe( PHDBPROVIDER hHandle = NULL, bool bAutoCommit = true );
            IMPORT_C CSQLPipe( const CSQLPipe& );
   IMPORT_C virtual ~CSQLPipe(); 
 // SQL User methods
@@ -94,9 +94,9 @@ protected:
   const CSQLPipe& Binds( const TCHAR * col, CSmPt &pt );
   const CSQLPipe& Binds( const TCHAR * col, const TCHAR * ops, CSmPt &pt );
 
-  CSQLManager *m_Manager;
-  HDBPROVIDER  m_Connect;
-  bool         m_bAutoCommit;
+  CSQLManager  *m_Manager;
+  PHDBPROVIDER  m_Connect;
+  bool          m_bAutoCommit;
 
 private:
 

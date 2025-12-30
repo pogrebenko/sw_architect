@@ -19,9 +19,18 @@ CSQLFactory::buildDatabase()
 {
     switch( m_DatabaseType )
     {
+#ifdef DEFINE_SQLITE
+    case PDatabases::ID_PDATABASES_SQLITE  :
+#endif
+#ifdef DEFINE_MYSQL
         case PDatabases::ID_PDATABASES_MYSQL   : return new CMySQL();
-        case PDatabases::ID_PDATABASES_ODBC    :
-        case PDatabases::ID_PDATABASES_SQLITE  :
+#endif
+#ifdef DEFINE_ODBC
+    case PDatabases::ID_PDATABASES_ODBC    :
+#endif
+#ifdef DEFINE_POSTGRESQL
+    case PDatabases::ID_PDATABASES_POSTGRESQL  :
+#endif
         case PDatabases::ID_PDATABASES_NONE    : break;
     }
     return nullptr;

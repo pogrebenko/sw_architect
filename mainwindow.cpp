@@ -406,6 +406,7 @@ MainWindow::on_ImportFromDB()
         CSQLPipe sql( __AppOptions.m_hProvider );
         switch( db )
         {
+#ifdef DEFINE_MYSQL
             case PDatabases::ID_PDATABASES_MYSQL :
             {
                 sql = _T( "SELECT" )
@@ -416,6 +417,7 @@ MainWindow::on_ImportFromDB()
                     + _T( " ORDER BY table_name ASC");
                 break;
             }
+#endif
             default : break;
         }
 
@@ -434,6 +436,7 @@ MainWindow::on_ImportFromDB()
         __DBCol__ c; memset( &c, 0, sizeof(c) );
         switch( db )
         {
+#ifdef DEFINE_MYSQL
             case PDatabases::ID_PDATABASES_MYSQL :
             {
                 sql = _T( "SELECT" )
@@ -451,6 +454,7 @@ MainWindow::on_ImportFromDB()
                     + _T( " ORDER BY ORDINAL_POSITION ASC");
                 break;
             }
+#endif
             default : break;
         }
 

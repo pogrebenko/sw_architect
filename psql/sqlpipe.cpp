@@ -136,7 +136,7 @@ CSQLPipe::ShowAlert( bool bAlert )
      m_Manager->ShowAlert( bAlert );
 }
 
-EXPORT_C CSQLPipe::CSQLPipe( HDBPROVIDER hHandle /* = NULL */, bool bAutoCommit /* = true */ )
+EXPORT_C CSQLPipe::CSQLPipe( PHDBPROVIDER hHandle /* = NULL */, bool bAutoCommit /* = true */ )
 {
   m_PipeString = new STD_STRING;
 //  m_PipeString->resize( PIPE_ALLOC, 0 );

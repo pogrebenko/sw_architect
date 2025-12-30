@@ -12,14 +12,14 @@
 
 extern CSQLBridge g_SQLBridge;
 
-CSQLBuilder::CSQLBuilder( HDBPROVIDER Connect )
+CSQLBuilder::CSQLBuilder( PHDBPROVIDER Connect )
 : m_Connect( Connect )
 {
     m_pSQLBridge = &g_SQLBridge;
 }
 
 CSqlConnectInfo*
-CSQLBuilder::GetSession( HDBPROVIDER hconnect )
+CSQLBuilder::GetSession( PHDBPROVIDER hconnect )
 {
     long connect = m_pSQLBridge->findIndex( hconnect );
     if( connect >= 0 )
@@ -29,13 +29,13 @@ CSQLBuilder::GetSession( HDBPROVIDER hconnect )
     return NULL;
 }
 
-SQLRETURN
-CSQLBuilder::Execute( SQLHSTMT query, CVectorOfPtr<CSmPt> *in )
+PSQLRETURN
+CSQLBuilder::Execute( PSQLHSTMT query, CVectorOfPtr<CSmPt> *in )
 {
     this->Clear();
     
-    SQLRETURN rc = this->Before( query );
-    if( rc != SQL_SUCCESS )
+    PSQLRETURN rc = this->Before( query );
+    if( rc != PSQL_SUCCESS )
     {
         return rc;
     }
@@ -43,24 +43,8 @@ CSQLBuilder::Execute( SQLHSTMT query, CVectorOfPtr<CSmPt> *in )
     for( unsigned short i = 0; i < in->size(); i ++ )
     {
         CSmPt *db_data = in->at( i );
-        short  db_type = 0;
-        
-        switch( db_data->DataType() ) 
-        {
-            case datShort    : db_type = SQL_C_SHORT         ; break;
-            case datLong     : db_type = SQL_C_LONG          ; break;
-            case datFloat    : db_type = SQL_C_FLOAT         ; break;
-            case datDouble   : db_type = SQL_C_DOUBLE        ; break;
-            case datChars    : db_type = SQL_C_CHAR          ; break;
-            case datBytes    : db_type = SQL_C_BINARY        ; break;
-            case datDate     : db_type = SQL_C_TYPE_DATE     ; break;
-            case datTime     : db_type = SQL_C_TYPE_TIME     ; break;
-            case datDateTime : db_type = SQL_C_TYPE_TIMESTAMP; break;
-            case datTimeStamp: db_type = SQL_C_TYPE_TIMESTAMP; break;
-        }
-        
-        rc = AccessSingleMethod( query, (unsigned short)i, db_type, db_data );
-        if( rc != SQL_SUCCESS )
+        rc = AccessSingleMethod( query, (unsigned short)i, db_data->DataType(), db_data );
+        if( rc != PSQL_SUCCESS )
         {
             return rc;
         }
@@ -69,7 +53,7 @@ CSQLBuilder::Execute( SQLHSTMT query, CVectorOfPtr<CSmPt> *in )
     return this->After( query );
 }
 
-CSQLBind::CSQLBind( HDBPROVIDER Connect )
+CSQLBind::CSQLBind( PHDBPROVIDER Connect )
 : CSQLBuilder( Connect )
 {
 }
@@ -77,27 +61,35 @@ CSQLBind::CSQLBind( HDBPROVIDER Connect )
 void
 CSQLBind::Clear()
 {
+#ifdef DEFINE_MYSQL
     m_Binds.clear();
+#endif
 }
 
-SQLRETURN
-CSQLBind::Before( SQLHSTMT /*query*/ )
+PSQLRETURN
+CSQLBind::Before( PSQLHSTMT /*query*/ )
 {
-    return SQL_SUCCESS;
+    return PSQL_SUCCESS;
 }
 
-SQLRETURN
-CSQLBind::After( SQLHSTMT query )
+PSQLRETURN
+CSQLBind::After( PSQLHSTMT query )
 {
-    SQLRETURN rc = SQL_SUCCESS;
+    PSQLRETURN rc = PSQL_SUCCESS;
     CSqlConnectInfo *session = GetSession( m_Connect );
     if( session != NULL )
     {
-        if( session->m_nDB == ID_PDATABASES_SQLITE )
+        switch( session->m_nDB )
+        {
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
         {
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
             if( m_Binds.size() > 0 )
             {
@@ -109,37 +101,53 @@ CSQLBind::After( SQLHSTMT query )
                 //MYSQL_RES *metadata = mysql_stmt_result_metadata( stmt );
             }
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
+        }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+        }
+        break;
+#endif
+        default : break;
         }
     }
     return rc;
 }
 
-SQLRETURN
-CSQLBind::AccessSingleMethod( SQLHSTMT query, unsigned short num, short type, CSmPt *db_data )
+PSQLRETURN
+CSQLBind::AccessSingleMethod( PSQLHSTMT query, unsigned short num, short type, CSmPt *db_data )
 {
-    void     *var    = db_data->DataPointer();
-    long      MaxLen = db_data->DataSize();
-    SQLRETURN rc     = SQL_SUCCESS;
+    void      *var    = db_data->DataPointer();
+    long       MaxLen = db_data->DataSize();
+    PSQLRETURN rc     = PSQL_SUCCESS;
 
     CSqlConnectInfo *session = GetSession( m_Connect );
     if( session != NULL )
     {
-        if( session->m_nDB == ID_PDATABASES_SQLITE )
+        switch( session->m_nDB )
+        {
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
         {
             num = num + 1;
             switch( type )
             {
-                case SQL_C_SHORT : break;
-                case SQL_C_LONG  : {
+                case datShort  : break;
+                case datLong   : {
                     long value = *(long*)var;
                     rc = sqlite3_bind_int64( (sqlite3_stmt*)query, num, value );
                 } break;
-                case SQL_C_FLOAT : break;
-                case SQL_C_DOUBLE: break;
-                case SQL_C_CHAR  : 
+                case datFloat  : break;
+                case datDouble : break;
+                case datChars  :
                 {
                     switch( db_data->DataConvert() )
                     {
@@ -158,27 +166,29 @@ CSQLBind::AccessSingleMethod( SQLHSTMT query, unsigned short num, short type, CS
                         } break;
                     }
                 } break;
-                case SQL_C_BINARY        : break;
-                case SQL_C_TYPE_DATE     : break;
-                case SQL_C_TYPE_TIME     : break;
-                case SQL_C_TYPE_TIMESTAMP: break;
+                case datBytes    : break;
+                case datDate     : break;
+                case datTime     : break;
+                case datTimeStamp: break;
             }
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
             MYSQL_BIND Bind; memset( &Bind, 0, sizeof( MYSQL_BIND ) );
             switch( type )
             {
-                case SQL_C_SHORT         : Bind.buffer_type = MYSQL_TYPE_SHORT    ; break;
-                case SQL_C_LONG          : Bind.buffer_type = MYSQL_TYPE_LONG     ; break;
-                case SQL_C_FLOAT         : Bind.buffer_type = MYSQL_TYPE_FLOAT    ; break;
-                case SQL_C_DOUBLE        : Bind.buffer_type = MYSQL_TYPE_DOUBLE   ; break;
-                case SQL_C_BINARY        : Bind.buffer_type = MYSQL_TYPE_LONG_BLOB; break;
-                case SQL_C_TYPE_DATE     : Bind.buffer_type = MYSQL_TYPE_DATE     ; break;
-                case SQL_C_TYPE_TIME     : Bind.buffer_type = MYSQL_TYPE_TIME     ; break;
-                case SQL_C_TYPE_TIMESTAMP: Bind.buffer_type = MYSQL_TYPE_DATETIME ; break;
-                case SQL_C_CHAR          :
+                case datShort         : Bind.buffer_type = MYSQL_TYPE_SHORT    ; break;
+                case datLong          : Bind.buffer_type = MYSQL_TYPE_LONG     ; break;
+                case datFloat         : Bind.buffer_type = MYSQL_TYPE_FLOAT    ; break;
+                case datDouble        : Bind.buffer_type = MYSQL_TYPE_DOUBLE   ; break;
+                case datBytes         : Bind.buffer_type = MYSQL_TYPE_LONG_BLOB; break;
+                case datDate          : Bind.buffer_type = MYSQL_TYPE_DATE     ; break;
+                case datTime          : Bind.buffer_type = MYSQL_TYPE_TIME     ; break;
+                case datTimeStamp     : Bind.buffer_type = MYSQL_TYPE_DATETIME ; break;
+                case datChars         :
                 {
                     switch( db_data->DataConvert() )
                     {
@@ -197,25 +207,27 @@ CSQLBind::AccessSingleMethod( SQLHSTMT query, unsigned short num, short type, CS
             Bind.buffer = var;
             m_Binds.push_back( Bind );
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
             switch( type )
             {
-            case SQL_C_SHORT  :
+            case datShort  :
                 rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_SHORT, SQL_SMALLINT, 0, 0, var, 0, &MaxLen );
                 break;
-            case SQL_C_LONG  : {
+            case datLong  : {
                 rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, var, 0, &MaxLen );
             }
             break;
-            case SQL_C_FLOAT    :
+            case datFloat :
                 rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_FLOAT, SQL_FLOAT, 0, 0, var, 0, &MaxLen );
                 break;
-            case SQL_C_DOUBLE    :
+            case datDouble    :
                 rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, var, 0, &MaxLen );
                 break;
-            case SQL_C_CHAR   : {
+            case datChars   : {
                 switch( db_data->DataConvert() )
                 {
                     case datLong   :
@@ -239,29 +251,38 @@ CSQLBind::AccessSingleMethod( SQLHSTMT query, unsigned short num, short type, CS
                 }
             }
             break;
-            case SQL_C_BINARY : {
+            case datBytes : {
                 static long length = SQL_DATA_AT_EXEC;
                 db_data->DataPt.DataLength = MaxLen;
                 rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_BINARY, SQL_VARBINARY, MaxLen, 0, var, 0, &length );
             }
             break;
-            case SQL_C_TYPE_DATE:
+            case datDate:
                 rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_TYPE_DATE, SQL_TYPE_DATE, 0, 0, var, 0, &MaxLen );
                 break;
-            case SQL_C_TYPE_TIME:
+            case datTime:
                 rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_TYPE_TIME, SQL_TYPE_TIME, 0, 0, var, 0, &MaxLen );
                 break;
-            case SQL_C_TYPE_TIMESTAMP:
+            case datTimeStamp:
                 rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0, var, 0, &MaxLen );
                 break;
             }
+        }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+        }
+        break;
+#endif
         }
     }
     
     return rc;
 }
 
-CSQLBuff::CSQLBuff( HDBPROVIDER Connect )
+CSQLBuff::CSQLBuff( PHDBPROVIDER Connect )
 : CSQLBuilder( Connect )
 {
 }
@@ -269,13 +290,15 @@ CSQLBuff::CSQLBuff( HDBPROVIDER Connect )
 void
 CSQLBuff::Clear()
 {
+#ifdef DEFINE_MYSQL
     m_Buffs.clear();
+#endif
 }
 
-SQLRETURN
-CSQLBuff::Before( SQLHSTMT /*query*/ )
+PSQLRETURN
+CSQLBuff::Before( PSQLHSTMT /*query*/ )
 {
-    return SQL_SUCCESS;
+    return PSQL_SUCCESS;
 }
 
 void
@@ -284,35 +307,58 @@ CSQLBuff::ClearBuffs()
     CSqlConnectInfo *session = GetSession( m_Connect );
     if( session != NULL )
     {
-        if( session->m_nDB == ID_PDATABASES_SQLITE )
+        switch( session->m_nDB )
+        {
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
         {
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
             std::for_each( m_Buffs.begin(), m_Buffs.end(),
                 []( auto Item ){ memset( Item.buffer, 0, Item.buffer_length ); }
             );
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
+        }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+        }
+        break;
+#endif
         }
     }
 }
 
-SQLRETURN
-CSQLBuff::After( SQLHSTMT query )
+PSQLRETURN
+CSQLBuff::After( PSQLHSTMT query )
 {
-    SQLRETURN rc = SQL_SUCCESS;
+    PSQLRETURN rc = PSQL_SUCCESS;
     CSqlConnectInfo *session = GetSession( m_Connect );
     if( session != NULL )
     {
-        if( session->m_nDB == ID_PDATABASES_SQLITE )
+        switch( session->m_nDB )
+        {
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
         {
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
             if( m_Buffs.size() > 0 )
             {
@@ -323,61 +369,78 @@ CSQLBuff::After( SQLHSTMT query )
                 rc = mysql_stmt_bind_result( stmt, m_Buffs.data() );
             }
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
+        }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+        }
+        break;
+#endif
         }
     }
     return rc;
 }
 
-SQLRETURN
-CSQLBuff::AccessSingleMethod( SQLHSTMT query, unsigned short num, short type, CSmPt *db_data )
+PSQLRETURN
+CSQLBuff::AccessSingleMethod( PSQLHSTMT query, unsigned short num, short type, CSmPt *db_data )
 {
     void     *var    = db_data->DataPointer();
     long      MaxLen = db_data->DataSize();
-    SQLRETURN rc     = SQL_SUCCESS;
+    PSQLRETURN rc     = PSQL_SUCCESS;
 
     CSqlConnectInfo *session = GetSession( m_Connect );
     if( session != NULL )
     {
-        if( session->m_nDB == ID_PDATABASES_SQLITE )
+        switch( session->m_nDB )
+        {
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
         {
             switch( type )
             {
-                case SQL_C_LONG : {
+                case datLong : {
                     int res = sqlite3_column_int( (sqlite3_stmt*)query, num );
                     *((long*)var) = res;
                 }
                 break;
-                case SQL_C_FLOAT  : break;
-                case SQL_C_DOUBLE : break;
-                case SQL_C_CHAR   : {
+                case datFloat  : break;
+                case datDouble : break;
+                case datChars   : {
                     const char *res = (const char*)sqlite3_column_text( (sqlite3_stmt*)query, num );
                     strcpy( (char*)var, res );
                 }
                 break;
-                case SQL_C_BINARY        : break;
-                case SQL_C_TYPE_DATE     : break;
-                case SQL_C_TYPE_TIME     : break;
-                case SQL_C_TYPE_TIMESTAMP: break;
+                case datBytes    : break;
+                case datDate     : break;
+                case datTime     : break;
+                case datTimeStamp: break;
             }
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
             MYSQL_BIND Bind; memset( &Bind, 0, sizeof( MYSQL_BIND ) );
             switch( type )
             {
-                case SQL_C_SHORT         : Bind.buffer_type = MYSQL_TYPE_SHORT    ; break;
-                case SQL_C_LONG          : Bind.buffer_type = MYSQL_TYPE_LONG     ; break;
-                case SQL_C_FLOAT         : Bind.buffer_type = MYSQL_TYPE_FLOAT    ; break;
-                case SQL_C_DOUBLE        : Bind.buffer_type = MYSQL_TYPE_DOUBLE   ; break;
-                case SQL_C_BINARY        : Bind.buffer_type = MYSQL_TYPE_LONG_BLOB; break;
-                case SQL_C_TYPE_DATE     : Bind.buffer_type = MYSQL_TYPE_DATE     ; break;
-                case SQL_C_TYPE_TIME     : Bind.buffer_type = MYSQL_TYPE_TIME     ; break;
-                case SQL_C_TYPE_TIMESTAMP: Bind.buffer_type = MYSQL_TYPE_DATETIME ; break;
-                case SQL_C_CHAR          :
+                case datShort         : Bind.buffer_type = MYSQL_TYPE_SHORT    ; break;
+                case datLong          : Bind.buffer_type = MYSQL_TYPE_LONG     ; break;
+                case datFloat         : Bind.buffer_type = MYSQL_TYPE_FLOAT    ; break;
+                case datDouble        : Bind.buffer_type = MYSQL_TYPE_DOUBLE   ; break;
+                case datBytes         : Bind.buffer_type = MYSQL_TYPE_LONG_BLOB; break;
+                case datDate          : Bind.buffer_type = MYSQL_TYPE_DATE     ; break;
+                case datTime          : Bind.buffer_type = MYSQL_TYPE_TIME     ; break;
+                case datTimeStamp     : Bind.buffer_type = MYSQL_TYPE_DATETIME ; break;
+                case datChars         :
                 {
                     switch( db_data->DataConvert() )
                     {
@@ -395,55 +458,66 @@ CSQLBuff::AccessSingleMethod( SQLHSTMT query, unsigned short num, short type, CS
             Bind.buffer = var;
             m_Buffs.push_back( Bind );
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
             switch( type )
             {
-                case SQL_C_LONG : {
+                case datLong : {
                     db_data->DataPt.DataLength = SQL_NULL_DATA;
                     rc = SQLBindCol( query, num, type, var, 0, &db_data->DataPt.DataLength );
                 }
                 break;
-                case SQL_C_FLOAT : {
+                case datFloat : {
                     db_data->DataPt.DataLength = SQL_NULL_DATA;
                     rc = SQLBindCol( query, num, type, var, 0, &db_data->DataPt.DataLength );
                 }
                 break;
-                case SQL_C_DOUBLE : {
+                case datDouble : {
                     db_data->DataPt.DataLength = SQL_NULL_DATA;
                     rc = SQLBindCol( query, num, type, var, MaxLen, &db_data->DataPt.DataLength );
                 }
                 break;
-                case SQL_C_CHAR : {
+                case datChars : {
                     db_data->DataPt.DataLength = SQL_NTS;
                     rc = SQLBindCol( query, num, type, var, MaxLen, &db_data->DataPt.DataLength );
                 }
                 break;
-                case SQL_C_BINARY : {
+                case datBytes : {
                     db_data->DataPt.DataLength = SQL_NULL_DATA;
                     rc = SQLBindCol( query, num, type, var, MaxLen, &db_data->DataPt.DataLength );
                 }
                 break;
-                case SQL_C_TYPE_DATE: {
+                case datDate: {
                     rc = SQLBindCol( query, num, type, var, MaxLen, &MaxLen );
                 }
                 break;
-                case SQL_C_TYPE_TIME: {
+                case datTime: {
                     rc = SQLBindCol( query, num, type, var, MaxLen, &MaxLen );
                 }
                 break;
-                case SQL_C_TYPE_TIMESTAMP: {
+                case datTimeStamp: {
                     rc = SQLBindCol( query, num, type, var, MaxLen, &MaxLen );
                 }
                 break;
             }
         }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+        }
+        break;
+#endif
+        }
     }
     return rc;
 }
 
-CSQLData::CSQLData( HDBPROVIDER Connect )
+CSQLData::CSQLData( PHDBPROVIDER Connect )
 : CSQLBuilder( Connect )
 {
 }
@@ -453,84 +527,101 @@ CSQLData::Clear()
 {
 }
 
-SQLRETURN
-CSQLData::Before( SQLHSTMT )
+PSQLRETURN
+CSQLData::Before( PSQLHSTMT )
 {
-    return SQL_SUCCESS;
+    return PSQL_SUCCESS;
 }
 
-SQLRETURN
-CSQLData::After( SQLHSTMT )
+PSQLRETURN
+CSQLData::After( PSQLHSTMT )
 {
-    return SQL_SUCCESS;
+    return PSQL_SUCCESS;
 }
 
-SQLRETURN
-CSQLData::AccessSingleMethod( SQLHSTMT query, unsigned short num, short type, CSmPt *db_data )
+PSQLRETURN
+CSQLData::AccessSingleMethod( PSQLHSTMT query, unsigned short num, short type, CSmPt *db_data )
 {
     void     *var    = db_data->DataPointer();
     long      MaxLen = db_data->DataSize();
-    SQLRETURN rc     = SQL_SUCCESS;
+    PSQLRETURN rc     = PSQL_SUCCESS;
     
     CSqlConnectInfo *session = GetSession( m_Connect );
     if( session != NULL )
     {
-        if( session->m_nDB == ID_PDATABASES_SQLITE )
+    switch( session->m_nDB )
+    {
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
         {
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
             switch( type )
             {
-                case SQL_C_LONG : {
+                case datLong : {
                     db_data->DataPt.DataLength = SQL_NULL_DATA;
                     rc = SQLGetData( query, num, type, var, MaxLen, &db_data->DataPt.DataLength );
                 }
                 break;
-                case SQL_C_FLOAT : {
+                case datFloat : {
                     db_data->DataPt.DataLength = SQL_NULL_DATA;
                     rc = SQLGetData( query, num, type, var, MaxLen, &db_data->DataPt.DataLength );
                 }
                 break;
-                case SQL_C_DOUBLE : {
+                case datDouble : {
                     db_data->DataPt.DataLength = SQL_NULL_DATA;
                     rc = SQLGetData( query, num, type, var, MaxLen, &db_data->DataPt.DataLength );
                 }
                 break;
-                case SQL_C_CHAR : {
+                case datChars : {
                     db_data->DataPt.DataLength = SQL_NTS;
                     rc = SQLGetData( query, num, type, var, MaxLen, &db_data->DataPt.DataLength );
                 }
                 break;
-                case SQL_C_BINARY :
+                case datBytes :
                     db_data->DataPt.DataLength = SQL_NULL_DATA;
                     rc = SQLGetData( query, num, type, var, MaxLen, &db_data->DataPt.DataLength );
                     break;
-                case SQL_C_TYPE_DATE: {
+                case datDate: {
                     rc = SQLGetData( query, num, type, var, MaxLen, &MaxLen );
                 }
                 break;
-                case SQL_C_TYPE_TIME: {
+                case datTime: {
                     rc = SQLGetData( query, num, type, var, MaxLen, &MaxLen );
                 }
                 break;
-                case SQL_C_TYPE_TIMESTAMP: {
+                case datTimeStamp: {
                     rc = SQLGetData( query, num, type, var, MaxLen, &MaxLen );
                 }
                 break;
             }
         }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+        }
+        break;
+#endif
+    }
     }
 
     return rc;
 }
 
-CSQLManager::CSQLManager( HDBPROVIDER Connect, bool bAutoCommit )
+CSQLManager::CSQLManager( PHDBPROVIDER Connect, bool bAutoCommit )
 {
     m_pSQLBridge = &g_SQLBridge;
 
@@ -546,7 +637,7 @@ CSQLManager::CSQLManager( HDBPROVIDER Connect, bool bAutoCommit )
     m_DataPtrBuff = new CVectorOfPtr<CSmPt>( false ); //, MIN_EXT_SIZE
     m_DataPtrBind = new CVectorOfPtr<CSmPt>( false ); //, MIN_EXT_SIZE
 
-    iHstmt = SQL_NULL_HANDLE;
+    iHstmt = PSQL_NULL_HANDLE;
 }
 
 void
@@ -564,7 +655,11 @@ CSQLManager::~CSQLManager()
         CSqlConnectInfo *session = GetSession( m_Connect );
         if( session != NULL )
         {
-            if( session->m_nDB == ID_PDATABASES_SQLITE )
+            switch( session->m_nDB )
+            {
+            case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+            case ID_PDATABASES_SQLITE :
             {
                 /*SQLRETURN rc =*/ sqlite3_finalize( (sqlite3_stmt*)iHstmt );
                 // if( SQL_SUCCESS != rc )
@@ -578,8 +673,10 @@ CSQLManager::~CSQLManager()
                 //     }
                 // }
             }
-            else
-            if( session->m_nDB == ID_PDATABASES_MYSQL )
+            break;
+#endif
+#ifdef DEFINE_MYSQL
+            case ID_PDATABASES_MYSQL :
             {
                 /*bool rc =*/ mysql_stmt_close( (MYSQL_STMT*)iHstmt );
                 // if( !rc )
@@ -593,8 +690,10 @@ CSQLManager::~CSQLManager()
                 //     }
                 // }
             }
-            else
-            if( session->m_nDB == ID_PDATABASES_ODBC )
+            break;
+#endif
+#ifdef DEFINE_ODBC
+            case ID_PDATABASES_ODBC :
             {
                 /*SQLRETURN rc =*/ SQLFreeStmt( iHstmt, SQL_DROP );
                 //SQLRETURN rc = SQLFreeHandle( SQL_HANDLE_STMT, iHstmt );
@@ -609,10 +708,19 @@ CSQLManager::~CSQLManager()
                 //     }
                 // }
             }
+            break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+            case ID_PDATABASES_POSTGRESQL :
+            {
+            }
+            break;
+#endif
+            }
         }
     }
     
-    iHstmt = SQL_NULL_HANDLE;
+    iHstmt = PSQL_NULL_HANDLE;
 
     delete m_Buff;
     delete m_Bind;
@@ -623,7 +731,7 @@ CSQLManager::~CSQLManager()
 }
 
 CSqlConnectInfo*
-CSQLManager::GetSession( HDBPROVIDER hconnect )
+CSQLManager::GetSession( PHDBPROVIDER hconnect )
 {
     long connect = m_pSQLBridge->findIndex( hconnect );
     if( connect >= 0 )
@@ -689,53 +797,61 @@ CSQLManager::Compile( CSQLPipe *pipe, CSqlConnectInfo *session )
 
         if( Open() )
         {
-            SQLTCHAR *query = (SQLTCHAR*)pipe->m_PipeString->c_str();
+            PTCHAR *query = (PTCHAR*)pipe->m_PipeString->c_str();
             long length = pipe->m_PipeString->length();
 
             if( session != NULL )
             {
-                if( session->m_nDB == ID_PDATABASES_SQLITE )
+                switch( session->m_nDB )
+                {
+                case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+                case ID_PDATABASES_SQLITE :
                 {
                     sqlite3      *connect = (sqlite3 *) session->iHdbc;
-                    sqlite3_stmt *stmt    = SQL_NULL_HANDLE;
-                    SQLRETURN rc = sqlite3_prepare( connect, (const char*)query, -1, &stmt, NULL );
-                    if( SQL_SUCCESS != rc )
+                    sqlite3_stmt *stmt    = PSQL_NULL_HANDLE;
+                    PSQLRETURN rc = sqlite3_prepare( connect, (const char*)query, -1, &stmt, NULL );
+                    if( PSQL_SUCCESS != rc )
                     {
                         if( m_bShowAlert )
                         {
                             if( session->GetErrorInfo( iHstmt ) )
                             {
-                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                             }
                         }
                         return false;
                     }
-                    iHstmt = (SQLHSTMT)stmt;
+                    iHstmt = (PSQLHSTMT)stmt;
                 }
-                else 
-                if( session->m_nDB == ID_PDATABASES_MYSQL )
+                break;
+#endif
+#ifdef DEFINE_MYSQL
+                case ID_PDATABASES_MYSQL :
                 {
                     MYSQL_STMT *stmt = (MYSQL_STMT *) iHstmt;
 
-                    SQLRETURN rc = mysql_stmt_prepare( stmt, (const char*)query, length );
+                    PSQLRETURN rc = mysql_stmt_prepare( stmt, (const char*)query, length );
 
-                    if( SQL_SUCCESS == rc )
+                    if( PSQL_SUCCESS == rc )
                         rc = m_Buff->Execute( iHstmt, m_DataPtrBuff );
                     
-                    if( SQL_SUCCESS != rc )
+                    if( PSQL_SUCCESS != rc )
                     {
                         if( m_bShowAlert )
                         {
                             if( session->GetErrorInfo( iHstmt ) )
                             {
-                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                             }
                         }
                         return false;
                     }
                 }
-                else 
-                if( session->m_nDB == ID_PDATABASES_ODBC )
+                break;
+#endif
+#ifdef DEFINE_ODBC
+                case ID_PDATABASES_ODBC :
                 {
                     SQLRETURN rc = SQLPrepare( iHstmt, query, length ); //SQL_NTS );
 
@@ -748,13 +864,21 @@ CSQLManager::Compile( CSQLPipe *pipe, CSqlConnectInfo *session )
                         {
                             if( session->GetErrorInfo( iHstmt ) )
                             {
-                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                             }
                         }
                         return false;
                     }
                 }
-
+                break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+                case ID_PDATABASES_POSTGRESQL :
+                {
+                }
+                break;
+#endif
+                }
                 m_isCompiled = true;
             }
         }
@@ -768,13 +892,17 @@ CSQLManager::Execute( CSQLPipe *pipe, CSqlConnectInfo *session )
 {
     if( Compile( pipe, session ) )
     {
-        SQLRETURN rc = m_Bind->Execute( iHstmt, m_DataPtrBind );
-        if( SQL_SUCCESS == rc )
+        PSQLRETURN rc = m_Bind->Execute( iHstmt, m_DataPtrBind );
+        if( PSQL_SUCCESS == rc )
         {
             CSqlConnectInfo *session = GetSession( m_Connect );
             if( session != NULL )
             {
-                if( session->m_nDB == ID_PDATABASES_SQLITE )
+                switch( session->m_nDB )
+                {
+                case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+                case ID_PDATABASES_SQLITE :
                 {
                     rc = sqlite3_step( (sqlite3_stmt*)iHstmt );
                     if( SQLITE_OK != rc && SQLITE_DONE != rc && SQLITE_ROW  != rc )
@@ -785,18 +913,20 @@ CSQLManager::Execute( CSQLPipe *pipe, CSqlConnectInfo *session )
                         {
                             if( session->GetErrorInfo( iHstmt ) )
                             {
-                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                             }
                         }
                         return false;
                     }
                 }
-                else
-                if( session->m_nDB == ID_PDATABASES_MYSQL )
+                break;
+#endif
+#ifdef DEFINE_MYSQL
+                case ID_PDATABASES_MYSQL :
                 {
                     MYSQL_STMT *stmt = (MYSQL_STMT *) iHstmt;
                     rc = mysql_stmt_execute( stmt );
-                    if( SQL_SUCCESS != rc && SQL_NO_DATA_FOUND != rc )
+                    if( PSQL_SUCCESS != rc && PSQL_NO_DATA_FOUND != rc )
                     {
                         if( m_bAutoCommit ) Rollback();
 
@@ -804,14 +934,16 @@ CSQLManager::Execute( CSQLPipe *pipe, CSqlConnectInfo *session )
                         {
                             if( session->GetErrorInfo( iHstmt ) )
                             {
-                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                             }
                         }
                         return false;
                     }
                 }
-                else
-                if( session->m_nDB == ID_PDATABASES_ODBC )
+                break;
+#endif
+#ifdef DEFINE_ODBC
+                case ID_PDATABASES_ODBC :
                 {
                     rc = SQLExecute( iHstmt );
                     if( SQL_SUCCESS != rc && SQL_NO_DATA_FOUND != rc )
@@ -822,11 +954,20 @@ CSQLManager::Execute( CSQLPipe *pipe, CSqlConnectInfo *session )
                         {
                             if( session->GetErrorInfo( iHstmt ) )
                             {
-                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                             }
                         }
                         return false;
                     }
+                }
+                break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+                case ID_PDATABASES_POSTGRESQL :
+                {
+                }
+                break;
+#endif
                 }
             }
         }
@@ -845,21 +986,25 @@ CSQLManager::Execute( CSQLPipe *pipe, CSqlConnectInfo *session )
 }
 
 bool
-CSQLManager::Fetch( SQLHSTMT query )
+CSQLManager::Fetch( PSQLHSTMT query )
 {
     CSqlConnectInfo *session = GetSession( m_Connect );
     if( session ) 
     {
-        if( session->m_nDB == ID_PDATABASES_SQLITE )
+        switch( session->m_nDB )
         {
-            SQLRETURN rc = m_Buff->Execute( iHstmt, m_DataPtrBuff );
-            if( SQL_SUCCESS != rc )
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
+        {
+            PSQLRETURN rc = m_Buff->Execute( iHstmt, m_DataPtrBuff );
+            if( PSQL_SUCCESS != rc )
             {
                 if( m_bShowAlert )
                 {
                     if( session->GetErrorInfo( query ) )
                     {
-                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                     }
                 }
                 return false;
@@ -879,23 +1024,25 @@ CSQLManager::Fetch( SQLHSTMT query )
                     {
                         if( session->GetErrorInfo( query ) )
                         {
-                            m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                            m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                         }
                     }
                 }
                 return false;
             }
         }
-        else 
-        if( session->m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
             m_Buff->ClearBuffs();
 
             MYSQL_STMT *stmt = (MYSQL_STMT *) iHstmt;
-            SQLRETURN rc = mysql_stmt_fetch( stmt );
-            if( SQL_SUCCESS != rc )
+            PSQLRETURN rc = mysql_stmt_fetch( stmt );
+            if( PSQL_SUCCESS != rc )
             {
-                if( SQL_NO_DATA_FOUND == rc )
+                if( PSQL_NO_DATA_FOUND == rc )
                 {
                     if( m_bAutoCommit ) Commit();
                     Close();
@@ -906,7 +1053,7 @@ CSQLManager::Fetch( SQLHSTMT query )
                     {
                         if( session->GetErrorInfo( query ) )
                         {
-                            m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                            m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                         }
                     }
                 }
@@ -916,8 +1063,10 @@ CSQLManager::Fetch( SQLHSTMT query )
             {
             }
         }
-        else
-        if( session->m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
             SQLRETURN rc = SQLFetch( query );
             if( SQL_SUCCESS != rc )
@@ -933,7 +1082,7 @@ CSQLManager::Fetch( SQLHSTMT query )
                     {
                         if( session->GetErrorInfo( query ) )
                         {
-                            m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                            m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                         }
                     }
                 }
@@ -946,6 +1095,15 @@ CSQLManager::Fetch( SQLHSTMT query )
                 //    return false;
             }
         }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+        }
+        break;
+#endif
+        }
     }
     return true;
 }
@@ -953,40 +1111,48 @@ CSQLManager::Fetch( SQLHSTMT query )
 bool
 CSQLManager::Open()
 {
-    if( iHstmt != SQL_NULL_HANDLE ) return true;
+    if( iHstmt != PSQL_NULL_HANDLE ) return true;
 
     bool res = false;
             
     CSqlConnectInfo *session = GetSession( m_Connect );
     if( session ) 
     {
-        if( session->m_nDB == ID_PDATABASES_SQLITE )
+        switch( session->m_nDB )
+        {
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
         {
             return true;
         }
-        else 
-        if( session->m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
             MYSQL_STMT *stmt = mysql_stmt_init( (MYSQL*)session->iHdbc );
             if( stmt )
             {
-                iHstmt = (SQLHSTMT)stmt;
+                iHstmt = (PSQLHSTMT)stmt;
                 res = true;
             }
             else
             {
                 if( m_bShowAlert )
                 {
-                    iHstmt = SQL_NULL_HANDLE;
+                    iHstmt = PSQL_NULL_HANDLE;
                     if( session->GetErrorInfo( iHstmt ) )
                     {
-                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                     }
                 }
             }
         }
-        else 
-        if( session->m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
             CSqlConnectInfo *session = GetSession( m_Connect );
             SQLRETURN rc = SQLAllocHandle( SQL_HANDLE_STMT, session->iHdbc, &iHstmt );
@@ -1011,10 +1177,19 @@ CSQLManager::Open()
                     iHstmt = SQL_NULL_HANDLE;
                     if( session->GetErrorInfo( iHstmt ) )
                     {
-                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                     }
                 }
             }
+        }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+        }
+        break;
+#endif
         }
     }
     
@@ -1022,16 +1197,20 @@ CSQLManager::Open()
 }
 
 void
-CSQLManager::Close( CSqlConnectInfo *session, SQLHSTMT query )
+CSQLManager::Close( CSqlConnectInfo *session, PSQLHSTMT query )
 {
-    if( query == SQL_NULL_HANDLE ) return;
+    if( query == PSQL_NULL_HANDLE ) return;
     
     if( session != NULL )
     {
-        if( session->m_nDB == ID_PDATABASES_SQLITE )
+        switch( session->m_nDB )
         {
-            SQLRETURN rc = sqlite3_reset( (sqlite3_stmt*)query );
-            if( SQL_SUCCESS != rc )
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
+        {
+            PSQLRETURN rc = sqlite3_reset( (sqlite3_stmt*)query );
+            if( PSQL_SUCCESS != rc )
             {
                 // if( m_bShowAlert )
                 // {
@@ -1043,7 +1222,7 @@ CSQLManager::Close( CSqlConnectInfo *session, SQLHSTMT query )
             }
 
             rc = sqlite3_clear_bindings( (sqlite3_stmt*)query );
-            if( SQL_SUCCESS != rc )
+            if( PSQL_SUCCESS != rc )
             {
                 // if( m_bShowAlert )
                 // {
@@ -1054,8 +1233,10 @@ CSQLManager::Close( CSqlConnectInfo *session, SQLHSTMT query )
                 // }
             }
         }
-        else 
-        if( session->m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
             bool rc = mysql_stmt_free_result( (MYSQL_STMT*)query );
             if( !rc )
@@ -1069,8 +1250,10 @@ CSQLManager::Close( CSqlConnectInfo *session, SQLHSTMT query )
                 // }
             }
         }
-        else 
-        if( session->m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
             SQLRETURN 
             //  rc = SQLFreeStmt( query, SQL_CLOSE );
@@ -1089,19 +1272,34 @@ CSQLManager::Close( CSqlConnectInfo *session, SQLHSTMT query )
                 // }
             }
         }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+        }
+        break;
+#endif
+        }
     }
 }
 
 long
 CSQLManager::last_insert_rowid( CSqlConnectInfo *session )
 {
-    if( session->m_nDB == ID_PDATABASES_SQLITE )
+    switch( session->m_nDB )
+    {
+    case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+    case ID_PDATABASES_SQLITE :
     {
         sqlite3 *connect = (sqlite3 *) session->iHdbc;
         return sqlite3_last_insert_rowid( connect );
     }
-    else 
-    if( session->m_nDB == ID_PDATABASES_MYSQL )
+    break;
+#endif
+#ifdef DEFINE_MYSQL
+    case ID_PDATABASES_MYSQL :
     {
         //MYSQL* connect = (MYSQL *) session->iHdbc;
         //return mysql_insert_id( connect )
@@ -1111,9 +1309,20 @@ CSQLManager::last_insert_rowid( CSqlConnectInfo *session )
             return mysql_stmt_insert_id( stmt );
         }
     }
-    else 
-    if( session->m_nDB == ID_PDATABASES_ODBC )
+    break;
+#endif
+#ifdef DEFINE_ODBC
+    case ID_PDATABASES_ODBC :
     {
+    }
+    break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+    case ID_PDATABASES_POSTGRESQL :
+    {
+    }
+    break;
+#endif
     }
     return 0;
 }
@@ -1136,19 +1345,27 @@ CSQLManager::getDatabase()
 }
 
 void
-CSQLManager::Commit( CSqlConnectInfo *session, SQLHSTMT query )
+CSQLManager::Commit( CSqlConnectInfo *session, PSQLHSTMT query )
 {
     if( !session->m_IsAutoCommit )
     {
-        if( session->m_nDB == ID_PDATABASES_SQLITE )
+        switch( session->m_nDB )
+        {
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
         {
         }
-        else 
-        if( session->m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
         }
-        else 
-        if( session->m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
             SQLRETURN rc = SQLEndTran( SQL_HANDLE_DBC, session->iHdbc, SQL_COMMIT );
             if( SQL_SUCCESS != rc )
@@ -1157,28 +1374,45 @@ CSQLManager::Commit( CSqlConnectInfo *session, SQLHSTMT query )
                 {
                     if( session->GetErrorInfo( query ) )
                     {
-                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                     }
                 }
             }
+        }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+        }
+        break;
+#endif
         }
     }
 }
 
 void
-CSQLManager::Rollback( CSqlConnectInfo *session, SQLHSTMT query )
+CSQLManager::Rollback( CSqlConnectInfo *session, PSQLHSTMT query )
 {
     if( !session->m_IsAutoCommit )
     {
-        if( session->m_nDB == ID_PDATABASES_SQLITE )
+        switch( session->m_nDB )
+        {
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
         {
         }
-        else 
-        if( session->m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
         }
-        else 
-        if( session->m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
             SQLRETURN rc = SQLEndTran( SQL_HANDLE_DBC, session->iHdbc, SQL_ROLLBACK );
             if( SQL_SUCCESS != rc )
@@ -1187,10 +1421,19 @@ CSQLManager::Rollback( CSqlConnectInfo *session, SQLHSTMT query )
                 {
                     if( session->GetErrorInfo( query ) )
                     {
-                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                     }
                 }
             }
+        }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+        }
+        break;
+#endif
         }
     }
 }

@@ -78,10 +78,18 @@ OptionDetails::OptionDetails(const QString &title, QWidget *parent)
     setLayout(mainLayout);
 
     Combo_nDB->addItem( "None"  , PDatabases::ID_PDATABASES_NONE   );
+#ifdef DEFINE_SQLITE
     Combo_nDB->addItem( "SQLite", PDatabases::ID_PDATABASES_SQLITE );
+#endif
+#ifdef DEFINE_MYSQL
     Combo_nDB->addItem( "MySQL" , PDatabases::ID_PDATABASES_MYSQL  );
+#endif
+#ifdef DEFINE_ODBC
     Combo_nDB->addItem( "ODBC"  , PDatabases::ID_PDATABASES_ODBC   );
-
+#endif
+#ifdef DEFINE_POSTGRESQL
+    Combo_nDB->addItem( "PostgreSQL"  , PDatabases::ID_PDATABASES_POSTGRESQL );
+#endif
     setData();
 
     setWindowTitle(title);

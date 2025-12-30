@@ -99,8 +99,8 @@ public:
 		IMPORT_C CSmPt(const unsigned short *pt, int sz = 0 );
 		IMPORT_C CSmPt(      unsigned char  *pt, int sz = 0 );
 
-		IMPORT_C CSmPt(const PSQL_DATE *pt);
-		IMPORT_C CSmPt(const PSQL_TIME *pt);
+        IMPORT_C CSmPt(const PSQL_DATE      *pt);
+        IMPORT_C CSmPt(const PSQL_TIME      *pt);
 		IMPORT_C CSmPt(const PSQL_TIMESTAMP *pt);
 		IMPORT_C CSmPt(const PSQL_DATETIME  *pt);
         

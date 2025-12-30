@@ -55,17 +55,17 @@ CSQLBridge::Destroy()
 }
 
 long
-CSQLBridge::findIndex( HDBPROVIDER pHandle )
+CSQLBridge::findIndex( PHDBPROVIDER pHandle )
 { 
   if( Connects() == NULL )
   {
-     ShowSQLErrorNow( NULL, _T("not build connections") );
+     ShowSQLErrorNow( NULL, (PTCHAR*)_T("not build connections") );
      return -1;
   }
 
   if( Connects()->size() == 0 )
   {
-     ShowSQLErrorNow( NULL, _T("connections is empty") );
+     ShowSQLErrorNow( NULL, (PTCHAR*)_T("connections is empty") );
      return -1;
   }
 
@@ -77,7 +77,7 @@ CSQLBridge::findIndex( HDBPROVIDER pHandle )
          return n;
      }
 
-     ShowSQLErrorNow( NULL, _T("connection not found") );
+     ShowSQLErrorNow( NULL, (PTCHAR*)_T("connection not found") );
 
      return -1;
   }
@@ -86,7 +86,7 @@ CSQLBridge::findIndex( HDBPROVIDER pHandle )
 }
 
 void
-CSQLBridge::Start( HDBPROVIDER hconnect )
+CSQLBridge::Start( PHDBPROVIDER hconnect )
 {
   long connect = findIndex( hconnect );
   if( connect >= 0 )
@@ -94,7 +94,7 @@ CSQLBridge::Start( HDBPROVIDER hconnect )
 }
 
 void
-CSQLBridge::Stop( HDBPROVIDER hconnect )
+CSQLBridge::Stop( PHDBPROVIDER hconnect )
 {
   long connect = findIndex( hconnect );
   if( connect >= 0 )
@@ -106,19 +106,19 @@ CSQLBridge::Stop( HDBPROVIDER hconnect )
 }
 
 void      
-CSQLBridge::ShowErrorNow( HDBPROVIDER hconnect, SQLHSTMT hstmt )
+CSQLBridge::ShowErrorNow( PHDBPROVIDER hconnect, PSQLHSTMT hstmt )
 {
   long connect = findIndex( hconnect );
   if( connect >= 0 )
   {
      CSqlConnectInfo *session = Connects()->at( connect ); 
      session->GetErrorInfo( hstmt );
-     ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+     ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
   }
 }
 
 int*
-CSQLBridge::GetUserCode( HDBPROVIDER hconnect )
+CSQLBridge::GetUserCode( PHDBPROVIDER hconnect )
 { 
   long connect = findIndex( hconnect );
   if( connect >= 0 )
@@ -129,7 +129,7 @@ CSQLBridge::GetUserCode( HDBPROVIDER hconnect )
 }
 
 bool
-CSQLBridge::Connect( CSqlConnectInfo &Info, HDBPROVIDER *pHandle )
+CSQLBridge::Connect( CSqlConnectInfo &Info, PHDBPROVIDER *pHandle )
 {
     if( pHandle ) { *pHandle = NULL;}
 
@@ -145,7 +145,7 @@ CSQLBridge::Connect( CSqlConnectInfo &Info, HDBPROVIDER *pHandle )
         return true;
     }
 
-    ShowSQLErrorNow( pNew->m_Error, (TCHAR*)NULL );
+    ShowSQLErrorNow( pNew->m_Error, (PTCHAR*)NULL );
 
     pNew->Close();
     delete pNew;
@@ -153,30 +153,30 @@ CSQLBridge::Connect( CSqlConnectInfo &Info, HDBPROVIDER *pHandle )
     return false;
 }
 
-TCHAR*
-CSQLBridge::GetSysadm( HDBPROVIDER hconnect )
+PTCHAR*
+CSQLBridge::GetSysadm( PHDBPROVIDER hconnect )
 {
   long connect = findIndex( hconnect );
   if( connect >= 0 )
   {
-     return (TCHAR*)Connects()->at( connect )->m_SysAdmin;
+     return (PTCHAR*)Connects()->at( connect )->m_SysAdmin;
   }
   return NULL;
 }
 
-TCHAR*
-CSQLBridge::GetBaseName( HDBPROVIDER hconnect )
+PTCHAR*
+CSQLBridge::GetBaseName( PHDBPROVIDER hconnect )
 { 
   long connect = findIndex( hconnect );
   if( connect >= 0 )
   {
-     return (TCHAR*)Connects()->at( connect )->m_BaseName; 
+     return (PTCHAR*)Connects()->at( connect )->m_BaseName;
   }
   return NULL;
 }
 
 PDatabases
-CSQLBridge::GetDatabase( HDBPROVIDER hconnect )
+CSQLBridge::GetDatabase( PHDBPROVIDER hconnect )
 {
     long connect = findIndex( hconnect );
     if( connect >= 0 )
@@ -187,40 +187,40 @@ CSQLBridge::GetDatabase( HDBPROVIDER hconnect )
 }
 
 
-TCHAR*
-CSQLBridge::GetUserName( HDBPROVIDER hconnect )
+PTCHAR*
+CSQLBridge::GetUserName( PHDBPROVIDER hconnect )
 { 
   long connect = findIndex( hconnect );
   if( connect >= 0 )
   {
-     return (TCHAR*)Connects()->at( connect )->m_UserName; 
+     return (PTCHAR*)Connects()->at( connect )->m_UserName;
   }
   return NULL;
 }
 
-TCHAR*
-CSQLBridge::GetUserPass( HDBPROVIDER hconnect )
+PTCHAR*
+CSQLBridge::GetUserPass( PHDBPROVIDER hconnect )
 { 
   long connect = findIndex( hconnect );
   if( connect >= 0 )
   {
-     return (TCHAR*)Connects()->at( findIndex( hconnect ) )->m_UserPass; 
+     return (PTCHAR*)Connects()->at( findIndex( hconnect ) )->m_UserPass;
   }
   return NULL;
 }
 
 void
-CSQLBridge::ShowSQLErrorNow( TSqlErrorInfo *err_info, const TCHAR *err_text  )
+CSQLBridge::ShowSQLErrorNow( TSqlErrorInfo *err_info, const PTCHAR *err_text  )
 {
   STD_STRING buff;
 
   if( err_info != NULL )
   {
-	TCHAR sNum[16]; memset( sNum, 0, sizeof(sNum) );
+    TCHAR sNum[16]; memset( sNum, 0, sizeof(sNum) );
 	_tprintf( sNum, _T("%i"), err_info->ErrorNum );
 
 	buff  = _T("SQL-Error:");
-	buff += (TCHAR*)err_info->SqlError;
+    buff += (TCHAR*)err_info->SqlError;
 	buff += _T(", ");
 
 	buff += _T("State:");
@@ -234,7 +234,7 @@ CSQLBridge::ShowSQLErrorNow( TSqlErrorInfo *err_info, const TCHAR *err_text  )
   {
 	buff  = _T("SQL-Error:");
     if( err_text != NULL )
-		buff  = err_text;
+        buff  = (TCHAR*)err_text;
 	else
 		buff  = _T("empty");
 	buff  = _T(", ");

@@ -26,23 +26,23 @@ public:
 
    CSqlConnectInfoArray* Connects();
 
-   void    Start( HDBPROVIDER Handle );
-   void    Stop ( HDBPROVIDER Handle );
+   void    Start( PHDBPROVIDER Handle );
+   void    Stop ( PHDBPROVIDER Handle );
 
-   bool    Connect( CSqlConnectInfo &Info, HDBPROVIDER *pHandle );
+   bool    Connect( CSqlConnectInfo &Info, PHDBPROVIDER *pHandle );
 
-   PDatabases GetDatabase( HDBPROVIDER Handle );
-   TCHAR * GetBaseName( HDBPROVIDER Handle );
-   TCHAR * GetUserName( HDBPROVIDER Handle );
-   TCHAR * GetUserPass( HDBPROVIDER Handle );
-   TCHAR * GetSysadm  ( HDBPROVIDER Handle );
+   PDatabases GetDatabase( PHDBPROVIDER Handle );
+   PTCHAR * GetBaseName( PHDBPROVIDER Handle );
+   PTCHAR * GetUserName( PHDBPROVIDER Handle );
+   PTCHAR * GetUserPass( PHDBPROVIDER Handle );
+   PTCHAR * GetSysadm  ( PHDBPROVIDER Handle );
 
-   int     * GetUserCode( HDBPROVIDER Handle );
+   int     * GetUserCode( PHDBPROVIDER Handle );
 
-   void      ShowErrorNow( HDBPROVIDER Handle, SQLHSTMT hstmt );
-   long      findIndex( HDBPROVIDER pHandle );
+   void      ShowErrorNow( PHDBPROVIDER Handle, PSQLHSTMT hstmt );
+   long      findIndex( PHDBPROVIDER pHandle );
 
-   void      ShowSQLErrorNow( TSqlErrorInfo*, const TCHAR* );
+   void      ShowSQLErrorNow( TSqlErrorInfo*, const PTCHAR* );
 
    CSqlConnectInfoArray *m_pSqlInfo;
 };

@@ -42,7 +42,11 @@ CSqlConnectInfo::Open()
 {
     if( !m_IsOpen )
     {
-        if( m_nDB == ID_PDATABASES_SQLITE )
+        switch( m_nDB )
+        {
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
         {
 //             sqlite3_config( SQLITE_CONFIG_MULTITHREAD );
 //             SQLRETURN rc = sqlite3_initialize();
@@ -56,8 +60,8 @@ CSqlConnectInfo::Open()
 //             SQLRETURN rc = sqlite3_open_v2( this->m_BaseName, &iHdbc, SQLITE_OPEN_READWRITE, NULL );
             
             sqlite3 *connect = NULL;
-            SQLRETURN rc = sqlite3_open( (const char*)this->m_BaseName, &connect );
-            if( rc != SQL_SUCCESS )
+            PSQLRETURN rc = sqlite3_open( (const char*)this->m_BaseName, &connect );
+            if( rc != PSQL_SUCCESS )
             {
                 GetErrorInfo( NULL );
                 return false;
@@ -70,19 +74,21 @@ CSqlConnectInfo::Open()
             rc = sqlite3_exec( connect, _T("PRAGMA journal_mode = MEMORY;"), 0, 0, 0 );
             rc = sqlite3_enable_shared_cache( true );
         
-            iHdbc = (SQLHDBC) connect;
+            iHdbc = (PSQLHDBC) connect;
             
             m_IsOpen = true;
         }
-        else
-        if( m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
             MYSQL *initialize = mysql_init( NULL ); //initialize the instance
-            iHenv = ( SQLHENV ) initialize;
+            iHenv = ( PSQLHENV ) initialize;
             if( iHenv )
             {
                 //rc = mysql_options( initialize, MYSQL_SET_CHARSET_NAME, _T("ascii") );
-                SQLRETURN rc = mysql_options( initialize, MYSQL_SET_CHARSET_NAME, _T("utf8") );
+                PSQLRETURN rc = mysql_options( initialize, MYSQL_SET_CHARSET_NAME, _T("utf8") );
                 //SET SESSION SQL_MODE='ALLOW_INVALID_DATES'
                 //SET time_zone = "+00:00"
                 
@@ -108,7 +114,7 @@ CSqlConnectInfo::Open()
                     return false;
                 }
                 
-                iHdbc = (SQLHDBC) connect;
+                iHdbc = (PSQLHDBC) connect;
                 
                 //if( !mysql_autocommit( connect, m_IsAutoCommit ) )
                 //{
@@ -123,8 +129,10 @@ CSqlConnectInfo::Open()
                 return false;
             }
         }
-        else
-        if( m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
             SQLRETURN rc = 0;
             rc = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &iHenv);
@@ -152,6 +160,32 @@ CSqlConnectInfo::Open()
             }
             m_IsOpen = true;
         }
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+            TCHAR sPort[ 32 ];
+            Value2Str( sPort, sizeof(sPort), m_Port );
+            const char *pgoptions = NULL;      /* Connection options (usually NULL) */
+            const char *pgtty = NULL;          /* Debug tty (usually NULL) */
+            PGconn *initialize = PQsetdbLogin( (char*)m_ServerName, (char*)sPort, pgoptions, pgtty, (char*)m_BaseName,  (char*)m_UserName, (char*)m_UserPass );
+            iHenv = ( PSQLHENV ) initialize;
+            if( iHenv )
+            {
+                iHdbc = (PSQLHDBC) initialize;
+                m_IsOpen = true;
+            }
+            else
+            {
+                GetErrorInfo( NULL );
+                return false;
+            }
+        }
+        break;
+#endif
+        default: break;
+        }
     }
     return m_IsOpen;
 }
@@ -163,54 +197,94 @@ CSqlConnectInfo::Close()
     {
         if( iHdbc )
         {
-            if( m_nDB == ID_PDATABASES_SQLITE )
+            switch( m_nDB )
+            {
+            case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+            case ID_PDATABASES_SQLITE :
             {
                 sqlite3_close( (sqlite3*) iHdbc );
             }
-            else
-            if( m_nDB == ID_PDATABASES_MYSQL )
+            break;
+#endif
+#ifdef DEFINE_MYSQL
+            case ID_PDATABASES_MYSQL :
             {
                 //mysql_close( (MYSQL*) iHdbc );
             }
-            else
-            if( m_nDB == ID_PDATABASES_ODBC )
+            break;
+#endif
+#ifdef DEFINE_ODBC
+            case ID_PDATABASES_ODBC :
             {
                 SQLDisconnect( iHdbc );
                 SQLFreeHandle( SQL_HANDLE_DBC, iHdbc );
             }
-            iHdbc = SQL_NULL_HANDLE;
+            break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+            case ID_PDATABASES_POSTGRESQL :
+            {
+            }
+            break;
+#endif
+            }
+            iHdbc = PSQL_NULL_HANDLE;
         }
     }
     
     if( iHenv )
     {
-        if( m_nDB == ID_PDATABASES_SQLITE )
+        switch( m_nDB )
+        {
+        case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+        case ID_PDATABASES_SQLITE :
         {
         }
-        else
-        if( m_nDB == ID_PDATABASES_MYSQL )
+        break;
+#endif
+#ifdef DEFINE_MYSQL
+        case ID_PDATABASES_MYSQL :
         {
             mysql_close( (MYSQL*) iHenv );
         }
-        if( m_nDB == ID_PDATABASES_ODBC )
+        break;
+#endif
+#ifdef DEFINE_ODBC
+        case ID_PDATABASES_ODBC :
         {
             SQLFreeHandle( SQL_HANDLE_ENV, iHenv ); 
         }
-        iHenv = SQL_NULL_HANDLE;
+        break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+        case ID_PDATABASES_POSTGRESQL :
+        {
+            PQfinish( (PGconn*) iHenv );
+        }
+        break;
+#endif
+        }
+        iHenv = PSQL_NULL_HANDLE;
     }
 
     m_IsOpen = false;
 }
 
 bool
-CSqlConnectInfo::GetErrorInfo( SQLHSTMT aHstmt )
+CSqlConnectInfo::GetErrorInfo( PSQLHSTMT aHstmt )
 {
     unsigned long nErrMsg = 0;
     
     delete m_Error;
            m_Error = new TSqlErrorInfo;
 
-    if( m_nDB == ID_PDATABASES_SQLITE )
+    switch( m_nDB )
+    {
+    case ID_PDATABASES_NONE : {} break;
+#ifdef DEFINE_SQLITE
+    case ID_PDATABASES_SQLITE :
     {
         if( this->iHdbc )
         {
@@ -224,11 +298,13 @@ CSqlConnectInfo::GetErrorInfo( SQLHSTMT aHstmt )
             const char* sErrMsg = sqlite3_errmsg( connect );
             nErrMsg = strlen( sErrMsg );
 
-            strncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < SQL_MAX_MESSAGE_LENGTH ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
+            strncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
         }
     }
-    else
-    if( m_nDB == ID_PDATABASES_MYSQL )
+    break;
+#endif
+#ifdef DEFINE_MYSQL
+    case ID_PDATABASES_MYSQL :
     {
         if( aHstmt != NULL )
         {
@@ -238,14 +314,14 @@ CSqlConnectInfo::GetErrorInfo( SQLHSTMT aHstmt )
             nErrMsg = strlen( sErrMsg );
             if( nErrMsg > 0 )
             {
-                _tcsncpy( (char*)m_Error->SqlState, sErrMsg, nErrMsg < sizeof(m_Error->SqlState) ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
+                _tcsncpy( (char*)m_Error->SqlState, sErrMsg, nErrMsg < sizeof(m_Error->SqlState) ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
             }
             
             sErrMsg = mysql_stmt_error( (MYSQL_STMT*) aHstmt );
             nErrMsg = strlen( sErrMsg );
             if( nErrMsg > 0 )
             {
-                _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < SQL_MAX_MESSAGE_LENGTH ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
+                _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
             }
         }
         else
@@ -263,7 +339,7 @@ CSqlConnectInfo::GetErrorInfo( SQLHSTMT aHstmt )
                 nErrMsg = strlen( sErrMsg );
                 if( nErrMsg > 0 )
                 {
-                    _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < SQL_MAX_MESSAGE_LENGTH ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
+                    _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
                 }
             }
             else
@@ -274,13 +350,15 @@ CSqlConnectInfo::GetErrorInfo( SQLHSTMT aHstmt )
                 nErrMsg = strlen( sErrMsg );
                 if( nErrMsg > 0 )
                 {
-                    _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < SQL_MAX_MESSAGE_LENGTH ? nErrMsg : SQL_MAX_MESSAGE_LENGTH - 1 );
+                    _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
                 }
             }
         }
     }
-    else
-    if( m_nDB == ID_PDATABASES_ODBC )
+    break;
+#endif
+#ifdef DEFINE_ODBC
+    case ID_PDATABASES_ODBC :
     {
         RETCODE     rc = SQL_NO_DATA_FOUND;
         short       pcbErrorMsgLen = 0, ErrMsgLen = SQL_MAX_MESSAGE_LENGTH;
@@ -306,6 +384,40 @@ CSqlConnectInfo::GetErrorInfo( SQLHSTMT aHstmt )
         else
             _tcscpy( (TCHAR*)m_Error->SqlError, _T("Severe Error in ODBC Driver") );
     }
+    break;
+#endif
+#ifdef DEFINE_POSTGRESQL
+    case ID_PDATABASES_POSTGRESQL :
+    {
+        if( this->iHenv == NULL )
+        {
+            _tcscpy( (char*)m_Error->SqlError, _T("Could not initialize PostgreSQL connection") );
+        }
+        else
+        if( this->iHdbc == NULL )
+        {
+            PGconn *connect = (PGconn *) this->iHenv;
 
+            const char* sErrMsg = PQerrorMessage( connect );
+            nErrMsg = strlen( sErrMsg );
+            if( nErrMsg > 0 )
+            {
+                _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
+            }
+        }
+        else
+        {
+            PGconn *connect = (PGconn *) this->iHdbc;
+            const char* sErrMsg = PQerrorMessage( connect );
+            nErrMsg = strlen( sErrMsg );
+            if( nErrMsg > 0 )
+            {
+                _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
+            }
+        }
+    }
+    break;
+#endif
+    }
     return nErrMsg > 0;
 }

@@ -22,9 +22,9 @@ extern void (*g_ShowSQLErrorNow)( const char* );
 
 struct TSqlErrorInfo 
 {
-   SQLTCHAR SqlError[SQL_MAX_MESSAGE_LENGTH];
-   SQLTCHAR SqlState[32];
-   int      ErrorNum;
+   PTCHAR    SqlError[ PSQL_MAX_MESSAGE_LENGTH ];
+   PTCHAR    SqlState[ PSQL_MAX_STATE_LENGTH ];
+   int       ErrorNum;
 
    inline TSqlErrorInfo() { init(); }
    inline TSqlErrorInfo( TSqlErrorInfo &c );
@@ -49,22 +49,22 @@ struct TSqlErrorInfo
 
 struct TSqlConnectInfo
 {
-    SQLTCHAR   m_ServerName[ 64 ];
-    SQLTCHAR   m_BaseName  [ 32 ];
-    SQLTCHAR   m_UserName  [ 32 ];
-    SQLTCHAR   m_UserPass  [ 32 ];
-    SQLTCHAR   m_SysAdmin  [ 32 ];
-    int        m_Port;
-    SQLTCHAR   m_UnixSocket[ 64 ];
+    PTCHAR      m_ServerName[ 64 ];
+    PTCHAR      m_BaseName  [ 32 ];
+    PTCHAR      m_UserName  [ 32 ];
+    PTCHAR      m_UserPass  [ 32 ];
+    PTCHAR      m_SysAdmin  [ 32 ];
+    int         m_Port;
+    PTCHAR      m_UnixSocket[ 64 ];
 
-    int        m_UserCode    ;
-    bool       m_IsOpen      ;
-    bool       m_IsAutoCommit;
+    int         m_UserCode    ;
+    bool        m_IsOpen      ;
+    bool        m_IsAutoCommit;
 
-    SQLHENV    iHenv;
-    SQLHDBC    iHdbc;
+    PSQLHENV    iHenv;
+    PSQLHDBC    iHdbc;
 
-    PDatabases m_nDB;
+    PDatabases  m_nDB;
     
     inline TSqlConnectInfo() { init(); }
     inline TSqlConnectInfo( TSqlConnectInfo &c );
@@ -133,7 +133,7 @@ public:
    
    PDatabases getDatabase() { return m_nDB; }
 
-   bool GetErrorInfo( SQLHSTMT hstmt );
+   bool GetErrorInfo( PSQLHSTMT hstmt );
    
    pthread_t  m_nThread;
    TSqlErrorInfo *m_Error;

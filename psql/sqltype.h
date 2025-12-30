@@ -11,11 +11,25 @@
 #ifndef SQLTYPE_H
 #define SQLTYPE_H
 
-#define SQL_MAX_MESSAGE_LENGTH 1024
+typedef void* 		     PSQLHANDLE;
+typedef PSQLHANDLE       PSQLHENV;
+typedef PSQLHANDLE       PSQLHDBC;
+typedef PSQLHANDLE       PSQLHSTMT;
+typedef PSQLHANDLE       PSQLHDESC;
+typedef void*            PHDBPROVIDER;
+typedef signed short int PSQLRETURN;
+typedef unsigned char    PTCHAR;
 
-#define DEFINE_SQLITE
-#define DEFINE_MYSQL
-#define DEFINE_ODBC
+#define PSQL_NULL_HANDLE           0L
+#define PSQL_SUCCESS               0
+#define PSQL_NO_DATA_FOUND       100
+#define PSQL_MAX_STATE_LENGTH     32
+#define PSQL_MAX_MESSAGE_LENGTH 1024
+
+//#define DEFINE_SQLITE
+//#define DEFINE_MYSQL
+//#define DEFINE_ODBC
+//#define DEFINE_POSTGRESQL
 
 enum PDatabases
 {
@@ -28,25 +42,29 @@ enum PDatabases
 #ifdef DEFINE_ODBC
     ID_PDATABASES_ODBC  = 3, // sudo apt-get install unixodbc-dev, mysql-connector-odbc // ??? odbcinst unixodbc // ??? odbcinst1debian2 libodbc1
 #endif
+#ifdef DEFINE_POSTGRESQL
+    ID_PDATABASES_POSTGRESQL  = 4, // sudo apt install libpq-dev
+#endif
     ID_PDATABASES_NONE  = 0
 };
 
 // show ODBC info
 // odbcinst -j
 
+#ifdef __linux__
 #ifdef DEFINE_SQLITE
 #include <sqlite3.h>
 #endif
-
 #ifdef DEFINE_MYSQL
 #include <mysql/mysql.h>
 #endif
-
 #ifdef DEFINE_ODBC
 #include <sqlext.h>
 #endif
-
-typedef void* HDBPROVIDER;
+#ifdef DEFINE_POSTGRESQL
+#include <postgresql/libpq-fe.h>
+#endif
+#endif
 
 typedef struct tagPSQL_DATE
 {
@@ -123,7 +141,6 @@ typedef struct tagPSQL_DATETIME
 // } MYSQL_TIME;
 
 #define tcsncpy(to,from,lenght,max_lenght) if(lenght>0) _tcsncpy((TCHAR*)to,(const TCHAR*)from,lenght<max_lenght?lenght:max_lenght-1)
-
 #define tcscpy(to,from) tcsncpy(to,from,_tcslen((const TCHAR*)from),sizeof(to))
 
 #endif

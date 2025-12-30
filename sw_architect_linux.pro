@@ -8,8 +8,30 @@ qtHaveModule(printsupport): QT += printsupport
 
 DEFINES += BUILDDATE=\\\"$$system( date "+%d.%m.%Y_%H:%M:%S" )\\\"
 
+#DEFINES += DEFINE_SQLITE
+#DEFINES += DEFINE_MYSQL
+#DEFINES += DEFINE_ODBC
+DEFINES += DEFINE_POSTGRESQL
+
 INCLUDEPATH += /usr/include
-LIBS += -lodbc -lsqlite3 -lmysqlclient
+
+DEFINE_ODBC {
+LIBS += -lodbc
+}
+DEFINE_SQLITE {
+LIBS += -lsqlite3
+}
+DEFINE_MYSQL {
+LIBS += -lmysqlclient
+}
+DEFINE_POSTGRESQL {
+LIBS += -lpq
+}
+
+#LIBS += -lodbc
+#LIBS += -lsqlite3
+#LIBS += -lmysqlclient
+#LIBS += -lpq
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -68,28 +90,6 @@ HEADERS += \
     data/shapes/FigureFactory.h \
     data/shapes/Rectangle.h \
     data/shapes/Triangle.h \
-    extern/linux/sql/mysql/client_plugin.h \
-    extern/linux/sql/mysql/errmsg.h \
-    extern/linux/sql/mysql/field_types.h \
-    extern/linux/sql/mysql/my_command.h \
-    extern/linux/sql/mysql/my_compress.h \
-    extern/linux/sql/mysql/my_list.h \
-    extern/linux/sql/mysql/mysql.h \
-    extern/linux/sql/mysql/mysql_com.h \
-    extern/linux/sql/mysql/mysql_time.h \
-    extern/linux/sql/mysql/mysql_version.h \
-    extern/linux/sql/mysql/mysqld_error.h \
-    extern/linux/sql/mysql/mysqlx_ername.h \
-    extern/linux/sql/mysql/mysqlx_error.h \
-    extern/linux/sql/mysql/mysqlx_version.h \
-    extern/linux/sql/mysql/plugin_auth_common.h \
-    extern/linux/sql/mysql/udf_registration_types.h \
-    extern/linux/sql/odbc/sql.h \
-    extern/linux/sql/odbc/sqlext.h \
-    extern/linux/sql/odbc/sqltypes.h \
-    extern/linux/sql/odbc/sqlucode.h \
-    extern/linux/sql/odbc/unixodbc.h \
-    extern/linux/sql/sqlite/sqlite3.h \
     psql/sptr.h \
     psql/sqlbridge.h \
     psql/sqlinfo.h \

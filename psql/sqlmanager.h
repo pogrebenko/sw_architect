@@ -24,74 +24,78 @@ class CSQLBuilder
 {
 public:
 
-  CSQLBuilder( HDBPROVIDER Connect );
+  CSQLBuilder( PHDBPROVIDER Connect );
   
   virtual ~CSQLBuilder() {}
 
-  virtual SQLRETURN AccessSingleMethod( SQLHSTMT query, unsigned short i, short db_type, CSmPt *db_data ) = 0;
+  virtual PSQLRETURN AccessSingleMethod( PSQLHSTMT query, unsigned short i, short db_type, CSmPt *db_data ) = 0;
   virtual void Clear() = 0;
-  virtual SQLRETURN Before( SQLHSTMT query ) = 0;
-  virtual SQLRETURN After( SQLHSTMT query ) = 0;
+  virtual PSQLRETURN Before( PSQLHSTMT query ) = 0;
+  virtual PSQLRETURN After( PSQLHSTMT query ) = 0;
 
-  virtual SQLRETURN Execute( SQLHSTMT query, CVectorOfPtr<CSmPt> *in );
+  virtual PSQLRETURN Execute( PSQLHSTMT query, CVectorOfPtr<CSmPt> *in );
     
 protected:
 
-  CSqlConnectInfo* GetSession( HDBPROVIDER hconnect );
+  CSqlConnectInfo* GetSession( PHDBPROVIDER hconnect );
 
-  HDBPROVIDER m_Connect;
-  CSQLBridge *m_pSQLBridge;
+  PHDBPROVIDER m_Connect;
+  CSQLBridge  *m_pSQLBridge;
 };
 
 class CSQLBind : public CSQLBuilder
 {
 public:
     
-  CSQLBind( HDBPROVIDER Connect );
+  CSQLBind( PHDBPROVIDER Connect );
   
-  virtual SQLRETURN AccessSingleMethod( SQLHSTMT query, unsigned short i, short db_type, CSmPt *db_data );
+  virtual PSQLRETURN AccessSingleMethod( PSQLHSTMT query, unsigned short i, short db_type, CSmPt *db_data );
   virtual void Clear();
-  virtual SQLRETURN Before( SQLHSTMT query );
-  virtual SQLRETURN After( SQLHSTMT query );
+  virtual PSQLRETURN Before( PSQLHSTMT query );
+  virtual PSQLRETURN After( PSQLHSTMT query );
   
-private:  
+private:
+#ifdef DEFINE_MYSQL
   std::vector<MYSQL_BIND> m_Binds;
+#endif
 };
 
 class CSQLBuff : public CSQLBuilder
 {
 public:
     
-  CSQLBuff( HDBPROVIDER Connect );
+  CSQLBuff( PHDBPROVIDER Connect );
   
-  virtual SQLRETURN AccessSingleMethod( SQLHSTMT query, unsigned short i, short db_type, CSmPt *db_data );
+  virtual PSQLRETURN AccessSingleMethod( PSQLHSTMT query, unsigned short i, short db_type, CSmPt *db_data );
   virtual void Clear();
-  virtual SQLRETURN Before( SQLHSTMT query );
-  virtual SQLRETURN After( SQLHSTMT query );
+  virtual PSQLRETURN Before( PSQLHSTMT query );
+  virtual PSQLRETURN After( PSQLHSTMT query );
 
   void ClearBuffs();
   
-private:  
+private:
+#ifdef DEFINE_MYSQL
   std::vector<MYSQL_BIND> m_Buffs;
+#endif
 };
 
 class CSQLData : public CSQLBuilder
 {
 public:
     
-  CSQLData( HDBPROVIDER Connect );
+  CSQLData( PHDBPROVIDER Connect );
   
-  virtual SQLRETURN AccessSingleMethod( SQLHSTMT query, unsigned short i, short db_type, CSmPt *db_data );
+  virtual PSQLRETURN AccessSingleMethod( PSQLHSTMT query, unsigned short i, short db_type, CSmPt *db_data );
   virtual void Clear();
-  virtual SQLRETURN Before( SQLHSTMT query );
-  virtual SQLRETURN After( SQLHSTMT query );
+  virtual PSQLRETURN Before( PSQLHSTMT query );
+  virtual PSQLRETURN After( PSQLHSTMT query );
 };
 
 class CSQLManager
 {
 public:
 
-           CSQLManager( HDBPROVIDER Connect, bool bAutoCommit );
+           CSQLManager( PHDBPROVIDER Connect, bool bAutoCommit );
   virtual ~CSQLManager();
 
   bool  Compile( CSQLPipe *pipe );
@@ -105,16 +109,16 @@ public:
   void  Close();
   PDatabases getDatabase();
 
-  CSqlConnectInfo* GetSession( HDBPROVIDER hconnect );
+  CSqlConnectInfo* GetSession( PHDBPROVIDER hconnect );
 
   bool Open();
   bool Compile( CSQLPipe *pipe, CSqlConnectInfo *session );
   bool Execute( CSQLPipe *pipe, CSqlConnectInfo *session );
-  bool Fetch( SQLHSTMT query );
-  void Commit( CSqlConnectInfo *session, SQLHSTMT query );
-  void Rollback( CSqlConnectInfo *session, SQLHSTMT query );
+  bool Fetch( PSQLHSTMT query );
+  void Commit( CSqlConnectInfo *session, PSQLHSTMT query );
+  void Rollback( CSqlConnectInfo *session, PSQLHSTMT query );
   long last_insert_rowid( CSqlConnectInfo *session );
-  void Close( CSqlConnectInfo *session, SQLHSTMT query );
+  void Close( CSqlConnectInfo *session, PSQLHSTMT query );
 
   void  ShowAlert( bool bAlert );
 
@@ -124,14 +128,14 @@ public:
   CSQLBind   *m_Bind;
 //  CSQLData   *m_Data;
 
-  HDBPROVIDER m_Connect;
-  bool        m_isCompiled;
-  bool        m_bAutoCommit;
-  bool        m_bShowAlert;
+  PHDBPROVIDER m_Connect;
+  bool         m_isCompiled;
+  bool         m_bAutoCommit;
+  bool         m_bShowAlert;
 
-  SQLHSTMT    iHstmt;
+  PSQLHSTMT    iHstmt;
 
-  CSQLBridge *m_pSQLBridge;
+  CSQLBridge  *m_pSQLBridge;
 };
 
 #endif 

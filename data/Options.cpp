@@ -64,7 +64,7 @@ void CAppOptions::init()
     m_UserName          = "";
     m_UserPass          = "";
     m_SysAdmin          = "";
-    m_hProvider         = SQL_NULL_HANDLE;
+    m_hProvider         = 0;//SQL_NULL_HANDLE;
 
     clearPos();
 

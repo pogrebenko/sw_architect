@@ -17,12 +17,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <wchar.h>
 #include <string>
-
-// #include <sqlext.h>
-// #include <sqltypes.h>
-// #include <sqlucode.h>
+#include <wchar.h>
 
 #ifndef EXPORT_C
 #define EXPORT_C
@@ -41,6 +37,20 @@
     #define _T(s) (s)
   #endif
 #endif
+
+
+#ifndef _MSC_VER
+#ifdef UNICODE
+#ifdef SQL_WCHART_CONVERT
+typedef wchar_t             TCHAR;
+#else
+typedef signed short        TCHAR;
+#endif
+#else
+typedef char				TCHAR;
+#endif
+#endif
+
 
 #if defined(UNICODE) || defined(_UNICODE)
 	#define STD_STRING std::wstring

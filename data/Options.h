@@ -117,8 +117,8 @@ public:
 
     inline RelationNotation_t getRelationNotation() { return m_nRelationNotation; }
 
-    inline HDBPROVIDER     getProvider() { return m_hProvider; }
-    inline void            setProvider( HDBPROVIDER hProvider ) { m_hProvider = hProvider; }
+    inline PHDBPROVIDER    getProvider() { return m_hProvider; }
+    inline void            setProvider( PHDBPROVIDER hProvider ) { m_hProvider = hProvider; }
 
 private:
     ClassList_t     m_ClassList      ;

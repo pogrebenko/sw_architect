@@ -16,12 +16,14 @@ typedef PSQLHANDLE       PSQLHENV;
 typedef PSQLHANDLE       PSQLHDBC;
 typedef PSQLHANDLE       PSQLHSTMT;
 typedef PSQLHANDLE       PSQLHDESC;
-typedef void*            PHDBPROVIDER;
+typedef PSQLHANDLE       PHDBPROVIDER;
 typedef signed short int PSQLRETURN;
-typedef unsigned char    PTCHAR;
+typedef char             PTCHAR;
+typedef const PTCHAR     PTCCHAR;
 
 #define PSQL_NULL_HANDLE           0L
 #define PSQL_SUCCESS               0
+#define PSQL_ERROR                -1
 #define PSQL_NO_DATA_FOUND       100
 #define PSQL_MAX_STATE_LENGTH     32
 #define PSQL_MAX_MESSAGE_LENGTH 1024
@@ -140,7 +142,7 @@ typedef struct tagPSQL_DATETIME
 // int time_zone_displacement;
 // } MYSQL_TIME;
 
-#define tcsncpy(to,from,lenght,max_lenght) if(lenght>0) _tcsncpy((TCHAR*)to,(const TCHAR*)from,lenght<max_lenght?lenght:max_lenght-1)
-#define tcscpy(to,from) tcsncpy(to,from,_tcslen((const TCHAR*)from),sizeof(to))
+#define tcsncpy(to,from,lenght,max_lenght) if(lenght>0) _tcsncpy((PTCHAR*)to,(const PTCHAR*)from,lenght<max_lenght?lenght:max_lenght-1)
+#define tcscpy(to,from) tcsncpy(to,from,_tcslen((const PTCHAR*)from),sizeof(to))
 
 #endif

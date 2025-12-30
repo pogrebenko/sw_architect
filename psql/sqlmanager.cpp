@@ -64,6 +64,11 @@ CSQLBind::Clear()
 #ifdef DEFINE_MYSQL
     m_Binds.clear();
 #endif
+#ifdef DEFINE_POSTGRESQL
+    m_Values .clear();
+    m_Lengths.clear();
+    m_Formats.clear();
+#endif
 }
 
 PSQLRETURN
@@ -273,6 +278,16 @@ CSQLBind::AccessSingleMethod( PSQLHSTMT query, unsigned short num, short type, C
 #ifdef DEFINE_POSTGRESQL
         case ID_PDATABASES_POSTGRESQL :
         {
+            m_Values .push_back( (char*)var );
+            m_Lengths.push_back( MaxLen );
+            if( type == datChars )
+            {
+                m_Formats.push_back( 0 );
+            }
+            else
+            {
+                m_Formats.push_back( 1 );
+            }
         }
         break;
 #endif
@@ -404,21 +419,34 @@ CSQLBuff::AccessSingleMethod( PSQLHSTMT query, unsigned short num, short type, C
 #ifdef DEFINE_SQLITE
         case ID_PDATABASES_SQLITE :
         {
+            sqlite3_stmt *stmt = (sqlite3_stmt*)query;
             switch( type )
             {
-                case datLong : {
-                    int res = sqlite3_column_int( (sqlite3_stmt*)query, num );
+                case datShort : {
+                    int res = sqlite3_column_int( stmt, num );
                     *((long*)var) = res;
                 }
                 break;
-                case datFloat  : break;
-                case datDouble : break;
+                case datFloat  : {
+                    double res = sqlite3_column_double( stmt, num );
+                    *((float*)var) = res;
+                }
+                break;
+                case datDouble : {
+                    double res = sqlite3_column_double( stmt, num );
+                    *((double*)var) = res;
+                }
+                break;
                 case datChars   : {
-                    const char *res = (const char*)sqlite3_column_text( (sqlite3_stmt*)query, num );
+                    const char *res = (const char*)sqlite3_column_text( stmt, num );
                     strcpy( (char*)var, res );
                 }
                 break;
-                case datBytes    : break;
+                case datBytes    : {
+                    const void *res = sqlite3_column_blob( stmt, num );
+                    var = (void*)res;
+                }
+                break;
                 case datDate     : break;
                 case datTime     : break;
                 case datTimeStamp: break;
@@ -713,6 +741,7 @@ CSQLManager::~CSQLManager()
 #ifdef DEFINE_POSTGRESQL
             case ID_PDATABASES_POSTGRESQL :
             {
+                PQclear( (PGresult*)iHstmt );
             }
             break;
 #endif
@@ -797,20 +826,20 @@ CSQLManager::Compile( CSQLPipe *pipe, CSqlConnectInfo *session )
 
         if( Open() )
         {
-            PTCHAR *query = (PTCHAR*)pipe->m_PipeString->c_str();
+            PTCCHAR *query = pipe->m_PipeString->c_str();
             long length = pipe->m_PipeString->length();
 
             if( session != NULL )
             {
                 switch( session->m_nDB )
                 {
-                case ID_PDATABASES_NONE : {} break;
+                case ID_PDATABASES_NONE : return false;
 #ifdef DEFINE_SQLITE
                 case ID_PDATABASES_SQLITE :
                 {
                     sqlite3      *connect = (sqlite3 *) session->iHdbc;
                     sqlite3_stmt *stmt    = PSQL_NULL_HANDLE;
-                    PSQLRETURN rc = sqlite3_prepare( connect, (const char*)query, -1, &stmt, NULL );
+                    PSQLRETURN rc = sqlite3_prepare( connect, query, -1, &stmt, NULL );
                     if( PSQL_SUCCESS != rc )
                     {
                         if( m_bShowAlert )
@@ -831,7 +860,7 @@ CSQLManager::Compile( CSQLPipe *pipe, CSqlConnectInfo *session )
                 {
                     MYSQL_STMT *stmt = (MYSQL_STMT *) iHstmt;
 
-                    PSQLRETURN rc = mysql_stmt_prepare( stmt, (const char*)query, length );
+                    PSQLRETURN rc = mysql_stmt_prepare( stmt, query, length );
 
                     if( PSQL_SUCCESS == rc )
                         rc = m_Buff->Execute( iHstmt, m_DataPtrBuff );
@@ -853,7 +882,7 @@ CSQLManager::Compile( CSQLPipe *pipe, CSqlConnectInfo *session )
 #ifdef DEFINE_ODBC
                 case ID_PDATABASES_ODBC :
                 {
-                    SQLRETURN rc = SQLPrepare( iHstmt, query, length ); //SQL_NTS );
+                    SQLRETURN rc = SQLPrepare( iHstmt, (SQLCHAR*)query, length ); //SQL_NTS );
 
                     if( SQL_SUCCESS == rc )
                         rc = m_Buff->Execute( iHstmt, m_DataPtrBuff );
@@ -875,9 +904,35 @@ CSQLManager::Compile( CSQLPipe *pipe, CSqlConnectInfo *session )
 #ifdef DEFINE_POSTGRESQL
                 case ID_PDATABASES_POSTGRESQL :
                 {
+                    PGconn *conn = (PGconn *) session->iHdbc;
+
+                    PGresult *res = PQprepare( conn, query, query, m_DataPtrBind->size(), NULL );
+                    iHstmt = (PSQLHSTMT)res;
+
+                    ExecStatusType est = PQresultStatus( res );
+                    PSQLRETURN rc = est == PGRES_COMMAND_OK ? PSQL_SUCCESS : PSQL_ERROR;
+
+                    if( PSQL_SUCCESS == rc )
+                    {
+                        //PGresult *params = PQdescribePrepared( conn, stmtName );
+                        rc = m_Buff->Execute( iHstmt, m_DataPtrBuff );
+                    }
+
+                    if( PSQL_SUCCESS != rc )
+                    {
+                        if( m_bShowAlert )
+                        {
+                            if( session->GetErrorInfo( iHstmt ) )
+                            {
+                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
+                            }
+                        }
+                        return false;
+                    }
                 }
                 break;
 #endif
+                default : return false;
                 }
                 m_isCompiled = true;
             }
@@ -900,7 +955,7 @@ CSQLManager::Execute( CSQLPipe *pipe, CSqlConnectInfo *session )
             {
                 switch( session->m_nDB )
                 {
-                case ID_PDATABASES_NONE : {} break;
+                case ID_PDATABASES_NONE : return false;
 #ifdef DEFINE_SQLITE
                 case ID_PDATABASES_SQLITE :
                 {
@@ -965,9 +1020,33 @@ CSQLManager::Execute( CSQLPipe *pipe, CSqlConnectInfo *session )
 #ifdef DEFINE_POSTGRESQL
                 case ID_PDATABASES_POSTGRESQL :
                 {
+                    PQclear( (PGresult *)iHstmt );
+                    iHstmt = PSQL_NULL_HANDLE;
+
+                    int resultFormat = 9;
+                    PTCCHAR *query = pipe->m_PipeString->c_str();
+                    PGconn *conn = (PGconn *) session->iHdbc;
+                    PGresult *res = PQexecPrepared( conn, query, m_DataPtrBind->size(), m_Bind->m_Values.data(), m_Bind->m_Lengths.data(), m_Bind->m_Formats.data(), resultFormat );
+                    iHstmt = (PSQLHSTMT)res;
+
+                    ExecStatusType est = PQresultStatus( res );
+                    if ( est != PGRES_COMMAND_OK && est != PGRES_TUPLES_OK )
+                    {
+                        if( m_bAutoCommit ) Rollback();
+
+                        if( m_bShowAlert )
+                        {
+                            if( session->GetErrorInfo( iHstmt ) )
+                            {
+                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
+                            }
+                        }
+                        return false;
+                    }
                 }
                 break;
 #endif
+                default : return false;
                 }
             }
         }
@@ -1100,6 +1179,15 @@ CSQLManager::Fetch( PSQLHSTMT query )
 #ifdef DEFINE_POSTGRESQL
         case ID_PDATABASES_POSTGRESQL :
         {
+            PGresult *res = (PGresult *) iHstmt;
+            int nFields = PQnfields( res );
+            for (int i = 0; i < PQntuples(res); ++i)
+            {
+                for (int j = 0; j < nFields; ++j)
+                {
+                    printf("%s = %s\n", PQfname(res, j), PQgetvalue(res, i, j));
+                }
+            }
         }
         break;
 #endif
@@ -1187,6 +1275,7 @@ CSQLManager::Open()
 #ifdef DEFINE_POSTGRESQL
         case ID_PDATABASES_POSTGRESQL :
         {
+            return true;
         }
         break;
 #endif
@@ -1277,6 +1366,7 @@ CSQLManager::Close( CSqlConnectInfo *session, PSQLHSTMT query )
 #ifdef DEFINE_POSTGRESQL
         case ID_PDATABASES_POSTGRESQL :
         {
+            PQclear( (PGresult*)query );
         }
         break;
 #endif

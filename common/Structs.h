@@ -149,13 +149,13 @@ struct __Options__
 };
 
 struct __DBCol__ {
-    TCHAR table_name    [ 256 ],
-          column_name   [ 256 ],
-          datatype      [  64 ],
-          key           [  64 ],
-          is_null       [  36 ],
-          column_comment[ 256 ];
-    long  length, precision, scale, dt_precision;
+    PTCHAR table_name    [ 256 ],
+           column_name   [ 256 ],
+           datatype      [  64 ],
+           key           [  64 ],
+           is_null       [  36 ],
+           column_comment[ 256 ];
+    long   length, precision, scale, dt_precision;
 };
 
 #endif // STRUCTS_H

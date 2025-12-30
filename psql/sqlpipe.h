@@ -54,8 +54,8 @@ public:
 // ------- define friends -------
   IMPORT_C friend CSQLPipe operator + ( const CSQLPipe, const CSQLPipe );
 
-  IMPORT_C friend CSQLPipe operator + ( const TCHAR*, const CSQLPipe );
-  IMPORT_C friend CSQLPipe operator + ( const CSQLPipe, const TCHAR* );
+  IMPORT_C friend CSQLPipe operator + ( const PTCHAR*, const CSQLPipe );
+  IMPORT_C friend CSQLPipe operator + ( const CSQLPipe, const PTCHAR* );
 
   IMPORT_C friend CSQLPipe operator + ( const long    , const CSQLPipe );
   IMPORT_C friend CSQLPipe operator + ( const CSQLPipe, const long     );
@@ -74,7 +74,7 @@ public:
   CSQLPipe( STD_STRING *s );
   CSQLPipe( const CSQLPipe&, const CSQLPipe& );
 
-  IMPORT_C CSQLPipe( const TCHAR * str );
+  IMPORT_C CSQLPipe( const PTCHAR * str );
   CSQLPipe( const long   val );
   CSQLPipe( const int    val );
   CSQLPipe( const double val );
@@ -88,11 +88,11 @@ protected:
 
   CVectorOfPtr< CSmPt >  *m_Pipes;
 
-  CSQLPipe( const TCHAR * str, CSmPt &pt, int size = 0, bool is_buff = true, int type = -1 );
+  CSQLPipe( const PTCHAR * str, CSmPt &pt, int size = 0, bool is_buff = true, int type = -1 );
 
-  const CSQLPipe& Buffs( const TCHAR * col, CSmPt &pt );
-  const CSQLPipe& Binds( const TCHAR * col, CSmPt &pt );
-  const CSQLPipe& Binds( const TCHAR * col, const TCHAR * ops, CSmPt &pt );
+  const CSQLPipe& Buffs( const PTCHAR * col, CSmPt &pt );
+  const CSQLPipe& Binds( const PTCHAR * col, CSmPt &pt );
+  const CSQLPipe& Binds( const PTCHAR * col, const PTCHAR * ops, CSmPt &pt );
 
   CSQLManager  *m_Manager;
   PHDBPROVIDER  m_Connect;
@@ -113,8 +113,8 @@ private:
 class Buff : public CSQLPipe
 {
 public:
-  IMPORT_C Buff( const TCHAR * str, CSmPt pt );
-  IMPORT_C Buff( const TCHAR * str, CSmPt pt, int size );
+  IMPORT_C Buff( const PTCHAR * str, CSmPt pt );
+  IMPORT_C Buff( const PTCHAR * str, CSmPt pt, int size );
 
   IMPORT_C Buff( CSmPt pt );
   IMPORT_C Buff( CSmPt pt, int size );
@@ -123,9 +123,9 @@ public:
 class Bind : public CSQLPipe
 {
 public:
-  IMPORT_C Bind( const TCHAR * str, CSmPt pt );
-  IMPORT_C Bind( const TCHAR * str, CSmPt pt, int size );
-  IMPORT_C Bind( const TCHAR * str, CSmPt pt, int size, int type );
+  IMPORT_C Bind( const PTCHAR * str, CSmPt pt );
+  IMPORT_C Bind( const PTCHAR * str, CSmPt pt, int size );
+  IMPORT_C Bind( const PTCHAR * str, CSmPt pt, int size, int type );
 
   IMPORT_C Bind( CSmPt pt );
   IMPORT_C Bind( CSmPt pt, int size );

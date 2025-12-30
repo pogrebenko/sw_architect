@@ -30,6 +30,8 @@
 //#define IMPORT_C extern "C++"   
 #endif
 
+#undef UNICODE
+
 #ifndef _T
   #if defined(UNICODE) || defined(_UNICODE)
     #define _T(s) (L ## s)
@@ -38,18 +40,18 @@
   #endif
 #endif
 
-
-#ifndef _MSC_VER
+#ifdef _WIN32
 #ifdef UNICODE
 #ifdef SQL_WCHART_CONVERT
 typedef wchar_t             TCHAR;
 #else
 typedef signed short        TCHAR;
 #endif
+#define wcscasecmp _wcsicmp
 #else
 typedef char				TCHAR;
 #endif
-#define wcscasecmp _wcsicmp
+#define strcasecmp _stricmp
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)

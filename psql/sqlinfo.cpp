@@ -9,7 +9,7 @@
 /**************************************************/
 #include "psql/sqlinfo.h"
 
-TCHAR* Value2Str( TCHAR *buff, int size, const long val );
+PTCHAR* Value2Str( PTCHAR *buff, int size, const long val );
 
 CSqlConnectInfo::CSqlConnectInfo()
 : TSqlConnectInfo()
@@ -144,7 +144,7 @@ CSqlConnectInfo::Open()
                     rc = SQLAllocHandle(SQL_HANDLE_DBC, iHenv, &iHdbc);
                     if( SQL_SUCCESS == rc )
                     {
-                        rc = SQLConnect(iHdbc, m_BaseName, SQL_NTS, m_UserName, SQL_NTS, m_UserPass, SQL_NTS);
+                        rc = SQLConnect(iHdbc, (SQLCHAR*)m_BaseName, SQL_NTS, (SQLCHAR*)m_UserName, SQL_NTS, (SQLCHAR*)m_UserPass, SQL_NTS);
                         if( SQL_SUCCESS == rc )
                         {
                             long type = ( (m_IsAutoCommit) ? SQL_AUTOCOMMIT_ON : SQL_AUTOCOMMIT_OFF);
@@ -165,7 +165,7 @@ CSqlConnectInfo::Open()
 #ifdef DEFINE_POSTGRESQL
         case ID_PDATABASES_POSTGRESQL :
         {
-            TCHAR sPort[ 32 ];
+            PTCHAR sPort[ 32 ];
             Value2Str( sPort, sizeof(sPort), m_Port );
             const char *pgoptions = NULL;      /* Connection options (usually NULL) */
             const char *pgtty = NULL;          /* Debug tty (usually NULL) */
@@ -225,6 +225,7 @@ CSqlConnectInfo::Close()
 #ifdef DEFINE_POSTGRESQL
             case ID_PDATABASES_POSTGRESQL :
             {
+                PQfinish( (PGconn*) iHdbc );
             }
             break;
 #endif
@@ -261,7 +262,6 @@ CSqlConnectInfo::Close()
 #ifdef DEFINE_POSTGRESQL
         case ID_PDATABASES_POSTGRESQL :
         {
-            PQfinish( (PGconn*) iHenv );
         }
         break;
 #endif
@@ -370,11 +370,11 @@ CSqlConnectInfo::GetErrorInfo( PSQLHSTMT aHstmt )
             {
                 case 1:
                     if( aHstmt != SQL_NULL_HSTMT )
-                    rc = SQLGetDiagRec( SQL_HANDLE_STMT, aHstmt, RecNumber, m_Error->SqlState, &m_Error->ErrorNum, m_Error->SqlError, ErrMsgLen, &pcbErrorMsgLen );
+                    rc = SQLGetDiagRec( SQL_HANDLE_STMT, aHstmt, RecNumber, (SQLCHAR*)m_Error->SqlState, &m_Error->ErrorNum, (SQLCHAR*)m_Error->SqlError, ErrMsgLen, &pcbErrorMsgLen );
                     break;
                 case 2:
                     if( iHdbc  != SQL_NULL_HDBC )
-                    rc = SQLGetDiagRec( SQL_HANDLE_DBC , iHdbc , RecNumber, m_Error->SqlState, &m_Error->ErrorNum, m_Error->SqlError, ErrMsgLen, &pcbErrorMsgLen );
+                    rc = SQLGetDiagRec( SQL_HANDLE_DBC , iHdbc , RecNumber, (SQLCHAR*)m_Error->SqlState, &m_Error->ErrorNum, (SQLCHAR*)m_Error->SqlError, ErrMsgLen, &pcbErrorMsgLen );
                     break;
             }
         }
@@ -382,22 +382,16 @@ CSqlConnectInfo::GetErrorInfo( PSQLHSTMT aHstmt )
         if( rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO )
             return true;
         else
-            _tcscpy( (TCHAR*)m_Error->SqlError, _T("Severe Error in ODBC Driver") );
+            _tcscpy( (PTCHAR*)m_Error->SqlError, _T("Severe Error in ODBC Driver") );
     }
     break;
 #endif
 #ifdef DEFINE_POSTGRESQL
     case ID_PDATABASES_POSTGRESQL :
     {
-        if( this->iHenv == NULL )
+        if( aHstmt != NULL )
         {
-            _tcscpy( (char*)m_Error->SqlError, _T("Could not initialize PostgreSQL connection") );
-        }
-        else
-        if( this->iHdbc == NULL )
-        {
-            PGconn *connect = (PGconn *) this->iHenv;
-
+            PGconn *connect = (PGconn *) aHstmt;
             const char* sErrMsg = PQerrorMessage( connect );
             nErrMsg = strlen( sErrMsg );
             if( nErrMsg > 0 )
@@ -407,12 +401,31 @@ CSqlConnectInfo::GetErrorInfo( PSQLHSTMT aHstmt )
         }
         else
         {
-            PGconn *connect = (PGconn *) this->iHdbc;
-            const char* sErrMsg = PQerrorMessage( connect );
-            nErrMsg = strlen( sErrMsg );
-            if( nErrMsg > 0 )
+            if( this->iHenv == NULL )
             {
-                _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
+                _tcscpy( (char*)m_Error->SqlError, _T("Could not initialize PostgreSQL connection") );
+            }
+            else
+            if( this->iHdbc == NULL )
+            {
+                PGconn *connect = (PGconn *) this->iHenv;
+
+                const char* sErrMsg = PQerrorMessage( connect );
+                nErrMsg = strlen( sErrMsg );
+                if( nErrMsg > 0 )
+                {
+                    _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
+                }
+            }
+            else
+            {
+                PGconn *connect = (PGconn *) this->iHdbc;
+                const char* sErrMsg = PQerrorMessage( connect );
+                nErrMsg = strlen( sErrMsg );
+                if( nErrMsg > 0 )
+                {
+                    _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
+                }
             }
         }
     }

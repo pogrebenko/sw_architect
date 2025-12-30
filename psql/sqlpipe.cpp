@@ -12,40 +12,40 @@
 
 #define PIPE_ALLOC 16
 
-TCHAR*
-Value2Str( TCHAR *buff, int size, const long val )
+PTCHAR*
+Value2Str( PTCHAR *buff, int size, const long val )
 {
   memset( buff, 0, size );
   _tprintf( buff, "%li", val );
   return buff;
 }
 
-TCHAR*
-Value2Str( TCHAR *buff, int size, const double val )
+PTCHAR*
+Value2Str( PTCHAR *buff, int size, const double val )
 {
   memset( buff, 0, size );
   _tprintf( buff, "%18.5f", val );
   return buff;
 }
 
-TCHAR*
-Value2Str( TCHAR *buff, int size, const PSQL_DATE &val )
+PTCHAR*
+Value2Str( PTCHAR *buff, int size, const PSQL_DATE &val )
 {
   memset( buff, 0, size );
   _tprintf( buff, "%02i.%02i.%i", val.day, val.month, val.year );
   return buff;
 }
 
-TCHAR*
-Value2Str( TCHAR *buff, int size, const PSQL_TIME &val )
+PTCHAR*
+Value2Str( PTCHAR *buff, int size, const PSQL_TIME &val )
 {
   memset( buff, 0, size );
   _tprintf( buff, "%02i:%02i:%02i", val.hour, val.minute, val.second );
   return buff;
 }
 
-TCHAR*
-Value2Str( TCHAR *buff, int size, const PSQL_TIMESTAMP &val )
+PTCHAR*
+Value2Str( PTCHAR *buff, int size, const PSQL_TIMESTAMP &val )
 {
   memset( buff, 0, size );
   _tprintf( buff, "%02i.%02i.%i %02i:%02i:%02i %li", val.day, val.month, val.year, val.hour, val.minute, val.second, val.second_part );
@@ -56,75 +56,75 @@ EXPORT_C CSQLPipe operator + ( const CSQLPipe mutex1, const CSQLPipe mutex2 )
 { return CSQLPipe( mutex1, mutex2 ); }
 
 // signed
-EXPORT_C CSQLPipe operator + ( const TCHAR *mutex1, const CSQLPipe mutex2 )
+EXPORT_C CSQLPipe operator + ( const PTCHAR *mutex1, const CSQLPipe mutex2 )
 { STD_STRING *pstr = new STD_STRING;
               pstr->operator = ( mutex1 );
   return CSQLPipe( CSQLPipe( pstr ), mutex2 ); }
 
-EXPORT_C CSQLPipe operator + ( const CSQLPipe mutex1, const TCHAR *mutex2 )
+EXPORT_C CSQLPipe operator + ( const CSQLPipe mutex1, const PTCHAR *mutex2 )
 { STD_STRING *pstr = new STD_STRING;
               pstr->operator = ( mutex2 );
   return CSQLPipe( mutex1, CSQLPipe( pstr ) ); }
 
 EXPORT_C CSQLPipe operator + ( const long mutex1, const CSQLPipe mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 18 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 18 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), mutex1 ) );
   return CSQLPipe( CSQLPipe( pstr ), mutex2 ); }
 
 EXPORT_C CSQLPipe operator + ( const CSQLPipe mutex1, const long mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 18 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 18 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), mutex2 ) );
   return CSQLPipe( mutex1, CSQLPipe( pstr ) ); }
 
 EXPORT_C CSQLPipe operator + ( const int mutex1, const CSQLPipe mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 18 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 18 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), long( mutex1 ) ) );
   return CSQLPipe( CSQLPipe( pstr ), mutex2 ); }
 
 EXPORT_C CSQLPipe operator + ( const CSQLPipe mutex1, const int mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 18 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 18 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), long( mutex2 ) ) );
   return CSQLPipe( mutex1, CSQLPipe( pstr ) ); }
 
 EXPORT_C CSQLPipe operator + ( const double mutex1, const CSQLPipe mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 36 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 36 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), mutex1 ) );
   return CSQLPipe( CSQLPipe( pstr ), mutex2 ); }
 
 EXPORT_C CSQLPipe operator + ( const CSQLPipe mutex1, const double mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 36 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 36 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), mutex2 ) );
   return CSQLPipe( mutex1, CSQLPipe( pstr ) ); }
 
 EXPORT_C CSQLPipe operator + ( const float mutex1, const CSQLPipe mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 36 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 36 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), double( mutex1 ) ) );
   return CSQLPipe( CSQLPipe( pstr ), mutex2 ); }
 
 EXPORT_C CSQLPipe operator + ( const CSQLPipe mutex1, const float mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 36 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 36 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), double( mutex2 ) ) );
   return CSQLPipe( mutex1, CSQLPipe( pstr ) ); }
 
 // unsigned
 
 EXPORT_C CSQLPipe operator + ( const unsigned long mutex1, const CSQLPipe mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 18 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 18 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), long( mutex1 ) ) );
   return CSQLPipe( CSQLPipe( pstr ), mutex2 ); }
 
 EXPORT_C CSQLPipe operator + ( const CSQLPipe mutex1, const unsigned long mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 18 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 18 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), long( mutex2 ) ) );
   return CSQLPipe( mutex1, CSQLPipe( pstr ) ); }
 
 EXPORT_C CSQLPipe operator + ( const unsigned int mutex1, const CSQLPipe mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 18 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 18 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), long( mutex1 ) ) );
   return CSQLPipe( CSQLPipe( pstr ), mutex2 ); }
 
 EXPORT_C CSQLPipe operator + ( const CSQLPipe mutex1, const unsigned int mutex2 )
-{ STD_STRING *pstr = new STD_STRING; TCHAR buff[ 18 ];
+{ STD_STRING *pstr = new STD_STRING; PTCHAR buff[ 18 ];
               pstr->operator = ( ::Value2Str( buff, sizeof( buff ), long( mutex2 ) ) );
   return CSQLPipe( mutex1, CSQLPipe( pstr ) ); }
   
@@ -172,7 +172,7 @@ CSQLPipe::CSQLPipe( STD_STRING *str )
   m_Connect = NULL;
 }
 
-CSQLPipe::CSQLPipe( const TCHAR * str, CSmPt &pt, int size, bool is_buff, int type )
+CSQLPipe::CSQLPipe( const PTCHAR * str, CSmPt &pt, int size, bool is_buff, int type )
 {
   m_Pipes = new CVectorOfPtr< CSmPt >(false);
 
@@ -227,7 +227,7 @@ CSQLPipe::CSQLPipe( const CSQLPipe& mutex1, const CSQLPipe& mutex2 )
       m_Pipes->push_back( new  CSmPt( *mutex2.m_Pipes->at( j ) ) );
 }
 
-EXPORT_C CSQLPipe::CSQLPipe( const TCHAR *str )
+EXPORT_C CSQLPipe::CSQLPipe( const PTCHAR *str )
 {
   m_PipeString = new STD_STRING;
 //  m_PipeString->resize( _tcslen( str ), 0 );
@@ -242,7 +242,7 @@ EXPORT_C CSQLPipe::CSQLPipe( const TCHAR *str )
 
 CSQLPipe::CSQLPipe( const long   val )
 { 
-  TCHAR buff[ 18 ];
+  PTCHAR buff[ 18 ];
   m_PipeString = new STD_STRING;
 //  m_PipeString->resize( 18, 0 );
   m_Pipes = new CVectorOfPtr< CSmPt >(false);
@@ -252,7 +252,7 @@ CSQLPipe::CSQLPipe( const long   val )
 }
 CSQLPipe::CSQLPipe( const int    val )
 { 
-  TCHAR buff[ 18 ];
+  PTCHAR buff[ 18 ];
   m_PipeString = new STD_STRING;
 //  m_PipeString->resize( 18, 0 );
   m_Pipes = new CVectorOfPtr< CSmPt >(false);
@@ -262,7 +262,7 @@ CSQLPipe::CSQLPipe( const int    val )
 }
 CSQLPipe::CSQLPipe( const double val )
 { 
-  TCHAR buff[ 36 ];
+  PTCHAR buff[ 36 ];
   m_PipeString = new STD_STRING;
 //  m_PipeString->resize( 36, 0 );
   m_Pipes = new CVectorOfPtr< CSmPt >(false);
@@ -272,7 +272,7 @@ CSQLPipe::CSQLPipe( const double val )
 }
 CSQLPipe::CSQLPipe( const float  val )
 { 
-  TCHAR buff[ 36 ];
+  PTCHAR buff[ 36 ];
   m_PipeString = new STD_STRING;
 //  m_PipeString->resize( 36, 0 );
   m_Pipes = new CVectorOfPtr< CSmPt >(false);
@@ -282,7 +282,7 @@ CSQLPipe::CSQLPipe( const float  val )
 }
 CSQLPipe::CSQLPipe( const unsigned long   val )
 { 
-  TCHAR buff[ 18 ];
+  PTCHAR buff[ 18 ];
   m_PipeString = new STD_STRING;
 //  m_PipeString->resize( 18, 0 );
   m_Pipes = new CVectorOfPtr< CSmPt >(false);
@@ -292,7 +292,7 @@ CSQLPipe::CSQLPipe( const unsigned long   val )
 }
 CSQLPipe::CSQLPipe( const unsigned int    val )
 { 
-  TCHAR buff[ 18 ];
+  PTCHAR buff[ 18 ];
   m_PipeString = new STD_STRING;
 //  m_PipeString->resize( 18, 0 );
   m_Pipes = new CVectorOfPtr< CSmPt >(false);
@@ -376,7 +376,7 @@ CSQLPipe::getDatabase()
 }
 
 const CSQLPipe& 
-CSQLPipe::Buffs( const TCHAR * str, CSmPt &pt )
+CSQLPipe::Buffs( const PTCHAR * str, CSmPt &pt )
 {
   if( *str )
      m_PipeString->operator += ( str );
@@ -389,7 +389,7 @@ CSQLPipe::Buffs( const TCHAR * str, CSmPt &pt )
 }
 
 const CSQLPipe& 
-CSQLPipe::Binds( const TCHAR * col, CSmPt &pt )
+CSQLPipe::Binds( const PTCHAR * col, CSmPt &pt )
 {
   if( col && *col )
 //     return Binds( col, _T("=?"), pt );
@@ -400,7 +400,7 @@ CSQLPipe::Binds( const TCHAR * col, CSmPt &pt )
 }
 
 const CSQLPipe& 
-CSQLPipe::Binds( const TCHAR * col, const TCHAR * ops, CSmPt &pt )
+CSQLPipe::Binds( const PTCHAR * col, const PTCHAR * ops, CSmPt &pt )
 {
   if( *col ) 
   {
@@ -529,12 +529,12 @@ CSQLPipe::CSQLPipe( const unsigned int * )
 
 
 
-EXPORT_C Buff::Buff( const TCHAR * str, CSmPt pt )
+EXPORT_C Buff::Buff( const PTCHAR * str, CSmPt pt )
 : CSQLPipe( str, pt, 0, true )
 {
 }
 
-EXPORT_C Buff::Buff( const TCHAR * str, CSmPt pt, int size )
+EXPORT_C Buff::Buff( const PTCHAR * str, CSmPt pt, int size )
 : CSQLPipe( str, pt, size, true )
 {
 }
@@ -549,17 +549,17 @@ EXPORT_C Buff::Buff( CSmPt pt, int size )
 {
 }
 
-EXPORT_C Bind::Bind( const TCHAR * str, CSmPt pt )
+EXPORT_C Bind::Bind( const PTCHAR * str, CSmPt pt )
 : CSQLPipe( str, pt, 0, false )
 {
 }
 
-EXPORT_C Bind::Bind( const TCHAR * str, CSmPt pt, int size )
+EXPORT_C Bind::Bind( const PTCHAR * str, CSmPt pt, int size )
 : CSQLPipe( str, pt, size, false )
 {
 }
 
-EXPORT_C Bind::Bind( const TCHAR * str, CSmPt pt, int size, int type )
+EXPORT_C Bind::Bind( const PTCHAR * str, CSmPt pt, int size, int type )
 : CSQLPipe( str, pt, size, false, type )
 {
 }

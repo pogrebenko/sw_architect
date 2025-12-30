@@ -216,15 +216,15 @@ CSQLBridge::ShowSQLErrorNow( TSqlErrorInfo *err_info, const PTCHAR *err_text  )
 
   if( err_info != NULL )
   {
-    TCHAR sNum[16]; memset( sNum, 0, sizeof(sNum) );
+    PTCHAR sNum[16]; memset( sNum, 0, sizeof(sNum) );
 	_tprintf( sNum, _T("%i"), err_info->ErrorNum );
 
 	buff  = _T("SQL-Error:");
-    buff += (TCHAR*)err_info->SqlError;
+    buff += (PTCHAR*)err_info->SqlError;
 	buff += _T(", ");
 
 	buff += _T("State:");
-	buff += (TCHAR*)err_info->SqlState;
+    buff += (PTCHAR*)err_info->SqlState;
 	buff += _T(", ");
 	buff += _T("Nummer:");
 	buff += sNum;
@@ -234,7 +234,7 @@ CSQLBridge::ShowSQLErrorNow( TSqlErrorInfo *err_info, const PTCHAR *err_text  )
   {
 	buff  = _T("SQL-Error:");
     if( err_text != NULL )
-        buff  = (TCHAR*)err_text;
+        buff  = (PTCHAR*)err_text;
 	else
 		buff  = _T("empty");
 	buff  = _T(", ");

@@ -374,11 +374,11 @@ MainWindow::on_ImportFromDB()
     {
         CSqlConnectInfo Info;
         Info.m_nDB = __AppOptions.m_nDB;
-        _tcscpy( (TCHAR*)Info.m_ServerName, (const TCHAR*)__AppOptions.m_ServerName.toStdString().c_str() );
-        _tcscpy( (TCHAR*)Info.m_BaseName  , (const TCHAR*)__AppOptions.m_BaseName  .toStdString().c_str() );
-        _tcscpy( (TCHAR*)Info.m_UserName  , (const TCHAR*)__AppOptions.m_UserName  .toStdString().c_str() );
-        _tcscpy( (TCHAR*)Info.m_UserPass  , (const TCHAR*)__AppOptions.m_UserPass  .toStdString().c_str() );
-        _tcscpy( (TCHAR*)Info.m_SysAdmin  , (const TCHAR*)__AppOptions.m_SysAdmin  .toStdString().c_str() );
+        _tcscpy( (PTCHAR*)Info.m_ServerName, (const PTCHAR*)__AppOptions.m_ServerName.toStdString().c_str() );
+        _tcscpy( (PTCHAR*)Info.m_BaseName  , (const PTCHAR*)__AppOptions.m_BaseName  .toStdString().c_str() );
+        _tcscpy( (PTCHAR*)Info.m_UserName  , (const PTCHAR*)__AppOptions.m_UserName  .toStdString().c_str() );
+        _tcscpy( (PTCHAR*)Info.m_UserPass  , (const PTCHAR*)__AppOptions.m_UserPass  .toStdString().c_str() );
+        _tcscpy( (PTCHAR*)Info.m_SysAdmin  , (const PTCHAR*)__AppOptions.m_SysAdmin  .toStdString().c_str() );
         Info.m_Port = __AppOptions.m_Port.toInt();
         ::g_SQLBridge.Connect( Info, &__AppOptions.m_hProvider );
     }
@@ -396,7 +396,7 @@ MainWindow::on_ImportFromDB()
 
         PDatabases db = ::g_SQLBridge.GetDatabase( __AppOptions.m_hProvider );
 
-        TCHAR table_name[ 256 ];
+        PTCHAR table_name[ 256 ];
 
         std::string
             table_prefix = __AppOptions.m_TablePrefix.toStdString(),
@@ -414,6 +414,18 @@ MainWindow::on_ImportFromDB()
                     + _T( " FROM INFORMATION_SCHEMA.TABLES" )
                     + _T( " WHERE " ) + Bind( "table_type"  , table_type   )
                     + _T( " AND "   ) + Bind( "table_schema", table_schema )
+                    + _T( " ORDER BY table_name ASC");
+                break;
+            }
+#endif
+#ifdef DEFINE_POSTGRESQL
+            case PDatabases::ID_PDATABASES_POSTGRESQL :
+            {
+                sql = _T( "SELECT" )
+                + Buff( _T( " table_name" ), table_name, sizeof( table_name ) )
+                    + _T( " FROM INFORMATION_SCHEMA.TABLES" )
+                    + _T( " WHERE " ) + Bind( "table_type"  , table_type   ) // BASE TABLE, VIEW
+                    + _T( " AND "   ) + Bind( "table_schema", table_schema ) // pg_catalog
                     + _T( " ORDER BY table_name ASC");
                 break;
             }
@@ -438,6 +450,25 @@ MainWindow::on_ImportFromDB()
         {
 #ifdef DEFINE_MYSQL
             case PDatabases::ID_PDATABASES_MYSQL :
+            {
+                sql = _T( "SELECT" )
+                    + Buff( _T( " COLUMN_NAME"             ),  c.column_name   , sizeof( c.column_name    ) )
+                    + Buff( _T( ",DATA_TYPE"               ),  c.datatype      , sizeof( c.datatype       ) )
+                    + Buff( _T( ",COLUMN_KEY"              ),  c.key           , sizeof( c.key            ) )
+                    + Buff( _T( ",IS_NULLABLE"             ),  c.is_null       , sizeof( c.is_null        ) )
+                    + Buff( _T( ",COLUMN_COMMENT"          ),  c.column_comment, sizeof( c.column_comment ) )
+                    + Buff( _T( ",CHARACTER_MAXIMUM_LENGTH"), &c.length                                     )
+                    + Buff( _T( ",NUMERIC_PRECISION"       ), &c.precision                                  )
+                    + Buff( _T( ",NUMERIC_SCALE"           ), &c.scale                                      )
+                    + Buff( _T( ",DATETIME_PRECISION"      ), &c.dt_precision                               )
+                    + _T( " FROM INFORMATION_SCHEMA.COLUMNS" )
+                    + _T( " WHERE " ) + Bind( "TABLE_NAME", table_name, sizeof( table_name ) )
+                    + _T( " ORDER BY ORDINAL_POSITION ASC");
+                break;
+            }
+#endif
+#ifdef DEFINE_POSTGRESQL
+            case PDatabases::ID_PDATABASES_POSTGRESQL :
             {
                 sql = _T( "SELECT" )
                     + Buff( _T( " COLUMN_NAME"             ),  c.column_name   , sizeof( c.column_name    ) )

@@ -54,6 +54,11 @@ public:
   virtual PSQLRETURN Before( PSQLHSTMT query );
   virtual PSQLRETURN After( PSQLHSTMT query );
   
+#ifdef DEFINE_POSTGRESQL
+  std::vector<char*> m_Values;
+  std::vector<int  > m_Lengths;
+  std::vector<int  > m_Formats;
+#endif
 private:
 #ifdef DEFINE_MYSQL
   std::vector<MYSQL_BIND> m_Binds;

@@ -11,7 +11,7 @@ DEFINES += BUILDDATE=\\\"$$system( date "+%d.%m.%Y_%H:%M:%S" )\\\"
 #DEFINES += DEFINE_SQLITE
 #DEFINES += DEFINE_MYSQL
 #DEFINES += DEFINE_ODBC
-DEFINES += DEFINE_POSTGRESQL
+#DEFINES += DEFINE_POSTGRESQL
 
 INCLUDEPATH += /usr/include
 
@@ -28,10 +28,10 @@ DEFINE_POSTGRESQL {
 LIBS += -lpq
 }
 
-#LIBS += -lodbc
-#LIBS += -lsqlite3
-#LIBS += -lmysqlclient
-#LIBS += -lpq
+# LIBS += -lodbc
+# LIBS += -lsqlite3
+# LIBS += -lmysqlclient
+# LIBS += -lpq
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.

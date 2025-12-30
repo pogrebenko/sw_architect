@@ -92,8 +92,8 @@ public:
 		IMPORT_C CSmPt(const long   *pt);
 		IMPORT_C CSmPt(const double *pt);
 		IMPORT_C CSmPt(const float  *pt);
-		IMPORT_C CSmPt(const short *pt, int sz = 0 );
-		IMPORT_C CSmPt(const TCHAR *pt, int sz = 0 );
+        IMPORT_C CSmPt(const short  *pt, int sz = 0 );
+        IMPORT_C CSmPt(const PTCHAR *pt, int sz = 0 );
 // unsigned section
 		IMPORT_C CSmPt(const unsigned long  *pt);
 		IMPORT_C CSmPt(const unsigned short *pt, int sz = 0 );

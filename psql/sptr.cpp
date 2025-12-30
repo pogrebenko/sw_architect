@@ -60,7 +60,7 @@ EXPORT_C CSmPt::CSmPt(const long   *pt        ) : DataPt( pt, datLong  , sizeof(
 EXPORT_C CSmPt::CSmPt(const double *pt        ) : DataPt( pt, datDouble, sizeof(double)) {}
 EXPORT_C CSmPt::CSmPt(const float  *pt        ) : DataPt( pt, datFloat , sizeof(float )) {}
 EXPORT_C CSmPt::CSmPt(const short  *pt, int sz) : DataPt( pt, datChars , sz*sizeof(unsigned short)) {}
-EXPORT_C CSmPt::CSmPt(const TCHAR  *pt, int sz) : DataPt( pt, datChars , sz*sizeof(TCHAR)) {}
+EXPORT_C CSmPt::CSmPt(const PTCHAR *pt, int sz) : DataPt( pt, datChars , sz*sizeof(PTCHAR)) {}
 
 EXPORT_C CSmPt::CSmPt(const unsigned long   *pt        ) : DataPt( pt, datLong  , sizeof(long  )) {}
 EXPORT_C CSmPt::CSmPt(const unsigned short  *pt, int sz) : DataPt( pt, datChars , sz*sizeof(unsigned short)) {}

@@ -49,8 +49,8 @@ typedef signed short        TCHAR;
 #else
 typedef char				TCHAR;
 #endif
+#define wcscasecmp _wcsicmp
 #endif
-
 
 #if defined(UNICODE) || defined(_UNICODE)
 	#define STD_STRING std::wstring

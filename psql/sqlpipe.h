@@ -92,7 +92,7 @@ protected:
 
   const CSQLPipe& Buffs( const PTCHAR * col, CSmPt &pt );
   const CSQLPipe& Binds( const PTCHAR * col, CSmPt &pt );
-  const CSQLPipe& Binds( const PTCHAR * col, const PTCHAR * ops, CSmPt &pt );
+//  const CSQLPipe& Binds( const PTCHAR * col, const PTCHAR * ops, CSmPt &pt );
 
   CSQLManager  *m_Manager;
   PHDBPROVIDER  m_Connect;

@@ -170,8 +170,7 @@ CSqlConnectInfo::Open()
             const char *pgoptions = NULL;      /* Connection options (usually NULL) */
             const char *pgtty = NULL;          /* Debug tty (usually NULL) */
             PGconn *initialize = PQsetdbLogin( (char*)m_ServerName, (char*)sPort, pgoptions, pgtty, (char*)m_BaseName,  (char*)m_UserName, (char*)m_UserPass );
-            iHenv = ( PSQLHENV ) initialize;
-            if( iHenv )
+            if( initialize )
             {
                 iHdbc = (PSQLHDBC) initialize;
                 m_IsOpen = true;
@@ -229,6 +228,7 @@ CSqlConnectInfo::Close()
             }
             break;
 #endif
+            default : break;
             }
             iHdbc = PSQL_NULL_HANDLE;
         }
@@ -265,6 +265,7 @@ CSqlConnectInfo::Close()
         }
         break;
 #endif
+        default : break;
         }
         iHenv = PSQL_NULL_HANDLE;
     }
@@ -389,43 +390,18 @@ CSqlConnectInfo::GetErrorInfo( PSQLHSTMT aHstmt )
 #ifdef DEFINE_POSTGRESQL
     case ID_PDATABASES_POSTGRESQL :
     {
-        if( aHstmt != NULL )
+        if( this->iHdbc == NULL )
         {
-            PGconn *connect = (PGconn *) aHstmt;
+            _tcscpy( (char*)m_Error->SqlError, _T("Could not initialize PostgreSQL connection") );
+        }
+        else
+        {
+            PGconn *connect = (PGconn *) this->iHdbc;
             const char* sErrMsg = PQerrorMessage( connect );
             nErrMsg = strlen( sErrMsg );
             if( nErrMsg > 0 )
             {
                 _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
-            }
-        }
-        else
-        {
-            if( this->iHenv == NULL )
-            {
-                _tcscpy( (char*)m_Error->SqlError, _T("Could not initialize PostgreSQL connection") );
-            }
-            else
-            if( this->iHdbc == NULL )
-            {
-                PGconn *connect = (PGconn *) this->iHenv;
-
-                const char* sErrMsg = PQerrorMessage( connect );
-                nErrMsg = strlen( sErrMsg );
-                if( nErrMsg > 0 )
-                {
-                    _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
-                }
-            }
-            else
-            {
-                PGconn *connect = (PGconn *) this->iHdbc;
-                const char* sErrMsg = PQerrorMessage( connect );
-                nErrMsg = strlen( sErrMsg );
-                if( nErrMsg > 0 )
-                {
-                    _tcsncpy( (char*)m_Error->SqlError, sErrMsg, nErrMsg < PSQL_MAX_MESSAGE_LENGTH ? nErrMsg : PSQL_MAX_MESSAGE_LENGTH - 1 );
-                }
             }
         }
     }

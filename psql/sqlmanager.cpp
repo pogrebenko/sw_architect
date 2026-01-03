@@ -145,36 +145,47 @@ CSQLBind::AccessSingleMethod( PSQLHSTMT query, unsigned short num, short type, C
             num = num + 1;
             switch( type )
             {
-                case datShort  : break;
-                case datLong   : {
+            case datShort  : {
+                int value = *(int*)var;
+                rc = sqlite3_bind_int( (sqlite3_stmt*)query, num, value );
+            } break;
+            case datLong   : {
+                long value = *(long*)var;
+                rc = sqlite3_bind_int64( (sqlite3_stmt*)query, num, value );
+            } break;
+            case datFloat  : {
+                double value = *(double*)var;
+                rc = sqlite3_bind_double( (sqlite3_stmt*)query, num, value );
+            } break;
+            case datDouble : {
+                double value = *(double*)var;
+                rc = sqlite3_bind_double( (sqlite3_stmt*)query, num, value );
+            } break;
+            case datChars  :
+            {
+                switch( db_data->DataConvert() )
+                {
+                case datLong   :
+                {
                     long value = *(long*)var;
                     rc = sqlite3_bind_int64( (sqlite3_stmt*)query, num, value );
-                } break;
+                }
+                break;
+                case datDouble :
                 case datFloat  : break;
-                case datDouble : break;
-                case datChars  :
+                default        :
                 {
-                    switch( db_data->DataConvert() )
-                    {
-                        case datLong   : 
-                        {
-                            long value = *(long*)var;
-                            rc = sqlite3_bind_int64( (sqlite3_stmt*)query, num, value );
-                        }
-                        break;
-                        case datDouble :
-                        case datFloat  : break;
-                        default        :
-                        {
-                            const char * value = (const char*)var;
-                            rc = sqlite3_bind_text( (sqlite3_stmt*)query, num, value, -1, SQLITE_TRANSIENT ); // SQLITE_STATIC
-                        } break;
-                    }
+                    const char * value = (const char*)var;
+                    rc = sqlite3_bind_text( (sqlite3_stmt*)query, num, value, -1, SQLITE_TRANSIENT ); // SQLITE_STATIC
                 } break;
-                case datBytes    : break;
-                case datDate     : break;
-                case datTime     : break;
-                case datTimeStamp: break;
+                }
+            } break;
+            case datBytes    : {
+                rc = sqlite3_bind_blob64( (sqlite3_stmt*)query, num, var, MaxLen, NULL );
+            } break;
+            case datDate     : break;
+            case datTime     : break;
+            case datTimeStamp: break;
             }
         }
         break;
@@ -185,29 +196,29 @@ CSQLBind::AccessSingleMethod( PSQLHSTMT query, unsigned short num, short type, C
             MYSQL_BIND Bind; memset( &Bind, 0, sizeof( MYSQL_BIND ) );
             switch( type )
             {
-                case datShort         : Bind.buffer_type = MYSQL_TYPE_SHORT    ; break;
-                case datLong          : Bind.buffer_type = MYSQL_TYPE_LONG     ; break;
-                case datFloat         : Bind.buffer_type = MYSQL_TYPE_FLOAT    ; break;
-                case datDouble        : Bind.buffer_type = MYSQL_TYPE_DOUBLE   ; break;
-                case datBytes         : Bind.buffer_type = MYSQL_TYPE_LONG_BLOB; break;
-                case datDate          : Bind.buffer_type = MYSQL_TYPE_DATE     ; break;
-                case datTime          : Bind.buffer_type = MYSQL_TYPE_TIME     ; break;
-                case datTimeStamp     : Bind.buffer_type = MYSQL_TYPE_DATETIME ; break;
-                case datChars         :
+            case datShort         : Bind.buffer_type = MYSQL_TYPE_SHORT    ; break;
+            case datLong          : Bind.buffer_type = MYSQL_TYPE_LONG     ; break;
+            case datFloat         : Bind.buffer_type = MYSQL_TYPE_FLOAT    ; break;
+            case datDouble        : Bind.buffer_type = MYSQL_TYPE_DOUBLE   ; break;
+            case datBytes         : Bind.buffer_type = MYSQL_TYPE_LONG_BLOB; break;
+            case datDate          : Bind.buffer_type = MYSQL_TYPE_DATE     ; break;
+            case datTime          : Bind.buffer_type = MYSQL_TYPE_TIME     ; break;
+            case datTimeStamp     : Bind.buffer_type = MYSQL_TYPE_DATETIME ; break;
+            case datChars         :
+            {
+                switch( db_data->DataConvert() )
                 {
-                    switch( db_data->DataConvert() )
-                    {
-                        case datLong   : Bind.buffer_type = MYSQL_TYPE_LONG  ; break;
-                        case datDouble : Bind.buffer_type = MYSQL_TYPE_DOUBLE; break;
-                        case datFloat  : Bind.buffer_type = MYSQL_TYPE_FLOAT ; break;
-                        default        :
-                        {
-                            const char * value = (const char*)var;
-                            Bind.buffer_type   = MYSQL_TYPE_STRING;
-                            Bind.buffer_length = value ? strlen( value ) : 0; //MaxLen;
-                        } break;
-                    }
+                case datLong   : Bind.buffer_type = MYSQL_TYPE_LONG  ; break;
+                case datDouble : Bind.buffer_type = MYSQL_TYPE_DOUBLE; break;
+                case datFloat  : Bind.buffer_type = MYSQL_TYPE_FLOAT ; break;
+                default        :
+                {
+                    const char * value = (const char*)var;
+                    Bind.buffer_type   = MYSQL_TYPE_STRING;
+                    Bind.buffer_length = value ? strlen( value ) : 0; //MaxLen;
                 } break;
+                }
+            } break;
             }
             Bind.buffer = var;
             m_Binds.push_back( Bind );
@@ -235,24 +246,24 @@ CSQLBind::AccessSingleMethod( PSQLHSTMT query, unsigned short num, short type, C
             case datChars   : {
                 switch( db_data->DataConvert() )
                 {
-                    case datLong   :
-                    {
-                        db_data->DataPt.DataLength = SQL_NTS;
-                        rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_INTEGER, MaxLen, 0, var, 0, &db_data->DataPt.DataLength );
-                    }
-                    break;
-                    case datDouble :
-                    case datFloat  :
-                    {
-                        db_data->DataPt.DataLength = SQL_NTS;
-                        rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_DECIMAL, MaxLen, 0, var, 0, &db_data->DataPt.DataLength );
-                    } break;
-                    default        :
-                    {
-                        db_data->DataPt.DataLength = SQL_NTS;
-                        rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MaxLen, 0, var, 0, &db_data->DataPt.DataLength );
-                    }
-                    break;
+                case datLong   :
+                {
+                    db_data->DataPt.DataLength = SQL_NTS;
+                    rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_INTEGER, MaxLen, 0, var, 0, &db_data->DataPt.DataLength );
+                }
+                break;
+                case datDouble :
+                case datFloat  :
+                {
+                    db_data->DataPt.DataLength = SQL_NTS;
+                    rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_DECIMAL, MaxLen, 0, var, 0, &db_data->DataPt.DataLength );
+                } break;
+                default        :
+                {
+                    db_data->DataPt.DataLength = SQL_NTS;
+                    rc = SQLBindParameter( query, num, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, MaxLen, 0, var, 0, &db_data->DataPt.DataLength );
+                }
+                break;
                 }
             }
             break;
@@ -278,22 +289,25 @@ CSQLBind::AccessSingleMethod( PSQLHSTMT query, unsigned short num, short type, C
 #ifdef DEFINE_POSTGRESQL
         case ID_PDATABASES_POSTGRESQL :
         {
-            m_Values .push_back( (char*)var );
-            m_Lengths.push_back( MaxLen );
             if( type == datChars )
             {
+                const char * value = (const char*)var;
+                m_Lengths.push_back( value ? strlen( value ) : 0 );
                 m_Formats.push_back( 0 );
             }
             else
             {
+                m_Lengths.push_back( MaxLen );
                 m_Formats.push_back( 1 );
             }
+            m_Values.push_back( (char*)var );
         }
         break;
 #endif
+        default: break;
         }
     }
-    
+
     return rc;
 }
 
@@ -666,6 +680,9 @@ CSQLManager::CSQLManager( PHDBPROVIDER Connect, bool bAutoCommit )
     m_DataPtrBind = new CVectorOfPtr<CSmPt>( false ); //, MIN_EXT_SIZE
 
     iHstmt = PSQL_NULL_HANDLE;
+
+    m_Rows = 0;
+    m_Cols = 0;
 }
 
 void
@@ -741,7 +758,7 @@ CSQLManager::~CSQLManager()
 #ifdef DEFINE_POSTGRESQL
             case ID_PDATABASES_POSTGRESQL :
             {
-                PQclear( (PGresult*)iHstmt );
+                //PQclear( (PGresult*)iHstmt );
             }
             break;
 #endif
@@ -907,7 +924,6 @@ CSQLManager::Compile( CSQLPipe *pipe, CSqlConnectInfo *session )
                     PGconn *conn = (PGconn *) session->iHdbc;
 
                     PGresult *res = PQprepare( conn, query, query, m_DataPtrBind->size(), NULL );
-                    iHstmt = (PSQLHSTMT)res;
 
                     ExecStatusType est = PQresultStatus( res );
                     PSQLRETURN rc = est == PGRES_COMMAND_OK ? PSQL_SUCCESS : PSQL_ERROR;
@@ -915,7 +931,6 @@ CSQLManager::Compile( CSQLPipe *pipe, CSqlConnectInfo *session )
                     if( PSQL_SUCCESS == rc )
                     {
                         //PGresult *params = PQdescribePrepared( conn, stmtName );
-                        rc = m_Buff->Execute( iHstmt, m_DataPtrBuff );
                     }
 
                     if( PSQL_SUCCESS != rc )
@@ -927,8 +942,10 @@ CSQLManager::Compile( CSQLPipe *pipe, CSqlConnectInfo *session )
                                 m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
                             }
                         }
+                        PQclear( res );
                         return false;
                     }
+                    PQclear( res );
                 }
                 break;
 #endif
@@ -1020,13 +1037,11 @@ CSQLManager::Execute( CSQLPipe *pipe, CSqlConnectInfo *session )
 #ifdef DEFINE_POSTGRESQL
                 case ID_PDATABASES_POSTGRESQL :
                 {
-                    PQclear( (PGresult *)iHstmt );
-                    iHstmt = PSQL_NULL_HANDLE;
-
-                    int resultFormat = 9;
+                    int resultFormat = 1; // 0 for text format, 1 for binary format
                     PTCCHAR *query = pipe->m_PipeString->c_str();
                     PGconn *conn = (PGconn *) session->iHdbc;
-                    PGresult *res = PQexecPrepared( conn, query, m_DataPtrBind->size(), m_Bind->m_Values.data(), m_Bind->m_Lengths.data(), m_Bind->m_Formats.data(), resultFormat );
+                    PGresult *res = PQexecPrepared( conn, query, m_DataPtrBind->size(),
+                                                   m_Bind->m_Values.data(), m_Bind->m_Lengths.data(), m_Bind->m_Formats.data(), resultFormat );
                     iHstmt = (PSQLHSTMT)res;
 
                     ExecStatusType est = PQresultStatus( res );
@@ -1042,6 +1057,12 @@ CSQLManager::Execute( CSQLPipe *pipe, CSqlConnectInfo *session )
                             }
                         }
                         return false;
+                    }
+
+                    if( est == PGRES_TUPLES_OK )
+                    {
+                        m_Rows = PQntuples( res );
+                        m_Cols = PQnfields( res );
                     }
                 }
                 break;
@@ -1179,15 +1200,27 @@ CSQLManager::Fetch( PSQLHSTMT query )
 #ifdef DEFINE_POSTGRESQL
         case ID_PDATABASES_POSTGRESQL :
         {
-            PGresult *res = (PGresult *) iHstmt;
-            int nFields = PQnfields( res );
-            for (int i = 0; i < PQntuples(res); ++i)
+            if( m_Row < m_Rows )
             {
-                for (int j = 0; j < nFields; ++j)
+                PGresult *res = (PGresult *) iHstmt;
+                for( unsigned short i = 0; i < m_DataPtrBuff->size() && i < m_Cols; i ++ )
                 {
-                    printf("%s = %s\n", PQfname(res, j), PQgetvalue(res, i, j));
+                    CSmPt *db_data = m_DataPtrBuff->at( i );
+                    long   MaxLen = db_data->DataSize();
+                    int    length = PQgetlength( res, m_Row, i );
+                    char  *buff =  PQgetvalue( res, m_Row, i );
+                    memcpy( db_data->DataPointer(), buff, MaxLen > length ? length : MaxLen );
+                }
+                m_Row ++;
+                if( m_Row >= m_Rows )
+                {
+                    if( m_bAutoCommit ) Commit();
+                    Close();
+                    return false;
                 }
             }
+            else
+                return false;
         }
         break;
 #endif
@@ -1366,7 +1399,7 @@ CSQLManager::Close( CSqlConnectInfo *session, PSQLHSTMT query )
 #ifdef DEFINE_POSTGRESQL
         case ID_PDATABASES_POSTGRESQL :
         {
-            PQclear( (PGresult*)query );
+            //PQclear( (PGresult*)query );
         }
         break;
 #endif
@@ -1410,6 +1443,11 @@ CSQLManager::last_insert_rowid( CSqlConnectInfo *session )
 #ifdef DEFINE_POSTGRESQL
     case ID_PDATABASES_POSTGRESQL :
     {
+        if( m_Rows > 0 && m_Cols > 0 )
+        {
+            PGresult* res = (PGresult*)this->iHstmt;
+            return std::stol( PQgetvalue( res, ++ m_Row, 0 ) );
+        }
     }
     break;
 #endif
@@ -1474,6 +1512,18 @@ CSQLManager::Commit( CSqlConnectInfo *session, PSQLHSTMT query )
 #ifdef DEFINE_POSTGRESQL
         case ID_PDATABASES_POSTGRESQL :
         {
+            PGconn *conn = (PGconn *) session->iHdbc;
+            PGresult *res = PQexec( conn, _T( "COMMIT" ) );
+            if( PQresultStatus( res ) != PGRES_COMMAND_OK )
+            {
+                if( m_bShowAlert )
+                {
+                    if( session->GetErrorInfo( query ) )
+                    {
+                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
+                    }
+                }
+            }
         }
         break;
 #endif
@@ -1521,6 +1571,18 @@ CSQLManager::Rollback( CSqlConnectInfo *session, PSQLHSTMT query )
 #ifdef DEFINE_POSTGRESQL
         case ID_PDATABASES_POSTGRESQL :
         {
+            PGconn *conn = (PGconn *) session->iHdbc;
+            PGresult *res = PQexec( conn, _T( "ROLLBACK" ) );
+            if( PQresultStatus( res ) != PGRES_COMMAND_OK )
+            {
+                if( m_bShowAlert )
+                {
+                    if( session->GetErrorInfo( query ) )
+                    {
+                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
+                    }
+                }
+            }
         }
         break;
 #endif
@@ -1537,4 +1599,9 @@ CSQLManager::Flush()
     m_DataPtrBind->Flush();
 
     m_isCompiled = false;
+
+    m_Row = 0;
+    m_Rows = 0;
+
+    m_Cols = 0;
 }

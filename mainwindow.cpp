@@ -412,8 +412,8 @@ MainWindow::on_ImportFromDB()
                 sql = _T( "SELECT" )
                     + Buff( _T( " table_name" ), table_name, sizeof( table_name ) )
                     + _T( " FROM INFORMATION_SCHEMA.TABLES" )
-                    + _T( " WHERE " ) + Bind( "table_type"  , table_type   )
-                    + _T( " AND "   ) + Bind( "table_schema", table_schema )
+                    + _T( " WHERE " ) + Bind( "table_type=?"  , table_type   )
+                    + _T( " AND "   ) + Bind( "table_schema=?", table_schema )
                     + _T( " ORDER BY table_name ASC");
                 break;
             }
@@ -421,11 +421,12 @@ MainWindow::on_ImportFromDB()
 #ifdef DEFINE_POSTGRESQL
             case PDatabases::ID_PDATABASES_POSTGRESQL :
             {
+                table_schema = "pg_catalog";
                 sql = _T( "SELECT" )
-                + Buff( _T( " table_name" ), table_name, sizeof( table_name ) )
+                    + Buff( _T( " table_name" ), table_name, sizeof( table_name ) )
                     + _T( " FROM INFORMATION_SCHEMA.TABLES" )
-                    + _T( " WHERE " ) + Bind( "table_type"  , table_type   ) // BASE TABLE, VIEW
-                    + _T( " AND "   ) + Bind( "table_schema", table_schema ) // pg_catalog
+                    + _T( " WHERE " ) + Bind( "table_type=$1"  , table_type   ) // BASE TABLE, VIEW
+                    //+ _T( " AND "   ) + Bind( "table_schema=$2", table_schema ) // pg_catalog
                     + _T( " ORDER BY table_name ASC");
                 break;
             }
@@ -443,6 +444,10 @@ MainWindow::on_ImportFromDB()
                 }
                 class_list->Add( new CRectangle( t ) );
             }
+
+        if( !class_list->size() )
+            return;
+
         sql.Flush();
 
         __DBCol__ c; memset( &c, 0, sizeof(c) );
@@ -462,7 +467,7 @@ MainWindow::on_ImportFromDB()
                     + Buff( _T( ",NUMERIC_SCALE"           ), &c.scale                                      )
                     + Buff( _T( ",DATETIME_PRECISION"      ), &c.dt_precision                               )
                     + _T( " FROM INFORMATION_SCHEMA.COLUMNS" )
-                    + _T( " WHERE " ) + Bind( "TABLE_NAME", table_name, sizeof( table_name ) )
+                    + _T( " WHERE " ) + Bind( "TABLE_NAME=?", table_name, sizeof( table_name ) )
                     + _T( " ORDER BY ORDINAL_POSITION ASC");
                 break;
             }
@@ -473,15 +478,15 @@ MainWindow::on_ImportFromDB()
                 sql = _T( "SELECT" )
                     + Buff( _T( " COLUMN_NAME"             ),  c.column_name   , sizeof( c.column_name    ) )
                     + Buff( _T( ",DATA_TYPE"               ),  c.datatype      , sizeof( c.datatype       ) )
-                    + Buff( _T( ",COLUMN_KEY"              ),  c.key           , sizeof( c.key            ) )
+                    //+ Buff( _T( ",COLUMN_KEY"              ),  c.key           , sizeof( c.key            ) )
                     + Buff( _T( ",IS_NULLABLE"             ),  c.is_null       , sizeof( c.is_null        ) )
-                    + Buff( _T( ",COLUMN_COMMENT"          ),  c.column_comment, sizeof( c.column_comment ) )
-                    + Buff( _T( ",CHARACTER_MAXIMUM_LENGTH"), &c.length                                     )
+                    //+ Buff( _T( ",COLUMN_COMMENT"          ),  c.column_comment, sizeof( c.column_comment ) )
+                    //+ Buff( _T( ",CHARACTER_MAXIMUM_LENGTH"), &c.length                                     )
                     + Buff( _T( ",NUMERIC_PRECISION"       ), &c.precision                                  )
                     + Buff( _T( ",NUMERIC_SCALE"           ), &c.scale                                      )
                     + Buff( _T( ",DATETIME_PRECISION"      ), &c.dt_precision                               )
                     + _T( " FROM INFORMATION_SCHEMA.COLUMNS" )
-                    + _T( " WHERE " ) + Bind( "TABLE_NAME", table_name, sizeof( table_name ) )
+                    + _T( " WHERE " ) + Bind( "TABLE_NAME=$1", table_name, sizeof( table_name ) )
                     + _T( " ORDER BY ORDINAL_POSITION ASC");
                 break;
             }
@@ -489,13 +494,22 @@ MainWindow::on_ImportFromDB()
             default : break;
         }
 
-        std::for_each( class_list->begin(), class_list->end(),
-            [ table_prefix, &table_name, &sql, &c ]( auto &p )
+        for( auto &p : *class_list )
+        {
+            strcpy(table_name,p->m_PhysicalName.c_str());
+            if( sql.Execute() )
             {
-                strcpy(table_name,p->m_PhysicalName.c_str());
-                if( sql.Execute() ) while( sql.Fetch() ) p->m_FieldList.Add( new Field_t( c ) );
+                while( sql.Fetch() )
+                {
+                    p->m_FieldList.Add( new Field_t( c ) );
+                    memset( &c, 0 , sizeof( c ) );
+                }
             }
-        );
+            else
+            {
+                break;
+            }
+        }
 
         auto fm = this->fontMetrics();
 
@@ -1053,6 +1067,7 @@ MainWindow::LoadFile( QString &filePath )
                     ::memcpy( ios.m_Buffer, (void*)file.readAll().begin(), file.size() );
                     ::Read( ios, __AppOptions, APP_DATA_VERSION );
                 }
+                __AppOptions.m_hProvider = PSQL_NULL_HANDLE;
                 __AppOptions.clearState();
 
                 file.close();

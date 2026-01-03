@@ -20,6 +20,8 @@ typedef PSQLHANDLE       PHDBPROVIDER;
 typedef signed short int PSQLRETURN;
 typedef char             PTCHAR;
 typedef const PTCHAR     PTCCHAR;
+typedef signed long      PSQLROWS;
+typedef signed int       PSQLCOLS;
 
 #define PSQL_NULL_HANDLE           0L
 #define PSQL_SUCCESS               0

@@ -141,6 +141,9 @@ public:
   PSQLHSTMT    iHstmt;
 
   CSQLBridge  *m_pSQLBridge;
+
+  PSQLROWS    m_Rows, m_Row;
+  PSQLCOLS    m_Cols;
 };
 
 #endif 

@@ -388,36 +388,45 @@ CSQLPipe::Buffs( const PTCHAR * str, CSmPt &pt )
   return *this;
 }
 
-const CSQLPipe& 
+const CSQLPipe&
 CSQLPipe::Binds( const PTCHAR * col, CSmPt &pt )
 {
-  if( col && *col )
-//     return Binds( col, _T("=?"), pt );
-     return Binds( col, _T("="), pt );
-  else
-     return Binds( _T(""), _T("?"), pt );
-//     return Binds( _T(""), _T(""), pt );
+    m_PipeString->operator += ( col );
+    pt.DataPt.DataState = sqlBind;
+    m_Pipes->push_back( new  CSmPt( pt ) );
+    return *this;
 }
 
-const CSQLPipe& 
-CSQLPipe::Binds( const PTCHAR * col, const PTCHAR * ops, CSmPt &pt )
-{
-  if( *col ) 
-  {
-     m_PipeString->operator += ( col );
-     m_PipeString->operator += ( ops );
-  }
-//  else
-//     m_PipeString->Des().Copy( ops, _tcslen( ops ) );
+// const CSQLPipe&
+// CSQLPipe::Binds( const PTCHAR * col, CSmPt &pt )
+// {
+//   if( col && *col )
+// //     return Binds( col, _T("=?"), pt );
+//      return Binds( col, _T("="), pt );
+//   else
+//      return Binds( _T(""), _T("?"), pt );
+// //     return Binds( _T(""), _T(""), pt );
+// }
 
-  m_PipeString->operator += ( _T("?") );
+// const CSQLPipe&
+// CSQLPipe::Binds( const PTCHAR * col, const PTCHAR * ops, CSmPt &pt )
+// {
+//   if( *col )
+//   {
+//      m_PipeString->operator += ( col );
+//      m_PipeString->operator += ( ops );
+//   }
+// //  else
+// //     m_PipeString->Des().Copy( ops, _tcslen( ops ) );
 
-  pt.DataPt.DataState = sqlBind;
+//   m_PipeString->operator += ( _T("?") );
 
-  m_Pipes->push_back( new  CSmPt( pt ) );
+//   pt.DataPt.DataState = sqlBind;
 
-  return *this;
-}
+//   m_Pipes->push_back( new  CSmPt( pt ) );
+
+//   return *this;
+// }
 
 
 

@@ -16,7 +16,8 @@
 
 #include "psql/sqltype.h"
 
-#include <bits/pthreadtypes.h>
+//#include <bits/pthreadtypes.h>
+#include <thread>
 
 extern void (*g_ShowSQLErrorNow)( const char* );
 
@@ -135,7 +136,8 @@ public:
 
    bool GetErrorInfo( PSQLHSTMT hstmt );
    
-   pthread_t  m_nThread;
+//   pthread_t  m_nThread;
+   std::thread::id m_nThread;
    TSqlErrorInfo *m_Error;
 };
 

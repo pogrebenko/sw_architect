@@ -15,19 +15,6 @@ DEFINES += DEFINE_POSTGRESQL
 
 INCLUDEPATH += /usr/include
 
-DEFINE_ODBC {
-LIBS += -lodbc
-}
-DEFINE_SQLITE {
-LIBS += -lsqlite3
-}
-DEFINE_MYSQL {
-LIBS += -lmysqlclient
-}
-DEFINE_POSTGRESQL {
-LIBS += -lpq
-}
-
 LIBS += -lodbc
 LIBS += -lsqlite3
 LIBS += -lmysqlclient

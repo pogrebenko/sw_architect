@@ -17,7 +17,7 @@ CSqlConnectInfo::CSqlConnectInfo()
 {
     m_IsAutoCommit = true;
 
-    m_nThread = pthread_self();
+    m_nThread = std::this_thread::get_id(); // pthread_self();
 }
 
 CSqlConnectInfo::CSqlConnectInfo( CSqlConnectInfo &c )
@@ -26,7 +26,7 @@ CSqlConnectInfo::CSqlConnectInfo( CSqlConnectInfo &c )
 {
     *this = c;
 
-    m_nThread = pthread_self();
+    m_nThread = std::this_thread::get_id(); // pthread_self();
 }
 
 CSqlConnectInfo::~CSqlConnectInfo()

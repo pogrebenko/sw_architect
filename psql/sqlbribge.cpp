@@ -54,35 +54,94 @@ CSQLBridge::Destroy()
          m_pSqlInfo = NULL;
 }
 
+// long
+// CSQLBridge::findIndex( PHDBPROVIDER pHandle )
+// {
+//   if( Connects() == NULL )
+//   {
+//      ShowSQLErrorNow( NULL, (PTCHAR*)_T("not build connections") );
+//      return -1;
+//   }
+
+//   if( Connects()->size() == 0 )
+//   {
+//      ShowSQLErrorNow( NULL, (PTCHAR*)_T("connections is empty") );
+//      return -1;
+//   }
+
+//   if( pHandle )
+//   {
+//      for( unsigned long n = 0; n < Connects()->size(); ++ n )
+//      {
+//        if( Connects()->at( n ) == pHandle )
+//          return n;
+//      }
+
+//      ShowSQLErrorNow( NULL, (PTCHAR*)_T("connection not found") );
+
+//      return -1;
+//   }
+
+//   return 0;
+// }
+
 long
 CSQLBridge::findIndex( PHDBPROVIDER pHandle )
-{ 
-  if( Connects() == NULL )
-  {
-     ShowSQLErrorNow( NULL, (PTCHAR*)_T("not build connections") );
-     return -1;
-  }
+{
+    if( Connects() == NULL )
+    {
+        ShowSQLErrorNow( NULL, _T("not build connections") );
+        return -1;
+    }
 
-  if( Connects()->size() == 0 )
-  {
-     ShowSQLErrorNow( NULL, (PTCHAR*)_T("connections is empty") );
-     return -1;
-  }
+    if( Connects()->size() == 0 )
+    {
+        ShowSQLErrorNow( NULL, _T("connections is empty") );
+        return -1;
+    }
 
-  if( pHandle )
-  {
-     for( unsigned long n = 0; n < Connects()->size(); ++ n )
-     {
-       if( Connects()->at( n ) == pHandle )
-         return n;
-     }
+    PTCHAR sBuff[ 64 ]; memset( sBuff, 0, sizeof( sBuff ) );
+    if( pHandle )
+    {
+#ifdef __windows__
+        DWORD nPid = GetCurrentProcessId();
+#else
+        pid_t nPid = getpid();
+#endif
+        std::thread::id nThread = std::this_thread::get_id(); // pthread_t pthread_self();
 
-     ShowSQLErrorNow( NULL, (PTCHAR*)_T("connection not found") );
+        for( unsigned long n = 0; n < Connects()->size(); n ++ )
+        {
+            CSqlConnectInfo *pItem = Connects()->at( n );
+            if( pItem == pHandle )
+            {
+                if( pItem->m_nPid == nPid )
+                {
+                    if( pItem->m_nThread == nThread )
+                    {
+                        return n;
+                    }
+                    else
+                    {
+                        sprintf( sBuff, "Connection %p from another thread: %lu. Create connection in own thread %lu.", pHandle, pItem->m_nThread , nThread);
+                        ShowSQLErrorNow( NULL, sBuff );
+                    }
+                }
+                else
+                {
+                    sprintf( sBuff, "Connection %p from another process: %i. Create connection in own process %i.", pHandle, pItem->m_nPid, nPid );
+                    ShowSQLErrorNow( NULL, sBuff );
+                }
+            }
+        }
 
-     return -1;
-  }
+        sprintf( sBuff, "Connection %p in process %i, thread %lu not found.", pHandle, nPid, nThread );
+        ShowSQLErrorNow( NULL, sBuff );
 
-  return 0;
+        return -1;
+    }
+
+    return 0;
 }
 
 void

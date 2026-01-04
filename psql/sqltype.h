@@ -34,6 +34,7 @@ typedef signed int       PSQLCOLS;
 //#define DEFINE_MYSQL
 //#define DEFINE_ODBC
 //#define DEFINE_POSTGRESQL
+//#define DEFINE_ORACLE
 
 enum PDatabases
 {
@@ -48,6 +49,9 @@ enum PDatabases
 #endif
 #ifdef DEFINE_POSTGRESQL
     ID_PDATABASES_POSTGRESQL  = 4, // sudo apt install libpq-dev
+#endif
+#ifdef DEFINE_ORACLE
+    ID_PDATABASES_ORACLE  = 5, // sudo alien -i oracle-instantclient19.3-*.rpm
 #endif
     ID_PDATABASES_NONE  = 0
 };
@@ -67,6 +71,9 @@ enum PDatabases
 #endif
 #ifdef DEFINE_POSTGRESQL
 #include <postgresql/libpq-fe.h>
+#endif
+#ifdef DEFINE_ORACLE
+#include <oci.h>
 #endif
 #endif
 

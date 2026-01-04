@@ -16,7 +16,13 @@
 
 #include "psql/sqltype.h"
 
-//#include <bits/pthreadtypes.h>
+#ifdef __windows__
+    #include <windows.h>
+#else
+    #include <unistd.h>
+    //#include <bits/pthreadtypes.h>
+#endif
+
 #include <thread>
 
 extern void (*g_ShowSQLErrorNow)( const char* );
@@ -135,9 +141,15 @@ public:
    PDatabases getDatabase() { return m_nDB; }
 
    bool GetErrorInfo( PSQLHSTMT hstmt );
-   
+
+#ifdef __windows__
+   DWORD m_nPid;
+#else
+   pid_t m_nPid;
+#endif
 //   pthread_t  m_nThread;
    std::thread::id m_nThread;
+
    TSqlErrorInfo *m_Error;
 };
 

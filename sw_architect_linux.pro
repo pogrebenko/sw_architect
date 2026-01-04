@@ -12,13 +12,18 @@ DEFINES += DEFINE_SQLITE
 DEFINES += DEFINE_MYSQL
 DEFINES += DEFINE_ODBC
 DEFINES += DEFINE_POSTGRESQL
+DEFINES += DEFINE_ORACLE
 
 INCLUDEPATH += /usr/include
+INCLUDEPATH += /usr/include/oracle/19.3/client64
 
 LIBS += -lodbc
 LIBS += -lsqlite3
 LIBS += -lmysqlclient
 LIBS += -lpq
+
+LIBS += -L/usr/lib/oracle/19.3/client64/lib
+LIBS += -lclntsh
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.

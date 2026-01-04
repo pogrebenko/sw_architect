@@ -17,6 +17,12 @@ CSqlConnectInfo::CSqlConnectInfo()
 {
     m_IsAutoCommit = true;
 
+#ifdef __windows__
+    m_nPid = GetCurrentProcessId();
+#else
+    m_nPid = getpid();
+#endif
+
     m_nThread = std::this_thread::get_id(); // pthread_self();
 }
 
@@ -25,6 +31,12 @@ CSqlConnectInfo::CSqlConnectInfo( CSqlConnectInfo &c )
 , m_Error( nullptr )
 {
     *this = c;
+
+#ifdef __windows__
+    m_nPid = GetCurrentProcessId();
+#else
+    m_nPid = getpid();
+#endif
 
     m_nThread = std::this_thread::get_id(); // pthread_self();
 }
@@ -180,6 +192,37 @@ CSqlConnectInfo::Open()
                 GetErrorInfo( NULL );
                 return false;
             }
+        }
+        break;
+#endif
+#ifdef DEFINE_ORACLE
+        case ID_PDATABASES_ORACLE :
+        {
+            OCIEnv *envhp = nullptr;
+            sword rc = OCIEnvCreate( &envhp, OCI_DEFAULT, (dvoid *)0, 0, 0, 0, (size_t)0, (dvoid **)0 );
+            if( OCI_SUCCESS == rc )
+            {
+                rc = SQLSetEnvAttr( iHenv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0 );
+                if( OCI_SUCCESS == rc )
+                {
+                    rc = SQLAllocHandle(SQL_HANDLE_DBC, iHenv, &iHdbc);
+                    if( OCI_SUCCESS == rc )
+                    {
+                        rc = SQLConnect(iHdbc, (SQLCHAR*)m_BaseName, SQL_NTS, (SQLCHAR*)m_UserName, SQL_NTS, (SQLCHAR*)m_UserPass, SQL_NTS);
+                        if( OCI_SUCCESS == rc )
+                        {
+                            long type = ( (m_IsAutoCommit) ? SQL_AUTOCOMMIT_ON : SQL_AUTOCOMMIT_OFF);
+                            rc = SQLSetConnectAttr( iHdbc, SQL_ATTR_AUTOCOMMIT, (void*)type, 0 );
+                        }
+                    }
+                }
+            }
+            if( rc != OCI_SUCCESS )
+            {
+                GetErrorInfo( NULL );
+                return false;
+            }
+            m_IsOpen = true;
         }
         break;
 #endif

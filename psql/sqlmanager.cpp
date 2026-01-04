@@ -762,6 +762,13 @@ CSQLManager::~CSQLManager()
             }
             break;
 #endif
+#ifdef DEFINE_ORACLE
+            case ID_PDATABASES_ORACLE :
+            {
+                OCIHandleFree((dvoid *)iHstmt, OCI_HTYPE_STMT);
+            }
+            break;
+#endif
             }
         }
     }
@@ -946,6 +953,29 @@ CSQLManager::Compile( CSQLPipe *pipe, CSqlConnectInfo *session )
                         return false;
                     }
                     PQclear( res );
+                }
+                break;
+#endif
+#ifdef DEFINE_ORACLE
+                case ID_PDATABASES_ORACLE :
+                {
+                    ub4 language = OCI_DEFAULT; ub4 mode = OCI_DEFAULT;
+                    OCIError *errhp = nullptr;
+                    sword rc = OCIStmtPrepare( (OCIStmt*)iHstmt, errhp, (text *)query, length, language, mode );
+                    if( OCI_SUCCESS == rc )
+                        rc = m_Buff->Execute( iHstmt, m_DataPtrBuff );
+
+                    if( SQL_SUCCESS != rc )
+                    {
+                        if( m_bShowAlert )
+                        {
+                            if( session->GetErrorInfo( iHstmt ) )
+                            {
+                                m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
+                            }
+                        }
+                        return false;
+                    }
                 }
                 break;
 #endif
@@ -1312,6 +1342,42 @@ CSQLManager::Open()
         }
         break;
 #endif
+#ifdef DEFINE_ORACLE
+        case ID_PDATABASES_ORACLE :
+        {
+            CSqlConnectInfo *session = GetSession( m_Connect );
+            OCIEnv *envhp = (OCIEnv *)session->iHdbc;
+            OCIStmt *stmthp = nullptr;
+            sword rc = OCIHandleAlloc((dvoid *)envhp, (dvoid **)&stmthp, OCI_HTYPE_STMT, (size_t)0, (dvoid **)0);
+            if( SQL_SUCCESS == rc )
+            {
+                iHstmt = stmthp;
+                //     UDWORD TimeOut = 5;
+                //     rc = SQLSetStmtOption( iHstmt, SQL_QUERY_TIMEOUT, TimeOut );
+                //     if( SQL_SUCCESS != rc )
+                //     {
+                //        if( m_bShowAlert )
+                //        {
+                //           session->GetErrorInfo( iHstmt );
+                //           m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                //        }
+                //     }
+                res = true;
+            }
+            else
+            {
+                if( m_bShowAlert )
+                {
+                    iHstmt = SQL_NULL_HANDLE;
+                    if( session->GetErrorInfo( iHstmt ) )
+                    {
+                        m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (PTCHAR*)NULL );
+                    }
+                }
+            }
+        }
+        break;
+#endif
         }
     }
     
@@ -1400,6 +1466,23 @@ CSQLManager::Close( CSqlConnectInfo *session, PSQLHSTMT query )
         case ID_PDATABASES_POSTGRESQL :
         {
             //PQclear( (PGresult*)query );
+        }
+        break;
+#endif
+#ifdef DEFINE_ORACLE
+        case ID_PDATABASES_ORACLE :
+        {
+            sword rc = OCIHandleFree((dvoid *)query, OCI_HTYPE_STMT);
+            if( OCI_SUCCESS != rc )
+            {
+                // if( m_bShowAlert )
+                // {
+                //     if( session->GetErrorInfo( query ) )
+                //     {
+                //         m_pSQLBridge->ShowSQLErrorNow( session->m_Error, (TCHAR*)NULL );
+                //     }
+                // }
+            }
         }
         break;
 #endif

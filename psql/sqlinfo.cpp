@@ -198,21 +198,55 @@ CSqlConnectInfo::Open()
 #ifdef DEFINE_ORACLE
         case ID_PDATABASES_ORACLE :
         {
+            const char CONNECT_STRING[] = "host[:port]/service_name";
+            const char USERNAME[] = "your_username";
+            const char PASSWORD[] = "your_password";
+
             OCIEnv *envhp = nullptr;
-            sword rc = OCIEnvCreate( &envhp, OCI_DEFAULT, (dvoid *)0, 0, 0, 0, (size_t)0, (dvoid **)0 );
+            OCIError *errhp = nullptr;
+            OCIServer *srvhp = nullptr;
+            OCISvcCtx *svchp = nullptr;
+            OCISession *authp = nullptr;
+
+            sword rc = OCIEnvCreate( &envhp, OCI_DEFAULT, (dvoid *)0, 0, 0, 0, (size_t)0, (dvoid **)0 ); // Initialize OCI environment, OCI_DEFAULT ???
             if( OCI_SUCCESS == rc )
             {
-                rc = SQLSetEnvAttr( iHenv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0 );
+                rc = OCIHandleAlloc((dvoid *)envhp, (dvoid **)&errhp, OCI_HTYPE_ERROR, (size_t)0, (dvoid **)0); // Allocate error handle
                 if( OCI_SUCCESS == rc )
                 {
-                    rc = SQLAllocHandle(SQL_HANDLE_DBC, iHenv, &iHdbc);
+                    rc = OCIHandleAlloc((dvoid *)envhp, (dvoid **)&srvhp, OCI_HTYPE_SERVER, (size_t)0, (dvoid **)0); // Allocate server handle
                     if( OCI_SUCCESS == rc )
                     {
-                        rc = SQLConnect(iHdbc, (SQLCHAR*)m_BaseName, SQL_NTS, (SQLCHAR*)m_UserName, SQL_NTS, (SQLCHAR*)m_UserPass, SQL_NTS);
+                        rc = OCIServerAttach(srvhp, errhp, (text *)CONNECT_STRING, strlen(CONNECT_STRING), OCI_DEFAULT); // Attach to the server
                         if( OCI_SUCCESS == rc )
                         {
-                            long type = ( (m_IsAutoCommit) ? SQL_AUTOCOMMIT_ON : SQL_AUTOCOMMIT_OFF);
-                            rc = SQLSetConnectAttr( iHdbc, SQL_ATTR_AUTOCOMMIT, (void*)type, 0 );
+                            rc = OCIHandleAlloc((dvoid *)envhp, (dvoid **)&svchp, OCI_HTYPE_SVCCTX, (size_t)0, (dvoid **)0); // Allocate service context handle and set the server handle in it
+                            if( OCI_SUCCESS == rc )
+                            {
+                                rc = OCIAttrSet((dvoid *)svchp, OCI_HTYPE_SVCCTX, (dvoid *)srvhp, (ub4)0, OCI_ATTR_SERVER, (OCIError *)errhp);
+                                if( OCI_SUCCESS == rc )
+                                {   // Authenticate the user (begin session)
+                                    OCIHandleAlloc((dvoid *)envhp, (dvoid **)&authp, OCI_HTYPE_SESSION, (size_t)0, (dvoid **)0);
+
+                                    OCIAttrSet((dvoid *)authp, OCI_HTYPE_SESSION, (dvoid *)USERNAME, strlen(USERNAME), OCI_ATTR_USERNAME, errhp);
+                                    OCIAttrSet((dvoid *)authp, OCI_HTYPE_SESSION, (dvoid *)PASSWORD, strlen(PASSWORD), OCI_ATTR_PASSWORD, errhp);
+
+                                    OCISessionBegin(svchp, errhp, authp, OCI_CRED_RDBMS, (ub4)OCI_DEFAULT);
+
+
+
+
+                                    // Clean up and disconnect
+                                    OCISessionEnd(svchp, errhp, authp, OCI_DEFAULT);
+                                    OCIServerDetach(srvhp, errhp, OCI_DEFAULT);
+                                    OCIHandleFree((dvoid *)authp, OCI_HTYPE_SESSION);
+                                    OCIHandleFree((dvoid *)svchp, OCI_HTYPE_SVCCTX);
+                                    OCIHandleFree((dvoid *)srvhp, OCI_HTYPE_SERVER);
+                                    OCIHandleFree((dvoid *)errhp, OCI_HTYPE_ERROR);
+                                    //OCIEnvTerminate(envhp);
+                                    //sword   OCITerminate( ub4 mode);
+                                }
+                            }
                         }
                     }
                 }

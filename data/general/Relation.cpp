@@ -213,10 +213,10 @@ __Relation::offset_last()
 int
 __Relation::compare( const __Relation &o )
 {
-    int     rc = Cmp( this->m_nFirstPos.x(), o.m_nFirstPos.x() );
-    if(!rc) rc = Cmp( this->m_nLastPos .x(), o.m_nLastPos .x() );
-    if(!rc) rc = Cmp( this->m_nFirstPos.y(), o.m_nFirstPos.y() );
+    int     rc = Cmp( this->m_nFirstPos.y(), o.m_nFirstPos.y() );
+    if(!rc) rc = Cmp( this->m_nFirstPos.x(), o.m_nFirstPos.x() );
     if(!rc) rc = Cmp( this->m_nLastPos .y(), o.m_nLastPos .y() );
+    if(!rc) rc = Cmp( this->m_nLastPos .x(), o.m_nLastPos .x() );
     return rc;
 }
 

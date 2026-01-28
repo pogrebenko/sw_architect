@@ -147,20 +147,20 @@ __Class::contain_title( const QPoint &mousePos )
 int
 __Class::compare( const QPoint &o )
 {
-    int     rc = Cmp( this->m_nFirstPos.x(), o.x()   );
-    //if(!rc) rc = Cmp( this->m_nLastPos .x(), o.x()+1 );
-    if(!rc) rc = Cmp( this->m_nFirstPos.y(), o.y()   );
-    //if(!rc) rc = Cmp( this->m_nLastPos .y(), o.y()+1 );
+    int     rc = Cmp( this->m_nFirstPos.y(), o.y() );
+    if(!rc) rc = Cmp( this->m_nFirstPos.x(), o.x() );
+    if(!rc) rc = Cmp( this->m_nLastPos .y(), o.y() );
+    if(!rc) rc = Cmp( this->m_nLastPos .x(), o.x() );
     return rc;
 }
 
 int
 __Class::compare( const __Class &o )
 {
-    int     rc = Cmp( this->m_nFirstPos.x(), o.m_nFirstPos.x() );
-    //if(!rc) rc = Cmp( this->m_nLastPos .x(), o.m_nLastPos .x() );
-    if(!rc) rc = Cmp( this->m_nFirstPos.y(), o.m_nFirstPos.y() );
-    //if(!rc) rc = Cmp( this->m_nLastPos .y(), o.m_nLastPos .y() );
+    int     rc = Cmp( this->m_nFirstPos.y(), o.m_nFirstPos.y() );
+    if(!rc) rc = Cmp( this->m_nFirstPos.x(), o.m_nFirstPos.x() );
+    if(!rc) rc = Cmp( this->m_nLastPos .y(), o.m_nLastPos .y() );
+    if(!rc) rc = Cmp( this->m_nLastPos .x(), o.m_nLastPos .x() );
     return rc;
 }
 
